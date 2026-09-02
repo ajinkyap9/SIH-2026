@@ -3,30 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Citizen Registration — MAITRI Government Portal</title>
+  <title>Company Registration — Government Interoperability Platform</title>
   <link rel="stylesheet" href="/css/gov-style.css">
 </head>
 <body>
 
   <div class="tricolor-stripe"></div>
 
-  <!-- Official Metadata Bar -->
   <div class="gov-top-bar">
     <div>
-      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI Single Window Citizen Registration
+      <strong>GOVERNMENT INTEROPERABILITY PLATFORM</strong> • SIH26129 Registration
     </div>
     <div>
       <a href="/">Home</a> | <a href="/login.html">Login</a>
     </div>
   </div>
 
-  <!-- Header -->
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">🏛️</div>
       <div class="brand-title">
-        <h1>Citizen & Investor Registration</h1>
-        <p>Aadhaar e-KYC & Compulsory PAN Verification Gateway</p>
+        <h1>Company Registration</h1>
+        <p>Register your enterprise to access the Interoperability Adapter & Workflow Gateway</p>
       </div>
     </div>
     <div>
@@ -37,202 +35,53 @@
   <main style="padding: 20px;">
     <div class="auth-box">
       <div class="auth-header">
-        <h2>New Citizen Account Registration</h2>
-        <p>Complete your identity credentials. Aadhaar and PAN will be verified immediately with authoritative registries.</p>
+        <h2>Register Enterprise Profile</h2>
+        <p>Provide your Corporate Identification Number (CIN) and official contact credentials.</p>
       </div>
 
       <div class="auth-body">
-        <div id="regAlert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
-
         <form id="regForm">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-            <div class="form-group">
-              <label class="form-label" for="firstName">First Name <span class="req-star">*</span></label>
-              <input type="text" id="firstName" class="form-input" placeholder="e.g. Ramesh" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="lastName">Last Name <span class="req-star">*</span></label>
-              <input type="text" id="lastName" class="form-input" placeholder="e.g. Patil" required>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-            <div class="form-group">
-              <label class="form-label" for="mobile">Mobile Number <span class="req-star">*</span></label>
-              <input type="tel" id="mobile" class="form-input" placeholder="10-digit mobile" maxlength="10" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="email">Email Address <span class="req-star">*</span></label>
-              <input type="email" id="email" class="form-input" placeholder="name@domain.com" required>
-            </div>
-          </div>
-
-          <!-- Aadhaar Field with Immediate Verification -->
           <div class="form-group">
-            <label class="form-label" for="aadhaar">
-              Aadhaar Number (12 Digits) <span class="req-star">*</span>
-            </label>
-            <div class="input-with-verify">
-              <input type="text" id="aadhaar" class="form-input" placeholder="e.g. 9988-7766-5544" maxlength="14" required>
-              <button type="button" id="btnVerifyAadhaar" class="btn btn-outline" style="white-space: nowrap;">
-                Verify Aadhaar
-              </button>
-            </div>
-            <div id="aadhaarStatus" style="font-size: 0.75rem; margin-top: 4px; color: var(--gov-text-muted);">
-              Instant format & uniqueness validation against database.
-            </div>
+            <label class="form-label" for="regOrgId">Desired Organization ID <span class="req-star">*</span></label>
+            <input type="text" id="regOrgId" class="form-input" placeholder="e.g. ORG102" required>
           </div>
 
-          <!-- Compulsory PAN Field with Immediate Verification -->
           <div class="form-group">
-            <label class="form-label" for="pan">
-              Permanent Account Number (PAN) <span class="req-star">* (Compulsory)</span>
-            </label>
-            <div class="input-with-verify">
-              <input type="text" id="pan" class="form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
-              <button type="button" id="btnVerifyPan" class="btn btn-outline" style="white-space: nowrap;">
-                Verify PAN
-              </button>
-            </div>
-            <div id="panStatus" style="font-size: 0.75rem; margin-top: 4px; color: var(--gov-text-muted);">
-              Mandatory 10-character PAN checked against Income Tax schema.
-            </div>
+            <label class="form-label" for="regCompany">Full Legal Company Name <span class="req-star">*</span></label>
+            <input type="text" id="regCompany" class="form-input" placeholder="e.g. Zenith Pharma Tech Ltd" required>
           </div>
 
-          <button type="submit" id="btnSubmitReg" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 8px;">
-            Create Citizen Account & Save to Database ➔
+          <div class="form-group">
+            <label class="form-label" for="regCin">Corporate Identification Number (CIN) <span class="req-star">*</span></label>
+            <input type="text" id="regCin" class="form-input" placeholder="e.g. L24231MH2020PLC345982" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Official Email Address <span class="req-star">*</span></label>
+            <input type="email" id="regEmail" class="form-input" placeholder="compliance@company.com" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+            Register Enterprise & Continue ➔
           </button>
         </form>
-
-        <div style="margin-top: 20px; font-size: 0.75rem; color: #64748b; text-align: center;">
-          🔒 All credentials stored securely in SQLite with 256-bit encryption. Zero data duplication policy.
-        </div>
       </div>
     </div>
   </main>
 
   <script>
-    const aadhaarInput = document.getElementById('aadhaar');
-    const panInput = document.getElementById('pan');
-    const mobileInput = document.getElementById('mobile');
-    const aadhaarStatus = document.getElementById('aadhaarStatus');
-    const panStatus = document.getElementById('panStatus');
-    const regAlert = document.getElementById('regAlert');
-    const regForm = document.getElementById('regForm');
-
-    // Auto-format Aadhaar (4-4-4)
-    aadhaarInput.addEventListener('input', (e) => {
-      const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
-      e.target.value = digits.replace(/(\d{4})(?=\d)/g, '$1-');
-    });
-
-    // Auto-format PAN uppercase
-    panInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10).toUpperCase();
-    });
-
-    // Immediate Aadhaar Verification
-    document.getElementById('btnVerifyAadhaar').addEventListener('click', async () => {
-      const val = aadhaarInput.value.replace(/[\s-]/g, '');
-      if (val.length !== 12) {
-        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">⚠️ Aadhaar must be 12 numeric digits</span>';
-        return;
-      }
-      aadhaarStatus.innerHTML = '<span>Verifying Aadhaar...</span>';
-      try {
-        const res = await fetch('/api/auth/verify-aadhaar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ aadhaar: val })
-        });
-        const data = await res.json();
-        if (data.valid) {
-          aadhaarStatus.innerHTML = `<span class="verify-badge verify-valid">✓ ${data.message}</span>`;
-        } else {
-          aadhaarStatus.innerHTML = `<span class="verify-badge verify-invalid">✗ ${data.message}</span>`;
-        }
-      } catch (e) {
-        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Connection error</span>';
-      }
-    });
-
-    // Immediate PAN Verification
-    document.getElementById('btnVerifyPan').addEventListener('click', async () => {
-      const val = panInput.value.trim().toUpperCase();
-      if (val.length !== 10) {
-        panStatus.innerHTML = '<span class="verify-badge verify-invalid">⚠️ PAN must be 10 characters (e.g. ABCDE1234F)</span>';
-        return;
-      }
-      panStatus.innerHTML = '<span>Verifying PAN format...</span>';
-      try {
-        const res = await fetch('/api/auth/verify-pan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pan: val })
-        });
-        const data = await res.json();
-        if (data.valid) {
-          panStatus.innerHTML = `<span class="verify-badge verify-valid">✓ ${data.message}</span>`;
-        } else {
-          panStatus.innerHTML = `<span class="verify-badge verify-invalid">✗ ${data.message}</span>`;
-        }
-      } catch (e) {
-        panStatus.innerHTML = '<span class="verify-badge verify-invalid">Connection error</span>';
-      }
-    });
-
-    // Submit Registration
-    regForm.addEventListener('submit', async (e) => {
+    document.getElementById('regForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      regAlert.style.display = 'none';
+      const orgId = document.getElementById('regOrgId').value.trim();
+      const companyName = document.getElementById('regCompany').value.trim();
 
-      const payload = {
-        firstName: document.getElementById('firstName').value.trim(),
-        lastName: document.getElementById('lastName').value.trim(),
-        mobile: mobileInput.value.trim(),
-        email: document.getElementById('email').value.trim(),
-        aadhaar: aadhaarInput.value.replace(/[\s-]/g, ''),
-        pan: panInput.value.trim().toUpperCase()
-      };
+      sessionStorage.setItem('interop_org', JSON.stringify({
+        orgId: orgId,
+        companyName: companyName,
+        token: `JWT_BEARER_${orgId}_${Date.now()}`
+      }));
 
-      const btn = document.getElementById('btnSubmitReg');
-      btn.disabled = true;
-      btn.innerText = 'Registering in SQLite...';
-
-      try {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        btn.disabled = false;
-        btn.innerText = 'Create Citizen Account & Save to Database ➔';
-
-        if (data.success) {
-          regAlert.style.background = '#dcfce7';
-          regAlert.style.color = '#15803d';
-          regAlert.style.border = '1px solid #86efac';
-          regAlert.innerHTML = `<strong>Registration Successful!</strong> ${data.message} Redirecting to login...`;
-          regAlert.style.display = 'block';
-          setTimeout(() => {
-            window.location.href = `/login.html?registered=${encodeURIComponent(payload.aadhaar)}`;
-          }, 1500);
-        } else {
-          regAlert.style.background = '#fee2e2';
-          regAlert.style.color = '#991b1b';
-          regAlert.style.border = '1px solid #fca5a5';
-          regAlert.innerHTML = `<strong>Error:</strong> ${data.message}`;
-          regAlert.style.display = 'block';
-        }
-      } catch (err) {
-        btn.disabled = false;
-        btn.innerText = 'Create Citizen Account & Save to Database ➔';
-        regAlert.style.background = '#fee2e2';
-        regAlert.style.color = '#991b1b';
-        regAlert.innerHTML = 'Network error connecting to backend server.';
-        regAlert.style.display = 'block';
-      }
+      window.location.href = '/dashboard.html';
     });
   </script>
 </body>
