@@ -107,9 +107,7 @@ router.post('/register', (req, res) => {
       message: 'Citizen registered successfully! Aadhaar and PAN verified.',
       citizen: {
         id: citizen.id,
-        name: `${citizen.first_name} ${citizen.last_name}`,
-        aadhaar: citizen.aadhaar,
-        pan: citizen.pan
+        name: `${citizen.first_name} ${citizen.last_name}`
       }
     });
   } catch (err) {
@@ -153,12 +151,12 @@ router.post('/login', (req, res) => {
     expiresAt: Date.now() + 5 * 60 * 1000
   });
 
+  // Note: OTP code stays server-side only, never sent to client
   res.json({
     success: true,
     message: `OTP sent to mobile registered with ${identifierType.toUpperCase()}`,
     txnId,
-    maskedPhone,
-    demoOtp
+    maskedPhone
   });
 });
 
@@ -181,13 +179,14 @@ router.post('/verify-otp', (req, res) => {
   }
 
   if (session.otp !== String(otp).trim()) {
-    return res.status(401).json({ success: false, message: 'Incorrect OTP code. (Demo code is 654321)' });
+    return res.status(401).json({ success: false, message: 'Incorrect OTP code. Please check and try again.' });
   }
 
   activeOtps.delete(txnId);
   const c = session.citizen;
   const token = `GOV_SESSION_${c.id}_${Date.now()}`;
 
+  // Only return non-sensitive citizen info to the client
   res.json({
     success: true,
     message: 'Authentication successful.',
@@ -197,28 +196,17 @@ router.post('/verify-otp', (req, res) => {
       firstName: c.first_name,
       lastName: c.last_name,
       fullName: `${c.first_name} ${c.last_name}`,
-      mobile: c.mobile,
-      email: c.email,
-      aadhaar: c.aadhaar,
-      pan: c.pan,
-      aadhaarVerified: true,
-      panVerified: true
+      email: c.email
     }
   });
 });
 
-// GET /api/auth/demo-users - Evaluator helper to view seeded profiles
-router.get('/demo-users', (req, res) => {
-  const citizens = getAllCitizens(10);
+// GET /api/auth/user-count - Return total registered citizens count (no PII)
+router.get('/user-count', (req, res) => {
+  const citizens = getAllCitizens(10000);
   res.json({
     success: true,
-    users: citizens.map(c => ({
-      name: `${c.first_name} ${c.last_name}`,
-      aadhaar: c.aadhaar,
-      pan: c.pan,
-      mobile: c.mobile,
-      email: c.email
-    }))
+    totalRegistered: citizens.length
   });
 });
 
