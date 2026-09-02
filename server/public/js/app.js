@@ -1,7 +1,8 @@
-// Government Interoperability Platform — Native Vanilla JavaScript Logic
+// G2C & B2G Government Interoperability Gateway — Vanilla JavaScript Client Logic (Port 5000)
 
 let currentSession = null;
 let currentTxnData = null;
+let isLandOutage = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   initFormListeners();
@@ -43,14 +44,20 @@ function updateInputPlaceholder() {
   const isAadhaar = document.getElementById('radioAadhaar').checked;
   const input = document.getElementById('identifierInput');
   const label = document.getElementById('identifierLabel');
+  const tabPanLabel = document.getElementById('tabPanLabel');
+  const tabAadhaarLabel = document.getElementById('tabAadhaarLabel');
   input.value = '';
 
   if (isAadhaar) {
-    label.innerHTML = 'Enter 12-Digit Aadhaar Number <span class="req-star">*</span>';
-    input.placeholder = 'e.g. 9988-7766-5544';
+    label.innerHTML = 'Enter 12-Digit Aadhaar <span class="req">*</span>';
+    input.placeholder = '9988-7766-5544';
+    tabAadhaarLabel.classList.add('active');
+    tabPanLabel.classList.remove('active');
   } else {
-    label.innerHTML = 'Enter 10-Character Permanent Account Number (PAN) <span class="req-star">*</span>';
-    input.placeholder = 'e.g. ABCDE1234F';
+    label.innerHTML = 'Enter 10-Character PAN <span class="req">*</span>';
+    input.placeholder = 'ABCDE1234F';
+    tabPanLabel.classList.add('active');
+    tabAadhaarLabel.classList.remove('active');
   }
 }
 
@@ -137,7 +144,7 @@ async function verifyOtpSubmit() {
   otpError.style.display = 'none';
 
   if (otpVal.length < 6) {
-    otpError.innerText = 'Please enter the 6-digit OTP code.';
+    otpError.innerText = 'Please enter all 6 digits of the OTP code.';
     otpError.style.display = 'block';
     return;
   }
@@ -167,65 +174,97 @@ async function verifyOtpSubmit() {
   }
 }
 
-// Render Interoperability Dashboard View
+// Render Dashboard View
 function showDashboard(user) {
   document.getElementById('authSection').style.display = 'none';
   document.getElementById('dashboardSection').style.display = 'block';
 
   // Render User Card
   document.getElementById('userName').innerText = user.name;
-  document.getElementById('userPan').innerText = user.pan;
-  document.getElementById('userSurvey').innerText = user.registeredLandSurvey;
-  document.getElementById('userAddress').innerText = user.address;
-  document.getElementById('userAuthorized').innerText = user.authorizedPerson;
+  document.getElementById('userPan').innerText = user.pan ? `PAN: ${user.pan}` : `Aadhaar: ${user.aadhaar}`;
+  document.getElementById('userSurvey').innerText = `Survey: #${user.registeredLandSurvey}`;
 
   evaluateProject(user.registeredLandSurvey);
+  fetchAuditLogs();
 }
 
 async function evaluateProject(surveyNo) {
-  const surveyToUse = surveyNo || currentSession.registeredLandSurvey || '102';
+  const surveyToUse = surveyNo || currentSession?.registeredLandSurvey || '102';
+  const outageAlert = document.getElementById('outageAlert');
 
   try {
     const res = await fetch('/api/interop/evaluate-project', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        applicantPan: currentSession.pan,
+        applicantPan: currentSession?.pan || 'ABCDE1234F',
         surveyNumber: surveyToUse
       })
     });
 
     const data = await res.json();
-    if (data.success) {
-      renderWorkflowTable(data.workflow);
+    if (res.status === 503) {
+      outageAlert.style.display = 'block';
+    } else if (data.success) {
+      outageAlert.style.display = 'none';
+      renderWorkflowList(data.workflow);
       document.getElementById('rawLegacyJson').innerText = JSON.stringify(data.rawLegacyPayload, null, 2);
       document.getElementById('canonicalJson').innerText = JSON.stringify(data.canonicalModel, null, 2);
     } else {
-      alert(data.message || 'Evaluation error');
+      outageAlert.style.display = 'block';
+      outageAlert.innerText = data.message || 'Evaluation error';
     }
+    fetchAuditLogs();
   } catch (err) {
-    alert('Server communication error');
+    outageAlert.style.display = 'block';
+    outageAlert.innerText = 'Server communication error';
   }
 }
 
-function renderWorkflowTable(workflow) {
-  const tbody = document.getElementById('workflowTableBody');
-  tbody.innerHTML = '';
+function renderWorkflowList(workflow) {
+  const container = document.getElementById('workflowList');
+  container.innerHTML = '';
 
   workflow.dependencies.forEach(dep => {
-    const tr = document.createElement('tr');
-    let statusClass = 'status-waiting';
-    if (dep.status === 'RESOLVED') statusClass = 'status-resolved';
-    if (dep.status === 'BLOCKED' || dep.status === 'FAILED') statusClass = 'status-blocked';
+    let sc = { tag: 'tag-amber' };
+    if (dep.status === 'RESOLVED') sc = { tag: 'tag-green' };
+    if (dep.status === 'BLOCKED' || dep.status === 'FAILED') sc = { tag: 'tag-red' };
 
-    tr.innerHTML = `
-      <td><strong>${dep.title}</strong></td>
-      <td>${dep.department}</td>
-      <td><span class="status-tag ${statusClass}">${dep.status}</span></td>
-      <td style="font-size: 0.8rem; color: #475569;">${dep.reason || 'Prerequisites satisfied'}</td>
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `
+      <div style="flex: 1;">
+        <span style="font-weight: 600; display: block;">${dep.title}</span>
+        <span style="font-size: 11px; color: var(--text-muted);">${dep.department}</span>
+      </div>
+      <div style="flex: 1; text-align: right;">
+        <span class="tag ${sc.tag}">${dep.status}</span>
+        ${dep.reason ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${dep.reason}</div>` : ''}
+      </div>
     `;
-    tbody.appendChild(tr);
+    container.appendChild(row);
   });
+}
+
+// Fetch live M2M audit logs
+async function fetchAuditLogs() {
+  try {
+    const res = await fetch('/api/interop/audit-logs');
+    const data = await res.json();
+    if (data.success) {
+      const list = document.getElementById('auditLogList');
+      list.innerHTML = '';
+      data.logs.slice(0, 5).forEach(log => {
+        const item = document.createElement('div');
+        item.className = 'audit-row';
+        item.innerHTML = `
+          <span>[${log.timestamp}] ${log.event || log.outcome} (Survey #${log.surveyNumber || 'N/A'})</span>
+          <span style="color: var(--navy);">${log.id}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+  } catch (err) {}
 }
 
 // Interactive Simulation Controls
@@ -255,8 +294,13 @@ async function toggleMutationStatus() {
 async function toggleOutageSimulation() {
   const res = await fetch('/api/land/toggle-outage', { method: 'POST' });
   const data = await res.json();
-  alert(data.message);
+  isLandOutage = data.isOutageActive;
+  document.getElementById('outageBtn').innerText = `Simulate 503 (${isLandOutage ? 'ACTIVE' : 'OFF'})`;
   evaluateProject(currentSession.registeredLandSurvey);
+}
+
+function reEvaluateCurrentState() {
+  evaluateProject(currentSession?.registeredLandSurvey);
 }
 
 function logout() {
