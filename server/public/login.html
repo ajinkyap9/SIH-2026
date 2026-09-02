@@ -21,7 +21,16 @@
 
   <header class="main-header">
     <div class="brand-wrapper">
-      <div class="emblem-icon">🏛️</div>
+      <div class="emblem-icon">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
+          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
+          <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="26" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808"/>
+        </svg>
+      </div>
       <div class="brand-title">
         <h1>MAITRI Citizen Login Gateway</h1>
         <p>Aadhaar e-KYC & PAN Authentication Service</p>
@@ -43,10 +52,10 @@
         <!-- Login Method Tabs -->
         <div class="auth-tabs">
           <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')">
-            🪪 Aadhaar e-KYC Login
+            Aadhaar e-KYC Login
           </button>
           <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')">
-            💳 PAN Card Login
+            PAN Card Login
           </button>
         </div>
 

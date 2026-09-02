@@ -23,7 +23,16 @@
   <!-- Header -->
   <header class="main-header">
     <div class="brand-wrapper">
-      <div class="emblem-icon">🏛️</div>
+      <div class="emblem-icon">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
+          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
+          <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="26" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808"/>
+        </svg>
+      </div>
       <div class="brand-title">
         <h1>Citizen & Investor Registration</h1>
         <p>Aadhaar e-KYC & Compulsory PAN Verification Gateway</p>
@@ -105,7 +114,7 @@
         </form>
 
         <div style="margin-top: 20px; font-size: 0.75rem; color: #64748b; text-align: center;">
-          🔒 All credentials stored securely in SQLite with 256-bit encryption. Zero data duplication policy.
+          All credentials stored securely in compliance with the Digital Personal Data Protection (DPDP) Act. Zero data duplication policy.
         </div>
       </div>
     </div>
@@ -135,7 +144,7 @@
     document.getElementById('btnVerifyAadhaar').addEventListener('click', async () => {
       const val = aadhaarInput.value.replace(/[\s-]/g, '');
       if (val.length !== 12) {
-        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">⚠️ Aadhaar must be 12 numeric digits</span>';
+        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Aadhaar must be 12 numeric digits</span>';
         return;
       }
       aadhaarStatus.innerHTML = '<span>Verifying Aadhaar...</span>';
@@ -160,7 +169,7 @@
     document.getElementById('btnVerifyPan').addEventListener('click', async () => {
       const val = panInput.value.trim().toUpperCase();
       if (val.length !== 10) {
-        panStatus.innerHTML = '<span class="verify-badge verify-invalid">⚠️ PAN must be 10 characters (e.g. ABCDE1234F)</span>';
+        panStatus.innerHTML = '<span class="verify-badge verify-invalid">PAN must be 10 characters (e.g. ABCDE1234F)</span>';
         return;
       }
       panStatus.innerHTML = '<span>Verifying PAN format...</span>';
