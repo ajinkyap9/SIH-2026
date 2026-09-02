@@ -1,5 +1,30 @@
+# Dependencies & Build
 node_modules/
+**/node_modules/
 dist/
 .DS_Store
+
+# Environment & Config
 .env
+*.env
+.env.*
+!.env.example
+
+# Logs
 *.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+
+# RAG Service Vector Index & Caches
+faiss_index/
+**/faiss_index/
