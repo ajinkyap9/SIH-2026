@@ -8,33 +8,43 @@
 </head>
 <body>
 
-  <!-- Top Tricolor Accent Bar -->
+  <!-- Auth Guard: redirect if not logged in -->
+  <script>
+    (function() {
+      const stored = sessionStorage.getItem('gov_citizen');
+      if (!stored) {
+        window.location.href = '/login.html';
+        return;
+      }
+    })();
+  </script>
+
   <div class="tricolor-stripe"></div>
 
   <!-- Top Bar -->
   <div class="gov-top-bar">
     <div>
-      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI Single Window System & Interoperability Gateway
+      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI Single Window System
     </div>
     <div>
-      <span id="headerCitizenName">Logged in Citizen</span>
-      <a href="/" style="margin-left: 14px;">🏠 Public Home</a>
+      <span id="headerCitizenName" style="color: #e2e8f0;">Welcome, Citizen</span>
+      <a href="/" style="margin-left: 14px;">🏠 Home</a>
       <a href="#" onclick="logoutUser()" style="color: #fca5a5; margin-left: 12px;">Logout</a>
     </div>
   </div>
 
-  <!-- Main Navigation Header -->
+  <!-- Main Header -->
   <header class="main-header" style="padding: 10px 24px;">
     <div class="brand-wrapper">
       <div class="emblem-icon">🏛️</div>
       <div class="brand-title">
         <h1 style="font-size: 1.15rem;">MAITRI Single Window Interoperability Portal</h1>
-        <p>Real-time insights, multi-department prerequisite resolution & analytics</p>
+        <p>Citizen Dashboard • Multi-department orchestration & analytics</p>
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <div id="verifiedBadge" style="background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
-        ✓ Aadhaar & PAN e-KYC Verified
+      <div style="background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+        ✓ e-KYC Verified
       </div>
       <button onclick="logoutUser()" class="btn btn-outline" style="font-size: 0.78rem; padding: 6px 12px;">
         Sign Out
@@ -45,35 +55,38 @@
   <!-- Dashboard Layout: Left Sidebar + Main Content -->
   <div class="dashboard-layout">
 
-    <!-- LEFT SIDEBAR (Matching User Screenshot Options) -->
+    <!-- LEFT SIDEBAR (Matching MAITRI screenshot) -->
     <aside class="dashboard-sidebar">
-      <button type="button" class="sidebar-item active" id="menu-dash" onclick="switchSection('dashboard')">
+      <button type="button" class="sidebar-item active" id="menu-dashboard" onclick="switchSection('dashboard')">
         <span>📊</span> Dashboard
       </button>
       <button type="button" class="sidebar-item" id="menu-process" onclick="switchSection('process')">
-        <span>🪄</span> Process (Investor Wizard)
+        <span>🪄</span> Investor Wizard
+      </button>
+      <button type="button" class="sidebar-item" id="menu-query" onclick="switchSection('query')">
+        <span>❓</span> Query Dashboard
+      </button>
+      <button type="button" class="sidebar-item" id="menu-grievance" onclick="switchSection('grievance')">
+        <span>📝</span> Grievance Dashboard
+      </button>
+      <button type="button" class="sidebar-item" id="menu-feedback" onclick="switchSection('feedback')">
+        <span>📋</span> Feedback
       </button>
       <button type="button" class="sidebar-item" id="menu-status" onclick="switchSection('status')">
         <span>🔍</span> Check Status
-      </button>
-      <button type="button" class="sidebar-item" id="menu-feedback" onclick="switchSection('feedback')">
-        <span>📋</span> Feedback & Support
       </button>
 
       <div class="sidebar-divider"></div>
 
       <a href="/" class="sidebar-item" style="color: #64748b;">
-        <span>🏠</span> Public Portal Home
-      </a>
-      <a href="/login.html" class="sidebar-item" style="color: #64748b;">
-        <span>🔄</span> Switch Account
+        <span>🏠</span> Public Portal
       </a>
     </aside>
 
     <!-- MAIN CONTENT AREA -->
     <main class="dashboard-main">
 
-      <!-- Top Horizontal Nav Tabs (From screenshot: Application Count, Application Summary, etc.) -->
+      <!-- Top Horizontal Nav Tabs (Matching MAITRI screenshot) -->
       <div class="dashboard-top-tabs">
         <button class="top-tab active" onclick="setTopTab(this)">Application Count</button>
         <button class="top-tab" onclick="setTopTab(this)">Application Summary</button>
@@ -82,99 +95,113 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 1: DASHBOARD OVERVIEW (Default View) -->
+      <!-- SECTION: DASHBOARD (Default View — MAITRI style charts) -->
       <!-- ======================================================== -->
       <div id="section-dashboard" class="content-section">
-        <div class="dash-title-section">
-          <h2>Dashboard Overview</h2>
-          <p>Real-time insights and analytics for your organization and government services</p>
-        </div>
 
-        <!-- Date Range Filter Box (Matching Screenshot) -->
-        <div class="filter-box">
-          <div class="filter-group">
-            <span>From:</span>
-            <input type="text" value="January 1st, 2026" readonly style="width: 170px;">
-          </div>
-          <div class="filter-group">
-            <span>To:</span>
-            <input type="text" value="September 2nd, 2026" readonly style="width: 170px;">
-          </div>
-          <button class="btn btn-primary" style="padding: 6px 14px; font-size: 0.8rem;">Apply</button>
-          <button class="btn btn-outline" style="padding: 6px 14px; font-size: 0.8rem;">Reset</button>
-        </div>
+        <!-- Two Donut Charts Side by Side (Matching MAITRI screenshot) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
 
-        <!-- 4 Stat Metric Cards (Matching Screenshot Colors: Blue, Purple, Orange, Green) -->
-        <div class="metrics-grid">
-          <div class="metric-card card-blue">
-            <div class="metric-title">
-              <span>Total Services</span>
-              <span>🧰</span>
+          <!-- Queries Status Donut -->
+          <div class="dashboard-panel">
+            <div class="panel-title">
+              <span>Queries Status</span>
+              <a href="#" onclick="switchSection('query')" style="color: var(--gov-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">(View)</a>
             </div>
-            <div class="metric-value">179</div>
-            <div class="metric-badge">All G2C & G2B Microservices</div>
-          </div>
-
-          <div class="metric-card card-purple">
-            <div class="metric-title">
-              <span>Applications</span>
-              <span>📄</span>
+            <div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
+              <div class="donut-chart-wrapper">
+                <svg viewBox="0 0 120 120" class="donut-chart">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="16"></circle>
+                  <!-- Total (Orange) - 45% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="16"
+                    stroke-dasharray="141.3 314.16" stroke-dashoffset="0" class="donut-segment"></circle>
+                  <!-- Pending (Teal) - 20% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#14b8a6" stroke-width="16"
+                    stroke-dasharray="62.8 314.16" stroke-dashoffset="-141.3" class="donut-segment"></circle>
+                  <!-- Closed (Dark Blue) - 25% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3a8a" stroke-width="16"
+                    stroke-dasharray="78.5 314.16" stroke-dashoffset="-204.1" class="donut-segment"></circle>
+                  <!-- Replied (Gold) - 10% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#eab308" stroke-width="16"
+                    stroke-dasharray="31.4 314.16" stroke-dashoffset="-282.6" class="donut-segment"></circle>
+                </svg>
+                <div class="donut-center-text">
+                  <span style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">4,648</span>
+                  <span style="font-size: 0.7rem; color: #64748b;">Total</span>
+                </div>
+              </div>
             </div>
-            <div class="metric-value">5,22,650</div>
-            <div class="metric-badge">26.88% vs last month</div>
-          </div>
-
-          <div class="metric-card card-orange">
-            <div class="metric-title">
-              <span>Grievances</span>
-              <span>👥</span>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot" style="background: #f97316;"></span> Total</div>
+              <div class="legend-item"><span class="legend-dot" style="background: #14b8a6;"></span> Pending</div>
+              <div class="legend-item"><span class="legend-dot" style="background: #1e3a8a;"></span> Closed</div>
+              <div class="legend-item"><span class="legend-dot" style="background: #eab308;"></span> Replied</div>
             </div>
-            <div class="metric-value">5,237</div>
-            <div class="metric-badge">17.45% vs last month</div>
           </div>
 
-          <div class="metric-card card-green">
-            <div class="metric-title">
-              <span>Queries</span>
-              <span>💬</span>
+          <!-- Feedback Overview Donut -->
+          <div class="dashboard-panel">
+            <div class="panel-title">
+              <span>Feedback Overview</span>
+              <a href="#" onclick="switchSection('feedback')" style="color: var(--gov-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">(View)</a>
             </div>
-            <div class="metric-value">4,648</div>
-            <div class="metric-badge">19.3% vs last month</div>
-          </div>
-        </div>
-
-        <!-- Active Citizen Identity Card -->
-        <div class="dashboard-panel" style="border-left: 4px solid var(--gov-primary);">
-          <div class="panel-title">
-            <span>Citizen Profile & Authoritative Credentials</span>
-            <span class="status-tag status-approved">Authenticated via SQLite</span>
-          </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.85rem;">
-            <div>
-              <span style="color: var(--gov-text-muted);">Full Name:</span>
-              <div id="dispCitizenName" style="font-weight: 700; color: #0f172a; margin-top: 2px;">Loading...</div>
+            <div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
+              <div class="donut-chart-wrapper">
+                <svg viewBox="0 0 120 120" class="donut-chart">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="16"></circle>
+                  <!-- Positive (Orange) - 72% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="16"
+                    stroke-dasharray="226.2 314.16" stroke-dashoffset="0" class="donut-segment"></circle>
+                  <!-- Neutral (Teal) - 18% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#14b8a6" stroke-width="16"
+                    stroke-dasharray="56.5 314.16" stroke-dashoffset="-226.2" class="donut-segment"></circle>
+                  <!-- Negative (Dark) - 10% -->
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3a8a" stroke-width="16"
+                    stroke-dasharray="31.4 314.16" stroke-dashoffset="-282.7" class="donut-segment"></circle>
+                </svg>
+                <div class="donut-center-text">
+                  <span style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">5,237</span>
+                  <span style="font-size: 0.7rem; color: #64748b;">Total</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Aadhaar e-KYC:</span>
-              <div id="dispCitizenAadhaar" style="font-weight: 700; color: #166534; margin-top: 2px;">**** **** ****</div>
-            </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Compulsory PAN:</span>
-              <div id="dispCitizenPan" style="font-weight: 700; color: #b45309; margin-top: 2px;">XXXXX0000X</div>
-            </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Registered Mobile:</span>
-              <div id="dispCitizenMobile" style="font-weight: 700; color: #0f172a; margin-top: 2px;">+91 98*******</div>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot" style="background: #1e3a8a;"></span> Negative</div>
+              <div class="legend-item"><span class="legend-dot" style="background: #14b8a6;"></span> Neutral</div>
+              <div class="legend-item"><span class="legend-dot" style="background: #f97316;"></span> Positive</div>
             </div>
           </div>
         </div>
 
-        <!-- Recent Integrated Services Status -->
+        <!-- Quick Statistics Bar (Matching MAITRI bottom bar) -->
+        <div class="dashboard-panel">
+          <div class="panel-title">Quick Statistics</div>
+          <div class="quick-stats-bar">
+            <div class="quick-stat-item">
+              <div class="quick-stat-value" style="color: #16a34a;">91.50%</div>
+              <div class="quick-stat-label">Customer Satisfaction</div>
+            </div>
+            <div class="quick-stat-item">
+              <div class="quick-stat-value" style="color: #2563eb;">88.95%</div>
+              <div class="quick-stat-label">Resolution Rate</div>
+            </div>
+            <div class="quick-stat-item">
+              <div class="quick-stat-value" style="color: #ea580c;" id="statTotalUsers">0</div>
+              <div class="quick-stat-label">Total Users</div>
+            </div>
+            <div class="quick-stat-item">
+              <div class="quick-stat-value" style="color: #7c3aed;">179</div>
+              <div class="quick-stat-label">Services Available</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Applications Table (No sensitive data exposed) -->
         <div class="dashboard-panel">
           <div class="panel-title">
-            <span>Recent Department Interoperability Applications</span>
+            <span>Recent Department Applications</span>
             <button class="btn btn-outline" onclick="switchSection('status')" style="font-size: 0.75rem; padding: 4px 10px;">
-              View Full Tracker ➔
+              Track Full Status ➔
             </button>
           </div>
           <table class="gov-table">
@@ -184,7 +211,6 @@
                 <th>Service Name</th>
                 <th>Department</th>
                 <th>Status</th>
-                <th>Prerequisite Resolution</th>
               </tr>
             </thead>
             <tbody>
@@ -193,21 +219,24 @@
                 <td>7/12 Jamabandi Land Verification</td>
                 <td>Revenue & Land Records</td>
                 <td><span class="status-tag status-approved">APPROVED</span></td>
-                <td>Land title verified with zero manual paper submission</td>
               </tr>
               <tr>
                 <td><strong>APP-MH-2026-102</strong></td>
                 <td>Inheritance Mutation Transfer</td>
                 <td>Tahsildar / Sub-Registrar</td>
-                <td><span class="status-tag status-pending">IN_PROGRESS</span></td>
-                <td>Notice period active (15-day objection window)</td>
+                <td><span class="status-tag status-pending">IN PROGRESS</span></td>
+              </tr>
+              <tr>
+                <td><strong>APP-MH-2026-103</strong></td>
+                <td>Residential Building Permission NOC</td>
+                <td>Town Planning & Municipal Corp</td>
+                <td><span class="status-tag status-blocked">ACTION REQUIRED</span></td>
               </tr>
               <tr>
                 <td><strong>APP-MH-2026-105</strong></td>
-                <td>Agri-Pump Power Meter Sanction</td>
+                <td>Agricultural Pump Power Sanction</td>
                 <td>MSEDCL / Mahavitaran</td>
                 <td><span class="status-tag status-approved">APPROVED</span></td>
-                <td>Feasibility confirmed from local transformer</td>
               </tr>
             </tbody>
           </table>
@@ -215,35 +244,29 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 2: PROCESS (INVESTOR WIZARD / RAG QUESTIONNAIRE) -->
+      <!-- SECTION: INVESTOR WIZARD (Process) -->
       <!-- ======================================================== -->
       <div id="section-process" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Process — Investor & Citizen Question Wizard</h2>
-          <p>Answer dynamic questions based on MAITRI rules and trained RAG intelligence to identify all required microservices and licenses.</p>
+          <h2>Investor Wizard — Microservices Recommendation</h2>
+          <p>Answer questions based on MAITRI rules to identify all required departmental clearances for your project.</p>
         </div>
 
         <div class="dashboard-panel">
           <form id="wizardForm">
-            <!-- Question 1 -->
             <div class="form-group">
-              <label class="form-label">
-                1. What is the nature / sector of your proposed activity? <span class="req-star">*</span>
-              </label>
+              <label class="form-label">1. Nature / sector of your proposed activity? <span class="req-star">*</span></label>
               <select id="wizProjectType" class="form-input" required>
                 <option value="manufacturing_chemical">Chemical / Agro-Chemical Manufacturing (Red Category)</option>
                 <option value="agro_processing">Agro Processing & Food Cold Chain (Orange Category)</option>
                 <option value="it_office" selected>IT / ITES Software & Commercial Office (Green Category)</option>
-                <option value="warehouse">Logistics, Warehousing & Distribution (White/Green Category)</option>
+                <option value="warehouse">Logistics, Warehousing & Distribution (White/Green)</option>
                 <option value="residential">Individual Citizen Residential Construction</option>
               </select>
             </div>
 
-            <!-- Question 2 -->
             <div class="form-group">
-              <label class="form-label">
-                2. What is the current land status for this project? <span class="req-star">*</span>
-              </label>
+              <label class="form-label">2. Current land status? <span class="req-star">*</span></label>
               <div style="display: flex; gap: 16px; margin-top: 6px;">
                 <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
                   <input type="radio" name="wizLand" value="yes" checked>
@@ -256,162 +279,164 @@
               </div>
             </div>
 
-            <!-- Question 3 -->
             <div class="form-group">
-              <label class="form-label">
-                3. What is the expected electrical power load required? <span class="req-star">*</span>
-              </label>
+              <label class="form-label">3. Expected electrical power load? <span class="req-star">*</span></label>
               <div style="display: flex; gap: 16px; margin-top: 6px;">
                 <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
                   <input type="radio" name="wizPower" value="high" checked>
-                  High Tension (HT) Power Load (> 100 kVA)
+                  High Tension (HT) Power Load (&gt; 100 kVA)
                 </label>
                 <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
                   <input type="radio" name="wizPower" value="low">
-                  Low Tension (LT) Commercial / Domestic Load
+                  Low Tension (LT) Commercial / Domestic
                 </label>
               </div>
             </div>
 
-            <!-- Question 4 -->
             <div class="form-group">
-              <label class="form-label">
-                4. Environmental & Water Discharge Profile? <span class="req-star">*</span>
-              </label>
+              <label class="form-label">4. Environmental & Water Discharge Profile? <span class="req-star">*</span></label>
               <select id="wizEnv" class="form-input" required>
-                <option value="green" selected>Low emissions / Green (Zero trade effluent discharge)</option>
-                <option value="orange">Moderate emissions / Orange (Requires ETP installation)</option>
-                <option value="red">High pollution potential / Red (Full MPCB EIA scrutiny)</option>
+                <option value="green" selected>Low emissions / Green (Zero trade effluent)</option>
+                <option value="orange">Moderate emissions / Orange (ETP installation)</option>
+                <option value="red">High pollution potential / Red (Full MPCB EIA)</option>
               </select>
             </div>
 
-            <!-- Question 5 -->
             <div class="form-group">
-              <label class="form-label">
-                5. Total Proposed Capital Investment:
-              </label>
+              <label class="form-label">5. Total Proposed Capital Investment:</label>
               <select id="wizInvestment" class="form-input">
-                <option value="micro">Micro (< ₹1 Crore)</option>
+                <option value="micro">Micro (&lt; ₹1 Crore)</option>
                 <option value="small" selected>Small (₹1 Crore – ₹10 Crore)</option>
                 <option value="medium">Medium (₹10 Crore – ₹50 Crore)</option>
-                <option value="large">Mega / Large (> ₹50 Crore)</option>
+                <option value="large">Mega / Large (&gt; ₹50 Crore)</option>
               </select>
             </div>
 
             <button type="submit" id="btnRunWizard" class="btn btn-primary" style="padding: 12px 24px;">
-              🪄 Evaluate Process & Determine Required Microservices ➔
+              🪄 Evaluate & Determine Required Services ➔
             </button>
           </form>
         </div>
 
-        <!-- Wizard Results Panel (hidden initially) -->
+        <!-- Wizard Results -->
         <div id="wizardResults" class="dashboard-panel" style="display: none; border-left: 4px solid #10b981;">
           <div class="panel-title">
-            <span style="color: #166534;">✓ Identified Mandatory Department Microservices</span>
+            <span style="color: #166534;">✓ Identified Mandatory Department Services</span>
             <span id="wizTotalBadge" class="status-tag status-approved">4 Services</span>
           </div>
           <p id="wizNote" style="font-size: 0.82rem; color: #475569; margin-bottom: 16px;"></p>
-
           <table class="gov-table" style="margin-bottom: 20px;">
             <thead>
               <tr>
                 <th>Service Code</th>
-                <th>Required Microservice Title</th>
+                <th>Required Microservice</th>
                 <th>Department / Authority</th>
-                <th>Turnaround (Days)</th>
-                <th>Interoperability Priority</th>
+                <th>TAT (Days)</th>
+                <th>Priority</th>
               </tr>
             </thead>
             <tbody id="wizServicesBody"></tbody>
           </table>
-
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 6px; font-size: 0.8rem;">
-            <strong>Prerequisites Automatically Resolved by Interoperability Layer:</strong>
+            <strong>Prerequisites Resolved by Interoperability Layer:</strong>
             <ul id="wizPrereqList" style="margin-top: 6px; padding-left: 20px; color: #334155;"></ul>
           </div>
         </div>
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 3: CHECK STATUS -->
+      <!-- SECTION: QUERY DASHBOARD -->
       <!-- ======================================================== -->
-      <div id="section-status" class="content-section" style="display: none;">
+      <div id="section-query" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Application Status Tracker</h2>
-          <p>Enter your Application Reference ID or upload acknowledgment slip to monitor multi-department progress.</p>
+          <h2>Query Dashboard</h2>
+          <p>View and manage your queries raised with various government departments.</p>
         </div>
-
         <div class="dashboard-panel">
-          <form id="statusForm" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 260px;">
-              <label class="form-label" for="statusAppId">
-                Enter Application Reference Number / Survey #:
-              </label>
-              <input type="text" id="statusAppId" class="form-input" placeholder="e.g. APP-MH-2026-101" required>
-            </div>
-            <button type="submit" id="btnCheckStatus" class="btn btn-primary" style="padding: 10px 20px;">
-              🔍 Track Status
-            </button>
-          </form>
-
-          <!-- Quick Demo IDs -->
-          <div style="margin-top: 14px; font-size: 0.75rem; color: #64748b;">
-            <span>Try sample application IDs: </span>
-            <a href="#" onclick="fillAppId('APP-MH-2026-101')" style="color: var(--gov-primary); font-weight: 600; margin-right: 8px;">APP-MH-2026-101 (Land 7/12)</a>
-            <a href="#" onclick="fillAppId('APP-MH-2026-102')" style="color: var(--gov-primary); font-weight: 600; margin-right: 8px;">APP-MH-2026-102 (Mutation)</a>
-            <a href="#" onclick="fillAppId('APP-MH-2026-103')" style="color: var(--gov-primary); font-weight: 600; margin-right: 8px;">APP-MH-2026-103 (Town Planning)</a>
-            <a href="#" onclick="fillAppId('APP-MH-2026-105')" style="color: var(--gov-primary); font-weight: 600;">APP-MH-2026-105 (MSEDCL)</a>
-          </div>
-        </div>
-
-        <!-- Status Result Card (hidden initially) -->
-        <div id="statusResultCard" class="dashboard-panel" style="display: none;">
-          <div class="panel-title">
-            <span id="resAppId">APP-MH-2026-101</span>
-            <span id="resStatusBadge" class="status-tag status-approved">APPROVED</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.85rem; margin-bottom: 16px;">
-            <div>
-              <span style="color: var(--gov-text-muted);">Applicant Name:</span>
-              <div id="resCitizenName" style="font-weight: 600; color: #0f172a;"></div>
-            </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Service Applied:</span>
-              <div id="resServiceType" style="font-weight: 600; color: #0f172a;"></div>
-            </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Competent Department:</span>
-              <div id="resDepartment" style="font-weight: 600; color: #0f172a;"></div>
-            </div>
-            <div>
-              <span style="color: var(--gov-text-muted);">Survey / Gat Number:</span>
-              <div id="resSurvey" style="font-weight: 600; color: #0f172a;"></div>
-            </div>
-          </div>
-
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 6px; font-size: 0.82rem;">
-            <strong>Department Remarks / Resolution Progress:</strong>
-            <p id="resRemarks" style="margin-top: 4px; color: #334155;"></p>
-          </div>
+          <div class="panel-title">Your Queries</div>
+          <table class="gov-table">
+            <thead>
+              <tr>
+                <th>Query ID</th>
+                <th>Subject</th>
+                <th>Department</th>
+                <th>Raised On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>QRY-2026-0412</td>
+                <td>7/12 Extract Discrepancy</td>
+                <td>Revenue & Land Records</td>
+                <td>28 Aug 2026</td>
+                <td><span class="status-tag status-approved">Resolved</span></td>
+              </tr>
+              <tr>
+                <td>QRY-2026-0589</td>
+                <td>Power Connection Delay</td>
+                <td>MSEDCL / Mahavitaran</td>
+                <td>01 Sep 2026</td>
+                <td><span class="status-tag status-pending">In Progress</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 4: FEEDBACK & SUPPORT -->
+      <!-- SECTION: GRIEVANCE DASHBOARD -->
+      <!-- ======================================================== -->
+      <div id="section-grievance" class="content-section" style="display: none;">
+        <div class="dash-title-section">
+          <h2>Grievance Dashboard</h2>
+          <p>Track and manage your grievances filed with the single window cell.</p>
+        </div>
+        <div class="dashboard-panel">
+          <div class="panel-title">Filed Grievances</div>
+          <table class="gov-table">
+            <thead>
+              <tr>
+                <th>Grievance ID</th>
+                <th>Description</th>
+                <th>Department</th>
+                <th>Filed On</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GRV-2026-0201</td>
+                <td>Delayed Mutation NOC beyond statutory 15 days</td>
+                <td>Sub-Registrar / Tahsildar</td>
+                <td>25 Aug 2026</td>
+                <td><span class="status-tag status-pending">Under Review</span></td>
+              </tr>
+              <tr>
+                <td>GRV-2026-0198</td>
+                <td>Incorrect survey demarcation by settlement office</td>
+                <td>District Settlement Commission</td>
+                <td>20 Aug 2026</td>
+                <td><span class="status-tag status-approved">Resolved</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECTION: FEEDBACK -->
       <!-- ======================================================== -->
       <div id="section-feedback" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Feedback & Citizen Support</h2>
-          <p>Submit feedback on Single Window interoperability services or log a grievance ticket.</p>
+          <h2>Feedback</h2>
+          <p>Share your experience with the MAITRI Single Window services.</p>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-          <!-- Feedback Form -->
           <div class="dashboard-panel">
-            <div class="panel-title">Submit Service Feedback / Grievance</div>
+            <div class="panel-title">Submit Service Feedback</div>
             <div id="fbAlert" style="display:none; padding: 10px; border-radius: 4px; font-size: 0.82rem; margin-bottom: 14px;"></div>
-
             <form id="feedbackForm">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="form-group">
@@ -423,9 +448,8 @@
                   <input type="email" id="fbEmail" class="form-input" required>
                 </div>
               </div>
-
               <div class="form-group">
-                <label class="form-label" for="fbCategory">Category of Inquiry</label>
+                <label class="form-label" for="fbCategory">Category</label>
                 <select id="fbCategory" class="form-input">
                   <option value="INTEROPERABILITY">Cross-Department Interoperability</option>
                   <option value="LAND_712">Land Revenue / 7/12 Verification</option>
@@ -434,9 +458,8 @@
                   <option value="TECHNICAL">Portal Technical Support</option>
                 </select>
               </div>
-
               <div class="form-group">
-                <label class="form-label" for="fbRating">Satisfaction Rating (1 to 5 Stars)</label>
+                <label class="form-label" for="fbRating">Rating</label>
                 <select id="fbRating" class="form-input">
                   <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
                   <option value="4">⭐⭐⭐⭐ 4 - Good</option>
@@ -445,53 +468,85 @@
                   <option value="1">⭐ 1 - Unsatisfactory</option>
                 </select>
               </div>
-
               <div class="form-group">
-                <label class="form-label" for="fbMessage">Details / Grievance Description <span class="req-star">*</span></label>
-                <textarea id="fbMessage" class="form-input" rows="4" placeholder="Describe your experience or query in detail..." required></textarea>
+                <label class="form-label" for="fbMessage">Message <span class="req-star">*</span></label>
+                <textarea id="fbMessage" class="form-input" rows="4" placeholder="Describe your experience..." required></textarea>
               </div>
-
-              <button type="submit" id="btnSubmitFeedback" class="btn btn-primary" style="padding: 10px 20px;">
-                Submit Ticket & Save to Database ➔
+              <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
+                Submit Feedback ➔
               </button>
             </form>
           </div>
 
-          <!-- Support Info Card -->
           <div>
             <div class="dashboard-panel">
               <div class="panel-title">Official Helpdesk</div>
               <div style="font-size: 0.85rem; color: #334155; display: flex; flex-direction: column; gap: 12px;">
                 <div>
                   <strong>Toll-Free Helpline:</strong>
-                  <div style="color: var(--gov-primary); font-weight: 700; font-size: 1rem; margin-top: 2px;">
-                    1800-120-8040
-                  </div>
-                  <span style="font-size: 0.75rem; color: var(--gov-text-muted);">9:30 AM to 6:00 PM (Govt Working Days)</span>
+                  <div style="color: var(--gov-primary); font-weight: 700; font-size: 1rem; margin-top: 2px;">1800-120-8040</div>
+                  <span style="font-size: 0.75rem; color: var(--gov-text-muted);">9:30 AM – 6:00 PM (Working Days)</span>
                 </div>
-
                 <div>
-                  <strong>Support Email:</strong>
+                  <strong>Email:</strong>
                   <div style="color: var(--gov-primary); font-weight: 600;">maitri-support@gov.in</div>
                 </div>
-
                 <div>
-                  <strong>Headquarters:</strong>
+                  <strong>Address:</strong>
                   <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">
-                    MAITRI Cell, Directorate of Industries, 2nd Floor, Madam Cama Road, Nariman Point, Mumbai - 400032
+                    MAITRI Cell, Directorate of Industries, Nariman Point, Mumbai - 400032
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="dashboard-panel" style="background: #f8fafc;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a; margin-bottom: 8px;">
-                Did You Know?
-              </div>
-              <p style="font-size: 0.78rem; color: #64748b; line-height: 1.5;">
-                Under the Maharashtra Right to Public Services Act, cross-departmental prerequisites must be verified machine-to-machine within defined statutory timeframes.
-              </p>
+      <!-- ======================================================== -->
+      <!-- SECTION: CHECK STATUS -->
+      <!-- ======================================================== -->
+      <div id="section-status" class="content-section" style="display: none;">
+        <div class="dash-title-section">
+          <h2>Check Application Status</h2>
+          <p>Enter your Application Reference ID to track multi-department progress.</p>
+        </div>
+
+        <div class="dashboard-panel">
+          <form id="statusForm" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px;">
+              <label class="form-label" for="statusAppId">Application Reference Number:</label>
+              <input type="text" id="statusAppId" class="form-input" placeholder="e.g. APP-MH-2026-101" required>
             </div>
+            <button type="submit" id="btnCheckStatus" class="btn btn-primary" style="padding: 10px 20px;">
+              🔍 Track Status
+            </button>
+          </form>
+        </div>
+
+        <!-- Status Result -->
+        <div id="statusResultCard" class="dashboard-panel" style="display: none;">
+          <div class="panel-title">
+            <span id="resAppId">APP-MH-2026-101</span>
+            <span id="resStatusBadge" class="status-tag status-approved">APPROVED</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.85rem; margin-bottom: 16px;">
+            <div>
+              <span style="color: var(--gov-text-muted);">Service Applied:</span>
+              <div id="resServiceType" style="font-weight: 600; color: #0f172a;"></div>
+            </div>
+            <div>
+              <span style="color: var(--gov-text-muted);">Department:</span>
+              <div id="resDepartment" style="font-weight: 600; color: #0f172a;"></div>
+            </div>
+            <div>
+              <span style="color: var(--gov-text-muted);">Survey Number:</span>
+              <div id="resSurvey" style="font-weight: 600; color: #0f172a;"></div>
+            </div>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 6px; font-size: 0.82rem;">
+            <strong>Remarks:</strong>
+            <p id="resRemarks" style="margin-top: 4px; color: #334155;"></p>
           </div>
         </div>
       </div>
@@ -500,45 +555,29 @@
   </div>
 
   <script>
-    // Check authentication from sessionStorage
+    // Parse citizen session (only name/email — no sensitive data stored)
     const storedCitizen = sessionStorage.getItem('gov_citizen');
     let citizen = null;
     if (storedCitizen) {
       try { citizen = JSON.parse(storedCitizen); } catch(e) {}
     }
 
-    // Default fallback demo citizen if accessed directly
     if (!citizen) {
-      citizen = {
-        fullName: 'Ramesh Dattatray Patil',
-        firstName: 'Ramesh',
-        lastName: 'Patil',
-        aadhaar: '998877665544',
-        pan: 'RMPTL1234F',
-        mobile: '9876543210'
-      };
+      window.location.href = '/login.html';
+    } else {
+      document.getElementById('headerCitizenName').innerText = 'Welcome, ' + (citizen.fullName || citizen.firstName || 'Citizen');
+      if (document.getElementById('fbName')) document.getElementById('fbName').value = citizen.fullName || '';
+      if (document.getElementById('fbEmail')) document.getElementById('fbEmail').value = citizen.email || '';
     }
 
-    // Populate user details in UI
-    document.getElementById('headerCitizenName').innerText = citizen.fullName || `${citizen.firstName} ${citizen.lastName}`;
-    document.getElementById('dispCitizenName').innerText = citizen.fullName || `${citizen.firstName} ${citizen.lastName}`;
-    document.getElementById('dispCitizenAadhaar').innerText = citizen.aadhaar ? (citizen.aadhaar.slice(0, 4) + ' **** ' + citizen.aadhaar.slice(-4)) : '9988 **** 5544';
-    document.getElementById('dispCitizenPan').innerText = citizen.pan || 'RMPTL1234F';
-    document.getElementById('dispCitizenMobile').innerText = citizen.mobile ? ('+91 ' + citizen.mobile) : '+91 9876543210';
-
-    if (document.getElementById('fbName')) document.getElementById('fbName').value = citizen.fullName || '';
-    if (document.getElementById('fbEmail')) document.getElementById('fbEmail').value = citizen.email || '';
-
-    // Handle query param routing (e.g. ?tab=status or ?tab=process)
+    // Handle tab routing from URL
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
-    if (initialTab && ['dashboard', 'process', 'status', 'feedback'].includes(initialTab)) {
-      switchSection(initialTab);
-    }
+    if (initialTab) switchSection(initialTab);
 
-    // Sidebar navigation switching
+    // Sidebar navigation
     function switchSection(secName) {
-      const sections = ['dashboard', 'process', 'status', 'feedback'];
+      const sections = ['dashboard', 'process', 'query', 'grievance', 'feedback', 'status'];
       sections.forEach(s => {
         const el = document.getElementById(`section-${s}`);
         const menuBtn = document.getElementById(`menu-${s}`);
@@ -561,18 +600,12 @@
       window.location.href = '/login.html';
     }
 
-    // Quick fill for status check
-    function fillAppId(id) {
-      document.getElementById('statusAppId').value = id;
-      document.getElementById('btnCheckStatus').click();
-    }
-
-    // Process Wizard submit
+    // Process Wizard
     document.getElementById('wizardForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btnRunWizard');
       btn.disabled = true;
-      btn.innerText = 'Evaluating RAG Microservices...';
+      btn.innerText = 'Evaluating...';
 
       const payload = {
         projectType: document.getElementById('wizProjectType').value,
@@ -590,11 +623,11 @@
         });
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = '🪄 Evaluate Process & Determine Required Microservices ➔';
+        btn.innerText = '🪄 Evaluate & Determine Required Services ➔';
 
         if (data.success) {
           document.getElementById('wizardResults').style.display = 'block';
-          document.getElementById('wizTotalBadge').innerText = `${data.totalServicesIdentified} Services Identified`;
+          document.getElementById('wizTotalBadge').innerText = `${data.totalServicesIdentified} Services`;
           document.getElementById('wizNote').innerText = data.guidanceNote;
 
           const tbody = document.getElementById('wizServicesBody');
@@ -623,12 +656,11 @@
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = '🪄 Evaluate Process & Determine Required Microservices ➔';
-        alert('Server communication error.');
+        btn.innerText = '🪄 Evaluate & Determine Required Services ➔';
       }
     });
 
-    // Status Check form submit
+    // Status Check
     document.getElementById('statusForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const appId = document.getElementById('statusAppId').value.trim();
@@ -650,7 +682,6 @@
           const app = data.application;
           document.getElementById('statusResultCard').style.display = 'block';
           document.getElementById('resAppId').innerText = app.appId;
-          document.getElementById('resCitizenName').innerText = app.citizenName;
           document.getElementById('resServiceType').innerText = app.serviceType;
           document.getElementById('resDepartment').innerText = app.department;
           document.getElementById('resSurvey').innerText = app.surveyNumber ? `#${app.surveyNumber}` : 'N/A';
@@ -661,34 +692,32 @@
           badge.className = 'status-tag ' + (app.status === 'APPROVED' ? 'status-approved' : app.status === 'IN_PROGRESS' ? 'status-pending' : 'status-blocked');
           document.getElementById('statusResultCard').scrollIntoView({ behavior: 'smooth' });
         } else {
-          alert(data.message || 'No record found.');
+          document.getElementById('statusResultCard').style.display = 'none';
+          alert(data.message || 'No record found for this Application ID.');
         }
       } catch (err) {
         btn.disabled = false;
         btn.innerText = '🔍 Track Status';
-        alert('Error connecting to status service.');
       }
     });
 
-    // Feedback form submit
+    // Feedback
     document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const fbAlert = document.getElementById('fbAlert');
       fbAlert.style.display = 'none';
 
-      const payload = {
-        name: document.getElementById('fbName').value.trim(),
-        email: document.getElementById('fbEmail').value.trim(),
-        category: document.getElementById('fbCategory').value,
-        rating: document.getElementById('fbRating').value,
-        message: document.getElementById('fbMessage').value.trim()
-      };
-
       try {
         const res = await fetch('/api/portal/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            name: document.getElementById('fbName').value.trim(),
+            email: document.getElementById('fbEmail').value.trim(),
+            category: document.getElementById('fbCategory').value,
+            rating: document.getElementById('fbRating').value,
+            message: document.getElementById('fbMessage').value.trim()
+          })
         });
         const data = await res.json();
         if (data.success) {
@@ -702,7 +731,7 @@
       } catch (err) {
         fbAlert.style.background = '#fee2e2';
         fbAlert.style.color = '#991b1b';
-        fbAlert.innerHTML = 'Error logging feedback.';
+        fbAlert.innerHTML = 'Error submitting feedback.';
         fbAlert.style.display = 'block';
       }
     });
