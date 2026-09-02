@@ -1,6 +1,36 @@
+# Node.js
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
 dist/
-.DS_Store
+build/
 .env
-*.log
+*.db
 *.sqlite
+*.db-shm
+*.db-wal
+.venv/
+venv/
+
+# Logs & OS
+*.log
+.DS_Store
+
+# Testing artifacts
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+
+# Docker volumes
+volumes/
