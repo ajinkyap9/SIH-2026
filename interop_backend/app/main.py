@@ -19,6 +19,7 @@ from app.routers import (
     schema_drift_router,
     departments_router,
     audit_router,
+    interview_router,
 )
 
 
@@ -165,6 +166,7 @@ Central interoperability engine connecting heterogeneous departmental systems:
         {"name": "Plant Clearance Workflow", "description": "Multi-department plant clearance orchestration"},
         {"name": "Canonical Data Transformation", "description": "Deterministic rule-based schema mapping engine"},
         {"name": "AI-Assisted Schema Drift", "description": "Automated schema change detection & suggestion"},
+        {"name": "RAG Intake & Conversational Interview", "description": "Conversational project intake, RAG legal reasoning, and deterministic decision engine"},
         {"name": "Department Health & Connectivity", "description": "Downstream departmental API health & circuit status"},
         {"name": "Platform Audit Logging", "description": "Masked compliance and access audit trails"},
     ]
@@ -189,6 +191,7 @@ def health_check():
 
 
 # Include Routers
+app.include_router(interview_router)
 app.include_router(auth_router)
 app.include_router(consent_router)
 app.include_router(projects_router)

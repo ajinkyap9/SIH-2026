@@ -13,10 +13,15 @@ dist/
 build/
 .env
 *.db
+*.sqlite
 *.db-shm
 *.db-wal
 .venv/
 venv/
+
+# Logs & OS
+*.log
+.DS_Store
 
 # Testing artifacts
 .pytest_cache/

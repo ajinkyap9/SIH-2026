@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Login — MAITRI Government Portal</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+
+  <div class="tricolor-stripe"></div>
+
+  <div class="gov-top-bar">
+    <div>
+      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI e-Governance Citizen Authentication
+    </div>
+    <div>
+      <a href="/">Home</a> | <a href="/register.html">New Citizen Registration</a>
+    </div>
+  </div>
+
+  <header class="main-header">
+    <div class="brand-wrapper">
+      <div class="emblem-icon">🏛️</div>
+      <div class="brand-title">
+        <h1>MAITRI Citizen Login Gateway</h1>
+        <p>Aadhaar e-KYC & PAN Authentication Service</p>
+      </div>
+    </div>
+    <div>
+      <a href="/register.html" class="btn btn-primary">Register New Account</a>
+    </div>
+  </header>
+
+  <main style="padding: 20px;">
+    <div class="auth-box">
+      <div class="auth-header">
+        <h2>Citizen / Investor Authentication</h2>
+        <p>Verify your identity via registered Aadhaar or PAN Card to access the interoperability dashboard.</p>
+      </div>
+
+      <div class="auth-body">
+        <!-- Login Method Tabs -->
+        <div class="auth-tabs">
+          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')">
+            🪪 Aadhaar e-KYC Login
+          </button>
+          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')">
+            💳 PAN Card Login
+          </button>
+        </div>
+
+        <div id="loginAlert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+
+        <!-- Step 1: Identifier Input -->
+        <form id="step1Form">
+          <div class="form-group">
+            <label id="inputLabel" class="form-label" for="loginIdentifier">
+              Enter 12-Digit Aadhaar Number <span class="req-star">*</span>
+            </label>
+            <input type="text" id="loginIdentifier" class="form-input" placeholder="Enter your registered Aadhaar" autocomplete="off" required>
+            <div id="inputHint" style="font-size: 0.75rem; color: var(--gov-text-muted); margin-top: 4px;">
+              A 6-digit verification OTP will be dispatched to your registered mobile number.
+            </div>
+          </div>
+
+          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;">
+            Send OTP to Registered Mobile ➔
+          </button>
+        </form>
+
+        <!-- Step 2: OTP Verification (hidden initially) -->
+        <form id="step2Form" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
+            OTP sent to registered mobile <strong id="maskedPhoneSpan">*****</strong>.
+            Please check your SMS inbox.
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="otpInput">Enter 6-Digit OTP <span class="req-star">*</span></label>
+            <input type="text" id="otpInput" class="form-input" placeholder="Enter OTP received on mobile" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;">Verify & Login ➔</button>
+          </div>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center; font-size: 0.8rem; color: #64748b;">
+          Don't have an account? <a href="/register.html" style="color: var(--gov-primary); font-weight: 600;">Register here</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let activeTab = 'aadhaar';
+    let currentTxnId = null;
+
+    const loginIdentifier = document.getElementById('loginIdentifier');
+    const inputLabel = document.getElementById('inputLabel');
+    const loginAlert = document.getElementById('loginAlert');
+    const step1Form = document.getElementById('step1Form');
+    const step2Form = document.getElementById('step2Form');
+
+    // Check if redirected from registration
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('registered')) {
+      loginAlert.style.background = '#dcfce7';
+      loginAlert.style.color = '#15803d';
+      loginAlert.style.border = '1px solid #86efac';
+      loginAlert.innerHTML = '✓ Account created successfully! Please login with your registered Aadhaar or PAN.';
+      loginAlert.style.display = 'block';
+    }
+
+    function switchLoginTab(type) {
+      activeTab = type;
+      loginAlert.style.display = 'none';
+      step2Form.style.display = 'none';
+      step1Form.style.display = 'block';
+      loginIdentifier.value = '';
+
+      if (type === 'aadhaar') {
+        document.getElementById('tabAadhaar').classList.add('active');
+        document.getElementById('tabPan').classList.remove('active');
+        inputLabel.innerHTML = 'Enter 12-Digit Aadhaar Number <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter your registered Aadhaar';
+      } else {
+        document.getElementById('tabPan').classList.add('active');
+        document.getElementById('tabAadhaar').classList.remove('active');
+        inputLabel.innerHTML = 'Enter 10-Character PAN Card <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter your registered PAN';
+      }
+    }
+
+    // Auto format input
+    loginIdentifier.addEventListener('input', (e) => {
+      let val = e.target.value;
+      if (activeTab === 'aadhaar') {
+        const digits = val.replace(/\D/g, '').slice(0, 12);
+        e.target.value = digits.replace(/(\d{4})(?=\d)/g, '$1-');
+      } else {
+        e.target.value = val.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10).toUpperCase();
+      }
+    });
+
+    // Step 1: Request OTP
+    step1Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginAlert.style.display = 'none';
+
+      const val = loginIdentifier.value.replace(/[\s-]/g, '');
+      const btn = document.getElementById('btnGetOtp');
+      btn.disabled = true;
+      btn.innerText = 'Verifying credentials...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifierType: activeTab,
+            identifierValue: val
+          })
+        });
+
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = 'Send OTP to Registered Mobile ➔';
+
+        if (data.success) {
+          currentTxnId = data.txnId;
+          document.getElementById('maskedPhoneSpan').innerText = data.maskedPhone;
+          document.getElementById('otpInput').value = '';
+
+          step1Form.style.display = 'none';
+          step2Form.style.display = 'block';
+        } else {
+          showAlert('error', data.message);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Send OTP to Registered Mobile ➔';
+        showAlert('error', 'Server connection error. Please try again.');
+      }
+    });
+
+    function cancelOtp() {
+      step2Form.style.display = 'none';
+      step1Form.style.display = 'block';
+    }
+
+    // Step 2: Verify OTP
+    step2Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginAlert.style.display = 'none';
+
+      const otp = document.getElementById('otpInput').value.trim();
+      const btn = document.getElementById('btnVerifyOtp');
+      btn.disabled = true;
+      btn.innerText = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ txnId: currentTxnId, otp: otp })
+        });
+
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = 'Verify & Login ➔';
+
+        if (data.success) {
+          // Store session securely (only non-sensitive data for display)
+          sessionStorage.setItem('gov_citizen', JSON.stringify({
+            id: data.citizen.id,
+            firstName: data.citizen.firstName,
+            lastName: data.citizen.lastName,
+            fullName: data.citizen.fullName,
+            email: data.citizen.email
+          }));
+          sessionStorage.setItem('gov_token', data.token);
+
+          showAlert('success', 'Authentication successful! Redirecting to dashboard...');
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+        } else {
+          showAlert('error', data.message);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Verify & Login ➔';
+        showAlert('error', 'Server error during OTP verification.');
+      }
+    });
+
+    function showAlert(type, msg) {
+      loginAlert.style.display = 'block';
+      if (type === 'success') {
+        loginAlert.style.background = '#dcfce7';
+        loginAlert.style.color = '#15803d';
+        loginAlert.style.border = '1px solid #86efac';
+      } else {
+        loginAlert.style.background = '#fee2e2';
+        loginAlert.style.color = '#991b1b';
+        loginAlert.style.border = '1px solid #fca5a5';
+      }
+      loginAlert.innerHTML = msg;
+    }
+  </script>
+</body>
+</html>

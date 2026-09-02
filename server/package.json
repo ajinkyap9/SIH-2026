@@ -1,0 +1,16 @@
+{
+  "name": "interop-server",
+  "version": "1.0.0",
+  "description": "Government Interoperability Platform — G2C Portal with SQLite",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "sql.js": "^1.10.3"
+  }
+}
