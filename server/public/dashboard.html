@@ -196,50 +196,31 @@
           </div>
         </div>
 
-        <!-- Recent Applications Table (No sensitive data exposed) -->
+        <!-- Quick Actions Panel (No application data exposed on dashboard) -->
         <div class="dashboard-panel">
-          <div class="panel-title">
-            <span>Recent Department Applications</span>
-            <button class="btn btn-outline" onclick="switchSection('status')" style="font-size: 0.75rem; padding: 4px 10px;">
-              Track Full Status ➔
-            </button>
+          <div class="panel-title">Quick Actions</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;" onclick="switchSection('status')">
+              <div style="font-size: 1.5rem; margin-bottom: 6px;">🔍</div>
+              <div style="font-weight: 700; color: #1e3a8a; font-size: 0.85rem;">Check Application Status</div>
+              <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Track your application using Reference ID</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;" onclick="switchSection('process')">
+              <div style="font-size: 1.5rem; margin-bottom: 6px;">🪄</div>
+              <div style="font-weight: 700; color: #166534; font-size: 0.85rem;">Start New Application</div>
+              <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Use Investor Wizard to identify required services</div>
+            </div>
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;" onclick="switchSection('grievance')">
+              <div style="font-size: 1.5rem; margin-bottom: 6px;">📝</div>
+              <div style="font-weight: 700; color: #92400e; font-size: 0.85rem;">File Grievance</div>
+              <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Report delays or issues with department services</div>
+            </div>
+            <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;" onclick="switchSection('feedback')">
+              <div style="font-size: 1.5rem; margin-bottom: 6px;">📋</div>
+              <div style="font-weight: 700; color: #6d28d9; font-size: 0.85rem;">Submit Feedback</div>
+              <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Share your experience with MAITRI services</div>
+            </div>
           </div>
-          <table class="gov-table">
-            <thead>
-              <tr>
-                <th>Application ID</th>
-                <th>Service Name</th>
-                <th>Department</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>APP-MH-2026-101</strong></td>
-                <td>7/12 Jamabandi Land Verification</td>
-                <td>Revenue & Land Records</td>
-                <td><span class="status-tag status-approved">APPROVED</span></td>
-              </tr>
-              <tr>
-                <td><strong>APP-MH-2026-102</strong></td>
-                <td>Inheritance Mutation Transfer</td>
-                <td>Tahsildar / Sub-Registrar</td>
-                <td><span class="status-tag status-pending">IN PROGRESS</span></td>
-              </tr>
-              <tr>
-                <td><strong>APP-MH-2026-103</strong></td>
-                <td>Residential Building Permission NOC</td>
-                <td>Town Planning & Municipal Corp</td>
-                <td><span class="status-tag status-blocked">ACTION REQUIRED</span></td>
-              </tr>
-              <tr>
-                <td><strong>APP-MH-2026-105</strong></td>
-                <td>Agricultural Pump Power Sanction</td>
-                <td>MSEDCL / Mahavitaran</td>
-                <td><span class="status-tag status-approved">APPROVED</span></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
