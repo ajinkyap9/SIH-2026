@@ -3,109 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIH26129 — Government Interoperability Platform & Enterprise Gateway</title>
+  <title>MAITRI — Maharashtra Industry, Trade & Investment Facilitation Cell</title>
   <link rel="stylesheet" href="/css/gov-style.css">
 </head>
 <body>
 
+  <!-- Tricolor Accent Top Bar -->
   <div class="tricolor-stripe"></div>
 
+  <!-- Official Metadata Bar -->
   <div class="gov-top-bar">
     <div>
-      <strong>GOVERNMENT OF MAHARASHTRA & INDIA</strong> • Interoperability Platform (SIH26129)
+      <strong>GOVERNMENT OF MAHARASHTRA & INDIA</strong> • National Single Window & Interoperability Gateway
     </div>
     <div>
-      <span>🔒 JWT Secure Gateway</span>
-      <a href="/login.html">Company Login</a>
+      <span>🔒 Secured Portal</span>
+      <a href="#">English</a> | <a href="#">मराठी</a> | <a href="#">हिन्दी</a>
     </div>
   </div>
 
+  <!-- Main Navigation Header -->
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">🏛️</div>
       <div class="brand-title">
-        <h1>Government Interoperability Platform</h1>
-        <p>Heterogeneous API Adapter, Schema Transformation Engine & Multi-Department Workflow Orchestrator</p>
+        <h1>MAITRI Interoperability Gateway</h1>
+        <p>Maharashtra Industry, Trade & Investment Facilitation Cell • National Single Window</p>
       </div>
     </div>
     <div class="header-nav-actions">
-      <a href="/login.html" class="btn btn-primary">Company / Enterprise Login</a>
-      <a href="/dashboard.html" class="btn btn-saffron">Interoperability Dashboard ➔</a>
+      <a href="/login.html" class="btn btn-primary">Citizen Login</a>
+      <a href="/register.html" class="btn btn-outline">New Registration</a>
     </div>
   </header>
 
+  <!-- Main Container -->
   <main class="hero-container">
 
     <!-- Hero Card -->
     <div class="hero-card">
-      <div class="hero-badge">SIH Problem #26129 Solution</div>
-      <h2>Enterprise Plant Establishment Interoperability Gateway</h2>
+      <div class="hero-badge">Interoperability & Process Orchestration</div>
+      <h2>Unified Single Window for Department Approvals</h2>
       <p>
-        Connecting heterogeneous departmental systems—<strong>Land / Revenue</strong>, <strong>Electricity Discom</strong>, and <strong>Pollution Control Board</strong>—through a central adapter layer. We convert contrasting schemas into a <strong>Canonical Data Model</strong> without copying department databases.
+        Eliminate redundant paper submissions. The Interoperability Layer connects authorized departmental APIs (Land Revenue, MPCB Environmental Clearance, MSEDCL Power Allocation) to resolve prerequisites automatically.
       </p>
       <div class="hero-actions">
-        <a href="/dashboard.html?tab=plant" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem;">
-          🏭 Launch Plant Verification Workflow
+        <a href="/login.html" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem;">
+          Citizen / Investor Login
         </a>
-        <a href="/dashboard.html?tab=schema" class="btn btn-outline" style="padding: 12px 28px; font-size: 0.95rem;">
-          ⚙️ AI Schema Drift & Mapping Registry
+        <a href="/register.html" class="btn btn-outline" style="padding: 12px 28px; font-size: 0.95rem;">
+          Register New Account
         </a>
       </div>
     </div>
 
-    <!-- 3 Department APIs Overview Grid -->
+    <!-- Features Overview -->
     <div class="feature-grid">
-      <div class="feature-card" style="border-top: 4px solid #2563eb;">
-        <h3>📜 Land / Revenue API</h3>
-        <p><strong>Endpoint:</strong> <code>GET /land/{survey_number}</code></p>
-        <p style="margin-top: 6px;">Retrieves survey number, owner name, area in hectares, district, land classification, and mutation approval status.</p>
-        <div style="margin-top: 10px; font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 6px; border-radius: 4px;">
-          Schema: owner_name, survey_no, area_hectare
-        </div>
+      <div class="feature-card">
+        <h3>🏛️ Land Revenue (7/12 Jamabandi)</h3>
+        <p>Automated verification of survey numbers, mutation status, encumbrances, and ownership records directly through the Land Department API.</p>
       </div>
-
-      <div class="feature-card" style="border-top: 4px solid #7c3aed;">
-        <h3>⚡ Electricity Discom API</h3>
-        <p><strong>Endpoint:</strong> <code>GET /electricity/{consumer_id}</code></p>
-        <p style="margin-top: 6px;">Retrieves consumer ID, registered company name, sanctioned load (kW), connected load, meter status, and connection state.</p>
-        <div style="margin-top: 10px; font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 6px; border-radius: 4px;">
-          Schema: registered_name, consumer_id, sanctioned_load
-        </div>
+      <div class="feature-card">
+        <h3>🌱 Pollution Control (MPCB)</h3>
+        <p>Direct prerequisite resolution for Consent to Establish (CTE). MPCB automatically verifies Land ownership before clearing environmental reviews.</p>
       </div>
-
-      <div class="feature-card" style="border-top: 4px solid #059669;">
-        <h3>🌱 Pollution Control API</h3>
-        <p><strong>Endpoint:</strong> <code>GET /pollution/{application_id}</code></p>
-        <p style="margin-top: 6px;">Retrieves application number, industry name, industry category (Red/Orange/Green), CTE consent status, and validity period.</p>
-        <div style="margin-top: 10px; font-family: monospace; font-size: 0.75rem; background: #f1f5f9; padding: 6px; border-radius: 4px;">
-          Schema: industry_name, application_no, consent_status
-        </div>
+      <div class="feature-card">
+        <h3>⚡ Electricity Discom (MSEDCL)</h3>
+        <p>High-tension and low-tension power connection feasibility checks synchronized with authorized site coordinates and land records.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🪄 Intelligent Process Wizard</h3>
+        <p>Guided questionnaire evaluating your project requirements to recommend all mandatory departmental microservices and licenses.</p>
       </div>
     </div>
 
-    <!-- Core Architecture Summary -->
-    <div style="margin-top: 30px; background: white; border: 1px solid var(--gov-border); border-radius: 10px; padding: 24px;">
-      <h3 style="font-size: 1.1rem; color: #0f172a; margin-bottom: 12px;">Architecture & Interoperability Highlights</h3>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; font-size: 0.85rem; color: #334155;">
-        <div>
-          <strong>🔄 Canonical Data Engine:</strong> Maps <code>owner_name</code>, <code>registered_name</code>, and <code>industry_name</code> into a unified <code>organization_name</code>.
-        </div>
-        <div>
-          <strong>🔐 Security & Consent Layer:</strong> Enforces JWT bearer authentication and verifies explicit user consent before dispatching API calls.
-        </div>
-        <div>
-          <strong>🛡️ Resilience & Circuit Breakers:</strong> Handles department timeouts gracefully without system crashes.
-        </div>
-        <div>
-          <strong>🤖 AI Schema Drift Handling:</strong> Detects field modifications (e.g. <code>approved_load</code>) and suggests mappings with confidence scores.
-        </div>
+    <!-- Quick Statistics Bar -->
+    <div class="quick-stats-bar" style="margin-top: 30px;">
+      <div class="quick-stat-item">
+        <div class="quick-stat-value" style="color: #16a34a;">91.50%</div>
+        <div class="quick-stat-label">Customer Satisfaction</div>
+      </div>
+      <div class="quick-stat-item">
+        <div class="quick-stat-value" style="color: #2563eb;">88.95%</div>
+        <div class="quick-stat-label">Resolution Rate</div>
+      </div>
+      <div class="quick-stat-item">
+        <div class="quick-stat-value" style="color: #ea580c;">5,22,650+</div>
+        <div class="quick-stat-label">Applications Processed</div>
+      </div>
+      <div class="quick-stat-item">
+        <div class="quick-stat-value" style="color: #7c3aed;">179</div>
+        <div class="quick-stat-label">Government Services Live</div>
       </div>
     </div>
 
   </main>
 
+  <!-- Official Footer -->
   <footer class="gov-footer">
-    Government Interoperability Platform • SIH Problem #26129 • Prototype Architectural Gateway
+    Government of Maharashtra • Directorate of Industries • MAITRI Single Window Cell • SIH 2026 Prototype
   </footer>
 
 </body>
