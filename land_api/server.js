@@ -1,0 +1,37 @@
+const express = require('express');
+const morgan = require('morgan');
+
+const landRoutes = require('./routes/land');
+const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+app.use(morgan('dev'));
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Land Records Department API (simulated)',
+    description:
+      'A deliberately legacy-shaped, independently-owned demo government API — the first departmental building block for the Government Interoperability Layer.',
+    endpoints: [
+      'GET    /api/land/records/:surveyNumber',
+      'GET    /api/land/status/:surveyNumber',
+      'POST   /api/land/verify',
+      'PATCH  /api/land/records/:surveyNumber/mutation',
+      'POST   /api/land/schema-mapping/detect',
+      'GET    /api/land/audit'
+    ]
+  });
+});
+
+app.use('/api/land', landRoutes);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`Land Department API (simulated) listening on http://localhost:${PORT}`);
+  console.log('See README.md for demo API keys and example requests.');
+});
