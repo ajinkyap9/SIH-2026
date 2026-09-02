@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Login — MAITRI Government Portal</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+
+  <div class="tricolor-stripe"></div>
+
+  <div class="gov-top-bar">
+    <div>
+      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI e-Governance Citizen Authentication
+    </div>
+    <div>
+      <a href="/">Home</a> | <a href="/register.html">New Citizen Registration</a>
+    </div>
+  </div>
+
+  <header class="main-header">
+    <div class="brand-wrapper">
+      <div class="emblem-icon">🏛️</div>
+      <div class="brand-title">
+        <h1>MAITRI Citizen Login Gateway</h1>
+        <p>Aadhaar e-KYC & PAN Dual Authentication Service</p>
+      </div>
+    </div>
+    <div>
+      <a href="/register.html" class="btn btn-primary">Register New Account</a>
+    </div>
+  </header>
+
+  <main style="padding: 20px;">
+    <div class="auth-box">
+      <div class="auth-header">
+        <h2>Citizen / Investor Authentication</h2>
+        <p>Verify your identity via registered Aadhaar or PAN Card to access the interoperability dashboard.</p>
+      </div>
+
+      <div class="auth-body">
+        <!-- Login Method Tabs -->
+        <div class="auth-tabs">
+          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')">
+            🪪 Aadhaar e-KYC (12-Digit)
+          </button>
+          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')">
+            💳 PAN Card (10-Character)
+          </button>
+        </div>
+
+        <div id="loginAlert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+
+        <!-- Step 1: Identifier Input -->
+        <form id="step1Form">
+          <div class="form-group">
+            <label id="inputLabel" class="form-label" for="loginIdentifier">
+              Enter 12-Digit Citizen Aadhaar Number <span class="req-star">*</span>
+            </label>
+            <input type="text" id="loginIdentifier" class="form-input" placeholder="e.g. 9988-7766-5544" autocomplete="off" required>
+            <div id="inputHint" style="font-size: 0.75rem; color: var(--gov-text-muted); margin-top: 4px;">
+              A 6-digit verification OTP will be dispatched to your registered mobile number.
+            </div>
+          </div>
+
+          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;">
+            Send SMS Verification OTP ➔
+          </button>
+        </form>
+
+        <!-- Step 2: OTP Verification (hidden initially) -->
+        <form id="step2Form" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
+            OTP sent to registered mobile <strong id="maskedPhoneSpan">98765*****0</strong>.
+            <div style="margin-top: 4px; color: #b45309;">
+              ⚡ Demo OTP Code: <strong id="demoOtpSpan">654321</strong>
+              <button type="button" onclick="autoFillOtp()" style="margin-left: 8px; background: #f59e0b; color: white; border: none; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">
+                Auto-fill
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="otpInput">Enter 6-Digit OTP <span class="req-star">*</span></label>
+            <input type="text" id="otpInput" class="form-input" placeholder="654321" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;">Verify & Enter Dashboard ➔</button>
+          </div>
+        </form>
+
+        <!-- Evaluator Quick Demo Helpers (Removable later as instructed) -->
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">
+            Evaluator Demo Quick-Fill:
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <button type="button" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 8px;" onclick="quickFill('aadhaar', '9988-7766-5544')">
+              Ramesh Patil (Aadhaar)
+            </button>
+            <button type="button" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 8px;" onclick="quickFill('pan', 'SNDSH5678K')">
+              Sunita Deshmukh (PAN)
+            </button>
+            <button type="button" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 8px;" onclick="quickFill('aadhaar', '1234-5678-9012')">
+              Priya Sharma (Aadhaar)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let activeTab = 'aadhaar';
+    let currentTxnId = null;
+    let currentDemoOtp = '654321';
+
+    const loginIdentifier = document.getElementById('loginIdentifier');
+    const inputLabel = document.getElementById('inputLabel');
+    const loginAlert = document.getElementById('loginAlert');
+    const step1Form = document.getElementById('step1Form');
+    const step2Form = document.getElementById('step2Form');
+
+    // Check if query param prefill exists
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('registered')) {
+      loginIdentifier.value = urlParams.get('registered');
+      loginAlert.style.background = '#dcfce7';
+      loginAlert.style.color = '#15803d';
+      loginAlert.innerHTML = 'Account created! Please request an OTP to login.';
+      loginAlert.style.display = 'block';
+    }
+
+    function switchLoginTab(type) {
+      activeTab = type;
+      loginAlert.style.display = 'none';
+      step2Form.style.display = 'none';
+      step1Form.style.display = 'block';
+      loginIdentifier.value = '';
+
+      if (type === 'aadhaar') {
+        document.getElementById('tabAadhaar').classList.add('active');
+        document.getElementById('tabPan').classList.remove('active');
+        inputLabel.innerHTML = 'Enter 12-Digit Citizen Aadhaar Number <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'e.g. 9988-7766-5544';
+      } else {
+        document.getElementById('tabPan').classList.add('active');
+        document.getElementById('tabAadhaar').classList.remove('active');
+        inputLabel.innerHTML = 'Enter 10-Character Citizen PAN Card <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'e.g. SNDSH5678K';
+      }
+    }
+
+    // Auto format input
+    loginIdentifier.addEventListener('input', (e) => {
+      let val = e.target.value;
+      if (activeTab === 'aadhaar') {
+        const digits = val.replace(/\D/g, '').slice(0, 12);
+        e.target.value = digits.replace(/(\d{4})(?=\d)/g, '$1-');
+      } else {
+        e.target.value = val.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10).toUpperCase();
+      }
+    });
+
+    function quickFill(type, value) {
+      switchLoginTab(type);
+      loginIdentifier.value = value;
+    }
+
+    // Step 1: Request OTP
+    step1Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginAlert.style.display = 'none';
+
+      const val = loginIdentifier.value.replace(/[\s-]/g, '');
+      const btn = document.getElementById('btnGetOtp');
+      btn.disabled = true;
+      btn.innerText = 'Verifying with SQLite Database...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifierType: activeTab,
+            identifierValue: val
+          })
+        });
+
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = 'Send SMS Verification OTP ➔';
+
+        if (data.success) {
+          currentTxnId = data.txnId;
+          currentDemoOtp = data.demoOtp || '654321';
+          document.getElementById('maskedPhoneSpan').innerText = data.maskedPhone;
+          document.getElementById('demoOtpSpan').innerText = currentDemoOtp;
+          document.getElementById('otpInput').value = '';
+
+          step1Form.style.display = 'none';
+          step2Form.style.display = 'block';
+        } else {
+          loginAlert.style.background = '#fee2e2';
+          loginAlert.style.color = '#991b1b';
+          loginAlert.innerHTML = `<strong>Error:</strong> ${data.message}`;
+          loginAlert.style.display = 'block';
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Send SMS Verification OTP ➔';
+        loginAlert.style.background = '#fee2e2';
+        loginAlert.style.color = '#991b1b';
+        loginAlert.innerHTML = 'Server connection error.';
+        loginAlert.style.display = 'block';
+      }
+    });
+
+    function autoFillOtp() {
+      document.getElementById('otpInput').value = currentDemoOtp;
+    }
+
+    function cancelOtp() {
+      step2Form.style.display = 'none';
+      step1Form.style.display = 'block';
+    }
+
+    // Step 2: Verify OTP
+    step2Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginAlert.style.display = 'none';
+
+      const otp = document.getElementById('otpInput').value.trim();
+      const btn = document.getElementById('btnVerifyOtp');
+      btn.disabled = true;
+      btn.innerText = 'Authenticating...';
+
+      try {
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            txnId: currentTxnId,
+            otp: otp
+          })
+        });
+
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = 'Verify & Enter Dashboard ➔';
+
+        if (data.success) {
+          // Store citizen session in sessionStorage
+          sessionStorage.setItem('gov_citizen', JSON.stringify(data.citizen));
+          sessionStorage.setItem('gov_token', data.token);
+
+          loginAlert.style.background = '#dcfce7';
+          loginAlert.style.color = '#15803d';
+          loginAlert.innerHTML = 'Authentication successful! Entering dashboard...';
+          loginAlert.style.display = 'block';
+
+          setTimeout(() => {
+            window.location.href = '/dashboard.html';
+          }, 800);
+        } else {
+          loginAlert.style.background = '#fee2e2';
+          loginAlert.style.color = '#991b1b';
+          loginAlert.innerHTML = `<strong>OTP Error:</strong> ${data.message}`;
+          loginAlert.style.display = 'block';
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Verify & Enter Dashboard ➔';
+        loginAlert.style.background = '#fee2e2';
+        loginAlert.style.color = '#991b1b';
+        loginAlert.innerHTML = 'Server error during OTP verification.';
+        loginAlert.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

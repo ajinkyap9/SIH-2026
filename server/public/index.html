@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAITRI National Interoperability Portal</title>
+  <title>MAITRI — Maharashtra Industry, Trade & Interoperability Facilitation Cell</title>
   <link rel="stylesheet" href="/css/gov-style.css">
 </head>
 <body>
@@ -14,268 +14,87 @@
   <!-- Official Metadata Bar -->
   <div class="gov-top-bar">
     <div>
-      <span style="font-weight: 600;">Government of India</span>
-      <span style="margin-left: 10px; color: rgba(255,255,255,.6);">Ministry of Electronics and Information Technology</span>
+      <strong>GOVERNMENT OF MAHARASHTRA & INDIA</strong> • National Single Window & Interoperability Gateway
     </div>
     <div>
-      <a href="#">Skip to main content</a> |
-      <a href="#">A-</a> <a href="#">A</a> <a href="#">A+</a> |
-      <a href="#">English</a> | <a href="#">मराठी</a>
+      <span>🔒 256-Bit SSL Encrypted</span>
+      <a href="#">English</a> | <a href="#">मराठी</a> | <a href="#">हिन्दी</a>
     </div>
   </div>
 
-  <!-- Main Government Header -->
-  <header class="gov-header">
-    <div class="gov-header-brand">
-      <div class="gov-header-logo">LOGO</div>
-      <div>
-        <h1>MAITRI Interoperability Platform</h1>
-        <p>National Single Window System Gateway</p>
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="brand-wrapper">
+      <div class="emblem-icon">🏛️</div>
+      <div class="brand-title">
+        <h1>MAITRI Interoperability Gateway</h1>
+        <p>Maharashtra Industry, Trade & Investment Facilitation Cell • National Single Window</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <div style="background: #fff; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 6px;">
-        <span style="color: var(--text-muted); font-size: 13px;">Search...</span>
-        <span style="color: var(--navy);">🔍</span>
-      </div>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Digital_India_logo.svg" height="24" alt="Digital India" style="background: white; padding: 2px; border-radius: 2px;">
+    <div class="header-nav-actions">
+      <a href="/login.html" class="btn btn-primary">Citizen Login</a>
+      <a href="/register.html" class="btn btn-outline">New Registration</a>
+      <a href="/dashboard.html" class="btn btn-saffron">Dashboard ➔</a>
     </div>
   </header>
 
-  <!-- Navigation Bar -->
-  <nav class="gov-nav">
-    <span class="active">Home</span>
-    <span>Ministry</span>
-    <span>Offerings</span>
-    <span>Documents</span>
-    <span>Media</span>
-    <span>Connect</span>
-  </nav>
-
   <!-- Main Container -->
-  <div class="container">
+  <main class="hero-container">
 
-    <!-- AUTH SECTION (Login/e-KYC) -->
-    <div id="authSection">
-      
-      <!-- Demo Presets (Evaluator Tools) -->
-      <div class="section-heading" style="margin-top: 10px;">
-        <span>About Applicant (Demo Presets)</span>
-      </div>
-      <div class="preset-grid" style="margin-bottom: 24px;">
-        <div class="preset-card" onclick="selectDemoPreset('pan', 'ABCDE1234F')">
-          <strong>ABC Industries Pvt Ltd</strong>
-          <span>PAN: ABCDE1234F • Industrial Land #102</span>
-        </div>
-        <div class="preset-card" onclick="selectDemoPreset('pan', 'RJSHI5678K')">
-          <strong>Rajesh Infrastructure</strong>
-          <span>PAN: RJSHI5678K • Pending Mutation #103</span>
-        </div>
-        <div class="preset-card" onclick="selectDemoPreset('aadhaar', '1234-5678-9012')">
-          <strong>Priya Ramesh Sharma</strong>
-          <span>Aadhaar: 1234-5678-9012 • Citizen e-KYC</span>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <!-- Auth Form -->
-        <div class="card">
-          <div class="card-header">
-            <span>e-KYC Verification</span>
-          </div>
-          <div class="card-body">
-            <form id="authForm">
-              <div class="tab-group">
-                <div class="tab-item active" id="tabPanLabel" onclick="document.getElementById('radioPan').click()">Business PAN</div>
-                <div class="tab-item" id="tabAadhaarLabel" onclick="document.getElementById('radioAadhaar').click()">Aadhaar</div>
-                <input type="radio" name="authType" id="radioPan" value="pan" style="display:none;" checked>
-                <input type="radio" name="authType" id="radioAadhaar" value="aadhaar" style="display:none;">
-              </div>
-
-              <div id="authError" class="error-banner" style="display:none;"></div>
-
-              <div class="form-group" style="margin-top: 16px;">
-                <label id="identifierLabel" class="form-label" for="identifierInput">
-                  Enter 10-Character PAN <span class="req">*</span>
-                </label>
-                <input type="text" id="identifierInput" class="form-input" placeholder="ABCDE1234F" autocomplete="off">
-              </div>
-
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                <span style="font-size: 11px; color: var(--text-muted);">Verified via DigiLocker</span>
-                <button type="submit" class="btn btn-primary">Request OTP ➔</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Recent Announcements (Placeholder mimicking reference) -->
-        <div class="card">
-          <div class="card-header">
-            <span>What's New</span>
-          </div>
-          <div style="padding: 0;">
-            <div class="list-row" style="background: var(--navy); color: #fff;">
-              <span>Report on AI governance guidelines development...</span>
-              <span class="chevron" style="color: #fff;">›</span>
-            </div>
-            <div class="list-row" style="background: var(--navy-mid); color: #fff;">
-              <span>Inviting Expression of Interest for ToT...</span>
-              <span class="chevron" style="color: #fff;">›</span>
-            </div>
-            <div class="list-row" style="background: var(--navy-mid); color: #fff;">
-              <span>Monthly Achievements of MeitY for month...</span>
-              <span class="chevron" style="color: #fff;">›</span>
-            </div>
-            <div class="list-row" style="background: var(--navy-mid); color: #fff;">
-              <span>Tenders - Result of the techno-financial bid</span>
-              <span class="chevron" style="color: #fff;">›</span>
-            </div>
-            <div style="padding: 12px 16px; text-align: right; background: #f8fafc;">
-              <button class="view-more">VIEW MORE ›</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> <!-- End Auth Section -->
-
-    <!-- DASHBOARD SECTION (Hidden by default) -->
-    <div id="dashboardSection" style="display:none;">
-      
-      <!-- Profile Header -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 2px solid var(--navy); padding-bottom: 12px;">
-        <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-            <h2 id="userName" style="font-size: 18px; font-weight: 700; color: var(--navy);">Applicant Name</h2>
-            <span class="tag tag-green">✓ DigiLocker Verified</span>
-          </div>
-          <div style="font-size: 13px; color: var(--text-muted);">
-            <span id="userPan" style="margin-right: 16px;">PAN: N/A</span>
-            <span id="userSurvey">Survey: N/A</span>
-          </div>
-        </div>
-        <button class="btn btn-outline" onclick="logout()">Logout</button>
-      </div>
-
-      <div id="outageAlert" class="error-banner" style="display:none;">
-        <strong>Service Outage:</strong> Land Department API is unavailable (503). Retrying via circuit breaker...
-      </div>
-
-      <!-- Simulation Toolbar -->
-      <div class="sim-bar">
-        <strong style="color: var(--navy); font-size: 13px;">⚙️ Evaluator Controls</strong>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn btn-outline" onclick="toggleMutationStatus()">Toggle Mutation</button>
-          <button class="btn btn-outline" id="outageBtn" onclick="toggleOutageSimulation()">Simulate 503 (OFF)</button>
-          <button class="btn btn-primary" onclick="reEvaluateCurrentState()">Re-evaluate</button>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <!-- Interoperability Workflow -->
-        <div class="card">
-          <div class="card-header">
-            <span>Cross-Department Workflow</span>
-            <span class="tag tag-blue">Live</span>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <div id="workflowList">
-              <!-- Rendered via JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Schema Comparison -->
-        <div>
-          <div class="card" style="margin-bottom: 16px;">
-            <div class="card-header" style="font-size: 12px; padding: 8px 12px;">
-              Legacy Record (Raw JSON)
-            </div>
-            <div class="card-body" style="padding: 8px;">
-              <div id="rawLegacyJson" class="json-block" style="color: #fbbf24;"></div>
-            </div>
-          </div>
-          
-          <div class="card">
-            <div class="card-header" style="font-size: 12px; padding: 8px 12px;">
-              Canonical Platform Model
-            </div>
-            <div class="card-body" style="padding: 8px;">
-              <div id="canonicalJson" class="json-block" style="color: #4ade80;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Audit Logs -->
-      <div class="card">
-        <div class="card-header">
-          <span>Machine-to-Machine Audit Trail</span>
-        </div>
-        <div class="card-body" style="padding: 12px;">
-          <div id="auditLogList">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-      </div>
-
-    </div> <!-- End Dashboard Section -->
-
-    <!-- Static Footer Content matching reference image -->
-    <div style="margin-top: 40px;">
-      <div class="section-heading">
-        <span>Recent Documents</span>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-body">
-            <strong style="color: var(--navy); display: block; margin-bottom: 4px;">Act And Policies</strong>
-            <span style="font-size: 13px; color: var(--text-muted);">Rules for Information Technology Act 2000</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <strong style="color: var(--navy); display: block; margin-bottom: 4px;">Guideline</strong>
-            <span style="font-size: 13px; color: var(--text-muted);">Annexure-II Proforma (Scheme for GIA)</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div> <!-- End Container -->
-
-  <!-- OTP Modal -->
-  <div id="otpModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <h3 style="font-size: 16px; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">OTP Verification</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-        Enter code sent to <strong id="maskedPhoneSpan" style="color: var(--navy);">98765*****0</strong>
+    <!-- Hero Card -->
+    <div class="hero-card">
+      <div class="hero-badge">Interoperability & Process Orchestration</div>
+      <h2>Unified Single Window for Department Approvals</h2>
+      <p>
+        Eliminate redundant paper submissions. The Interoperability Layer connects authorized departmental APIs (Land Revenue 7/12, MPCB Environmental Clearance, MSEDCL Power Allocation) to resolve prerequisites automatically.
       </p>
-
-      <div class="info-banner">
-        <span>Demo Code: <strong id="demoOtpCodeSpan">654321</strong></span>
-        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="autoFillOtp()">Auto Fill</button>
-      </div>
-
-      <div id="otpError" class="error-banner" style="display:none;"></div>
-
-      <div class="form-group">
-        <input type="text" id="otpInput" class="form-input" placeholder="Enter 6-digit OTP" maxLength="6" style="letter-spacing: 4px; text-align: center; font-weight: 700; font-size: 18px;">
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-        <button class="btn btn-outline" onclick="closeOtpModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="verifyOtpSubmit()">Verify</button>
+      <div class="hero-actions">
+        <a href="/login.html" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem;">
+          Citizen / Investor Login (Aadhaar / PAN)
+        </a>
+        <a href="/register.html" class="btn btn-outline" style="padding: 12px 28px; font-size: 0.95rem;">
+          Register New Account
+        </a>
+        <a href="/dashboard.html?tab=status" class="btn btn-outline" style="padding: 12px 24px; font-size: 0.95rem;">
+          🔍 Track Application Status
+        </a>
       </div>
     </div>
-  </div>
+
+    <!-- Features Overview -->
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>🏛️ Land Revenue (7/12 Jamabandi)</h3>
+        <p>Automated verification of survey numbers, mutation status, encumbrances, and ownership records directly through the Land Department API.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🌱 Pollution Control (MPCB)</h3>
+        <p>Direct prerequisite resolution for Consent to Establish (CTE). MPCB automatically verifies Land ownership before clearing environmental reviews.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⚡ Electricity Discom (MSEDCL)</h3>
+        <p>High-tension and low-tension power connection feasibility checks synchronized with authorized site coordinates and land records.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🪄 Intelligent Process Wizard</h3>
+        <p>Guided questionnaire evaluating your project requirements to recommend all mandatory departmental microservices and licenses.</p>
+      </div>
+    </div>
+
+    <!-- Evaluator Quick Demo Notice (Easy to remove later) -->
+    <div style="margin-top: 32px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 8px; padding: 14px 20px; font-size: 0.82rem; color: #92400e; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <strong>Evaluator Notice (SIH 2026):</strong> Pre-seeded citizen accounts are available in SQLite (e.g. Ramesh Patil: Aadhaar <code>9988-7766-5544</code>, Sunita Deshmukh: PAN <code>SNDSH5678K</code>). Simulated OTP is <code>654321</code>.
+      </div>
+      <a href="/login.html" style="color: #b45309; font-weight: 700; text-decoration: underline;">Test Login ➔</a>
+    </div>
+
+  </main>
 
   <!-- Official Footer -->
   <footer class="gov-footer">
-    <span>© 2026 Government of India. All rights reserved.</span>
-    <span>Powered by Node.js</span>
+    Government of Maharashtra • Directorate of Industries • MAITRI Single Window Cell • SIH 2026 Prototype
   </footer>
 
-  <script src="/js/app.js"></script>
 </body>
 </html>
