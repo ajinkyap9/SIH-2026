@@ -673,10 +673,146 @@ body {
 }
 
 .quick-stat-label {
+/* ========================================================== */
+/* PIPELINE, CODE BLOCKS & SCHEMA MAPPING */
+/* ========================================================== */
+
+.code-block {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-family: 'Consolas', 'Courier New', monospace;
   font-size: 0.78rem;
+  overflow-x: auto;
+  line-height: 1.5;
+  border: 1px solid #1e293b;
+  margin: 8px 0;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.pipeline-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.pipeline-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.mapping-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: monospace;
+}
+
+.mapping-source { color: #dc2626; font-weight: 600; }
+.mapping-arrow { color: #2563eb; font-weight: 800; }
+.mapping-target { color: #16a34a; font-weight: 700; }
+
+/* Milestone Stepper */
+.stepper-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: 24px 0 30px;
+}
+
+.stepper-container::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 30px;
+  right: 30px;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.stepper-step {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  flex: 1;
+}
+
+.stepper-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.stepper-step.completed .stepper-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.stepper-step.active .stepper-circle {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.stepper-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.stepper-sublabel {
+  font-size: 0.7rem;
   color: var(--gov-text-muted);
-  font-weight: 600;
-  margin-top: 4px;
+}
+
+/* RAG Interactive Q&A chat bubble */
+.rag-box {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.rag-justification {
+  background: white;
+  border-left: 4px solid #2563eb;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #1e3a8a;
+  margin-top: 10px;
+  line-height: 1.4;
 }
 
 /* Footer */
