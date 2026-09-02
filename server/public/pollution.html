@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pollution Control Board | MAITRI</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+  <div class="tricolor-stripe"></div>
+  <div class="gov-top-bar">
+    <div>
+      <span style="font-weight: 600;">Government of Maharashtra</span>
+      <span style="margin-left: 10px; color: rgba(255,255,255,.6);">Pollution Control Board (MPCB)</span>
+    </div>
+    <div><a href="#">English</a> | <a href="#">मराठी</a></div>
+  </div>
+
+  <header class="gov-header">
+    <div class="gov-header-brand">
+      <div class="gov-header-logo">LOGO</div>
+      <div>
+        <h1>Environmental Consent Portal</h1>
+        <p>Consent to Establish & Operate Verification</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="gov-nav">
+    <a href="/"><span>MAITRI Home</span></a>
+    <a href="/land.html"><span>Land Department</span></a>
+    <a href="/electricity.html"><span>Electricity</span></a>
+    <a href="/pollution.html"><span class="active">Pollution / MPCB</span></a>
+  </nav>
+
+  <div class="container">
+    <div class="section-heading">
+      <span>Application Verification</span>
+    </div>
+
+    <!-- Demo Presets -->
+    <div class="preset-grid" style="margin-bottom: 24px;">
+      <div class="preset-card" onclick="autofill('MPCB-8821', 'ABCDE1234F', 'Chemical')">
+        <strong>MPCB-8821</strong>
+        <span>ABC Industries • CTE Approved</span>
+      </div>
+      <div class="preset-card" onclick="autofill('MPCB-8822', 'ABCDE1234F', 'Chemical')">
+        <strong>MPCB-8822</strong>
+        <span>ABC Industries • CTO Pending</span>
+      </div>
+      <div class="preset-card" onclick="autofill('MPCB-8999', 'OUTAG0000Z', 'Chemical')">
+        <strong>MPCB-8999</strong>
+        <span>Demo Outage (Simulates 503 error)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form id="pollutionForm" onsubmit="handleVerify(event)">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Application Number <span class="req">*</span></label>
+              <input type="text" id="appInput" class="form-input" placeholder="e.g. MPCB-8821" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Applicant PAN <span class="req">*</span></label>
+              <input type="text" id="panInput" class="form-input" placeholder="e.g. ABCDE1234F" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Industry Type <span class="req">*</span></label>
+              <input type="text" id="typeInput" class="form-input" placeholder="e.g. Chemical" required>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn btn-outline" onclick="handleLookup()">Fetch Record (Raw)</button>
+            <button type="submit" class="btn btn-primary">Run Interoperability Verification</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="resultsSection" style="display: none;">
+      <div id="outageAlert" class="error-banner" style="display:none;"></div>
+
+      <div id="verificationCard" class="card" style="display: none; border-top: 3px solid var(--navy);">
+        <div class="card-header">
+          <span>Verification Result</span>
+          <span id="dependencyStatus" class="tag"></span>
+        </div>
+        <div class="card-body">
+          <div id="checksList"></div>
+        </div>
+      </div>
+
+      <div class="sim-bar">
+        <strong style="color: var(--navy); font-size: 13px;">⚙️ Department Controls</strong>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-outline" onclick="toggleConsent()">Toggle Consent Status</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header" style="font-size: 12px; padding: 8px 12px;">Legacy Record (Raw JSON)</div>
+          <div class="card-body" style="padding: 8px;">
+            <div id="rawLegacyJson" class="json-block" style="color: #fbbf24;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" style="font-size: 12px; padding: 8px 12px;">Canonical Interop Model</div>
+          <div class="card-body" style="padding: 8px;">
+            <div id="canonicalJson" class="json-block" style="color: #4ade80;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span>Recent API Access Logs</span></div>
+        <div class="card-body" style="padding: 12px;">
+          <div id="auditLogList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/pollution.js"></script>
+</body>
+</html>

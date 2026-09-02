@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Records Department | MAITRI</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+  <!-- Tricolor Accent Top Bar -->
+  <div class="tricolor-stripe"></div>
+
+  <!-- Official Metadata Bar -->
+  <div class="gov-top-bar">
+    <div>
+      <span style="font-weight: 600;">Government of Maharashtra</span>
+      <span style="margin-left: 10px; color: rgba(255,255,255,.6);">Land Records Department (Revenue)</span>
+    </div>
+    <div>
+      <a href="#">Skip to main content</a> |
+      <a href="#">A-</a> <a href="#">A</a> <a href="#">A+</a> |
+      <a href="#">English</a> | <a href="#">मराठी</a>
+    </div>
+  </div>
+
+  <!-- Main Government Header -->
+  <header class="gov-header">
+    <div class="gov-header-brand">
+      <div class="gov-header-logo">LOGO</div>
+      <div>
+        <h1>Land Records Portal</h1>
+        <p>Authoritative Land Data & Mutation Tracking</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="background: #fff; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--text-muted); font-size: 13px;">Search...</span>
+        <span style="color: var(--navy);">🔍</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="gov-nav">
+    <a href="/"><span>MAITRI Home</span></a>
+    <a href="/land.html"><span class="active">Land Department</span></a>
+    <a href="/electricity.html"><span>Electricity</span></a>
+    <a href="/pollution.html"><span>Pollution / MPCB</span></a>
+  </nav>
+
+  <div class="container">
+    <div class="section-heading">
+      <span>Land Record Lookup & Verification</span>
+    </div>
+
+    <!-- Demo Presets -->
+    <div class="preset-grid" style="margin-bottom: 24px;">
+      <div class="preset-card" onclick="autofill('101', 'ABCDE1234F')">
+        <strong>Survey #101</strong>
+        <span>ABC Industries • Valid & Approved</span>
+      </div>
+      <div class="preset-card" onclick="autofill('103', 'ABCDE1234F')">
+        <strong>Survey #103</strong>
+        <span>ABC Industries • Mutation Pending</span>
+      </div>
+      <div class="preset-card" onclick="autofill('105', 'KONVL9012M')">
+        <strong>Survey #105</strong>
+        <span>Konkan Ventures • Encumbered</span>
+      </div>
+      <div class="preset-card" onclick="autofill('999', 'OUTAG0000Z')">
+        <strong>Survey #999</strong>
+        <span>Demo Outage (Simulates 503 error)</span>
+      </div>
+    </div>
+
+    <!-- Lookup Form -->
+    <div class="card">
+      <div class="card-body">
+        <form id="landForm" onsubmit="handleVerify(event)">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Survey Number / Gat No <span class="req">*</span></label>
+              <input type="text" id="surveyInput" class="form-input" placeholder="e.g. 101" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Applicant PAN (for identity check) <span class="req">*</span></label>
+              <input type="text" id="panInput" class="form-input" placeholder="e.g. ABCDE1234F" required>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn btn-outline" onclick="handleLookup()">Fetch Record (Raw)</button>
+            <button type="submit" class="btn btn-primary">Run Interoperability Verification</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results Section (Hidden initially) -->
+    <div id="resultsSection" style="display: none;">
+      
+      <div id="outageAlert" class="error-banner" style="display:none;"></div>
+
+      <!-- Verification Results -->
+      <div id="verificationCard" class="card" style="display: none; border-top: 3px solid var(--navy);">
+        <div class="card-header">
+          <span>Verification Result</span>
+          <span id="dependencyStatus" class="tag"></span>
+        </div>
+        <div class="card-body">
+          <div id="checksList"></div>
+        </div>
+      </div>
+
+      <div class="sim-bar">
+        <strong style="color: var(--navy); font-size: 13px;">⚙️ Department Controls</strong>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-outline" onclick="toggleMutation()">Toggle Mutation Status</button>
+        </div>
+      </div>
+
+      <!-- Data Viewers -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header" style="font-size: 12px; padding: 8px 12px;">
+            Legacy Record (Raw JSON)
+          </div>
+          <div class="card-body" style="padding: 8px;">
+            <div id="rawLegacyJson" class="json-block" style="color: #fbbf24;"></div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header" style="font-size: 12px; padding: 8px 12px;">
+            Canonical Interop Model
+          </div>
+          <div class="card-body" style="padding: 8px;">
+            <div id="canonicalJson" class="json-block" style="color: #4ade80;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Logs -->
+      <div class="card">
+        <div class="card-header">
+          <span>Recent API Access Logs</span>
+        </div>
+        <div class="card-body" style="padding: 12px;">
+          <div id="auditLogList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="gov-footer">
+    <span>© 2026 Government of Maharashtra. All rights reserved.</span>
+    <span>Simulated API Demo</span>
+  </footer>
+
+  <script src="/js/land.js"></script>
+</body>
+</html>

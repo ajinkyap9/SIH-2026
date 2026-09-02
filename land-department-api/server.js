@@ -10,6 +10,16 @@ const PORT = process.env.PORT || 4000;
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.get('/', (req, res) => {
   res.json({
     service: 'Land Records Department API (simulated)',
