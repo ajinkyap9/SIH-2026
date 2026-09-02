@@ -870,3 +870,142 @@ body {
   padding: 20px;
   border-top: 3px solid var(--gov-saffron);
 }
+
+/* ========================================================== */
+/* RAG INTERVIEW CHAT — MCQ Chips, Decision Cards, Waves      */
+/* ========================================================== */
+
+/* User chat bubble (right-aligned) */
+.rag-user-bubble {
+  margin: 10px 0;
+  text-align: right;
+}
+
+.rag-user-bubble span {
+  background: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  display: inline-block;
+  max-width: 80%;
+  text-align: left;
+  word-break: break-word;
+}
+
+/* MCQ Chip Buttons */
+.rag-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rag-chip {
+  background: white;
+  color: #1d4ed8;
+  border: 1.5px solid #93c5fd;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rag-chip:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.rag-chip-selected {
+  background: #2563eb !important;
+  color: white !important;
+  border-color: #1d4ed8 !important;
+}
+
+.rag-chip-disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Typing Indicator (three-dot pulse) */
+.rag-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.rag-typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background: #94a3b8;
+  border-radius: 50%;
+  animation: ragTypingBounce 1.2s infinite ease-in-out;
+}
+
+.rag-typing-indicator span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.rag-typing-indicator span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ragTypingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Decision Summary Card */
+.rag-decision-card {
+  background: white;
+  border: 2px solid #10b981;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 12px;
+}
+
+.rag-decision-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.92rem;
+  color: #166534;
+}
+
+/* Execution Wave Groups */
+.rag-wave-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.rag-wave-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rag-wave-step {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.82rem;
+}
+
+.rag-wave-step:last-child {
+  border-bottom: none;
+}

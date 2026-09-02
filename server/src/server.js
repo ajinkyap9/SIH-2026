@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import landRoutes from './routes/landRoutes.js';
 import interopRoutes from './routes/interopRoutes.js';
 import portalRoutes from './routes/portalRoutes.js';
+import interviewProxy from './routes/interviewProxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/land', landRoutes);
 app.use('/api/interop', interopRoutes);
 app.use('/api/portal', portalRoutes);
+app.use('/api/interview', interviewProxy);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

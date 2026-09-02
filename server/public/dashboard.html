@@ -421,17 +421,8 @@
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 8px;">
-              <div class="form-group">
-                <label class="form-label">Land Survey Number</label>
-                <input type="text" id="pipeSurvey" class="form-input" value="101" placeholder="e.g. 101" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Electricity App / Consumer ID</label>
-                <input type="text" id="pipeElec" class="form-input" value="ELEC-2026-00101" placeholder="e.g. ELEC-2026-00101" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">MPCB Application Number</label>
-                <input type="text" id="pipePoll" class="form-input" value="MPCB-8821" placeholder="e.g. MPCB-8821" required>
+              <div id="deptFieldsContainer" style="display: contents;">
+                <!-- Dynamically populated by buildConsentGate() from required_services decision -->
               </div>
               <div class="form-group">
                 <label class="form-label">Industry Type</label>
@@ -447,16 +438,8 @@
             <!-- Consent Verification Checkboxes (Matching /api/consent) -->
             <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 14px; border-radius: 8px; margin: 14px 0;">
               <strong style="font-size: 0.85rem; color: #1e3a8a;">DPDP Act Explicit Consent Gate:</strong>
-              <div style="display: flex; gap: 20px; margin-top: 8px; font-size: 0.82rem; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="consentLand" checked required> Consent for Land Revenue API
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="consentElec" checked required> Consent for MSEDCL Discom API
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="consentPoll" checked required> Consent for MPCB Pollution API
-                </label>
+              <div id="consentCheckboxes" style="display: flex; gap: 20px; margin-top: 8px; font-size: 0.82rem; flex-wrap: wrap;">
+                <!-- Dynamically populated by buildConsentGate() from required_services decision -->
               </div>
             </div>
 
@@ -1056,6 +1039,9 @@
           else menuBtn.classList.remove('active');
         }
       });
+
+      // Rebuild consent gate dynamically when navigating to Apply for Plant
+      if (secName === 'pipeline') buildConsentGate();
     }
 
     function setTopTab(btn) {
@@ -1152,51 +1138,191 @@
       }
     });
 
-    // RAG Conversational Simulation / Call
+    // ==========================================
+    // RAG Interview Service — Real API Integration
+    // ==========================================
+    const RAG_API_BASE = '/api/interview'; // proxied through Express to RAG service
     let ragSessionId = 'sess_' + Date.now();
-    async function sendRagMessage() {
+    let ragProfileComplete = false;
+
+    async function sendRagMessage(chipText) {
       const input = document.getElementById('ragUserInput');
-      const text = input.value.trim();
-      if (!text) return;
+      const text = chipText || input.value.trim();
+      if (!text || ragProfileComplete) return;
 
       const chatWindow = document.getElementById('ragChatWindow');
 
-      // User Bubble
+      // User bubble
       const userDiv = document.createElement('div');
-      userDiv.style.margin = '10px 0';
-      userDiv.style.textAlign = 'right';
-      userDiv.innerHTML = `<span style="background: #2563eb; color: white; padding: 8px 14px; border-radius: 12px; font-size: 0.82rem; display: inline-block;">${text}</span>`;
+      userDiv.className = 'rag-user-bubble';
+      userDiv.innerHTML = `<span>${text}</span>`;
       chatWindow.appendChild(userDiv);
       input.value = '';
 
-      // Assistant Response (Calls /api/interview/message or uses regulatory knowledge)
+      // Typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'rag-typing-indicator';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      chatWindow.appendChild(typingDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
       try {
-        let res = await fetch('/api/interview/message', {
+        const res = await fetch(`${RAG_API_BASE}/message`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ session_id: ragSessionId, user_response: text })
-        }).catch(() => null);
+        });
 
-        let data = res ? await res.json() : null;
+        const data = await res.json();
+        typingDiv.remove();
 
-        const aiDiv = document.createElement('div');
-        aiDiv.className = 'rag-box';
-        aiDiv.innerHTML = `
-          <strong>Regulatory Assistant:</strong>
-          <p style="margin-top: 4px; font-size: 0.85rem; color: #1e293b;">
-            Based on your requirement for <strong>${text.slice(0, 40)}...</strong>, the system identified prerequisite requirements: Land 7/12 ownership extract is required before MPCB Consent to Establish (CTE) can be evaluated.
-          </p>
-          <div class="rag-justification">
-            <strong>RAG Regulation Match:</strong> MPCB Environmental Siting Guidelines (Maharashtra Water Pollution Prevention Board) mandate verified site coordinates prior to environmental review.
-          </div>
-        `;
-        chatWindow.appendChild(aiDiv);
+        if (data.profile_complete) {
+          ragProfileComplete = true;
+
+          // Fetch decision from the RAG service
+          const decRes = await fetch(`${RAG_API_BASE}/${ragSessionId}/decision`);
+          const decision = await decRes.json();
+
+          // Persist decision in sessionStorage for Apply for Plant page
+          sessionStorage.setItem('maitri_decision', JSON.stringify(decision));
+
+          // Render decision card inside chat
+          renderDecisionCard(chatWindow, decision);
+        } else {
+          // Render assistant's next question
+          const aiDiv = document.createElement('div');
+          aiDiv.className = 'rag-box';
+          let questionHtml = `
+            <strong>Regulatory Assistant:</strong>
+            <p style="margin-top: 4px; font-size: 0.85rem; color: #1e293b;">
+              ${data.next_question || data.message || 'Please provide more details.'}
+            </p>
+          `;
+          aiDiv.innerHTML = questionHtml;
+
+          // Render MCQ option chips if present
+          if (data.options && data.options.length > 0) {
+            const chipContainer = document.createElement('div');
+            chipContainer.className = 'rag-chip-container';
+            data.options.forEach(opt => {
+              const chip = document.createElement('button');
+              chip.type = 'button';
+              chip.className = 'rag-chip';
+              chip.textContent = opt;
+              chip.onclick = () => {
+                chipContainer.querySelectorAll('.rag-chip').forEach(c => {
+                  c.disabled = true;
+                  c.classList.add('rag-chip-disabled');
+                });
+                chip.classList.add('rag-chip-selected');
+                sendRagMessage(opt);
+              };
+              chipContainer.appendChild(chip);
+            });
+            aiDiv.appendChild(chipContainer);
+          }
+
+          chatWindow.appendChild(aiDiv);
+        }
+
         chatWindow.scrollTop = chatWindow.scrollHeight;
-      } catch (err) {}
+      } catch (err) {
+        typingDiv.remove();
+        const errDiv = document.createElement('div');
+        errDiv.className = 'rag-box';
+        errDiv.style.borderColor = '#fca5a5';
+        errDiv.style.background = '#fef2f2';
+        errDiv.innerHTML = `
+          <strong style="color: #991b1b;">Connection Error</strong>
+          <p style="margin-top: 4px; font-size: 0.85rem; color: #991b1b;">
+            Unable to reach the Regulatory Intake Service. Please ensure the service is running and try again.
+          </p>
+        `;
+        chatWindow.appendChild(errDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }
+    }
+
+    function renderDecisionCard(chatWindow, decision) {
+      const card = document.createElement('div');
+      card.className = 'rag-decision-card';
+      const svcCount = (decision.required_services || []).length;
+
+      let html = `
+        <div class="rag-decision-header">
+          <strong>✓ Regulatory Intake Complete — Decision Summary</strong>
+          <span class="status-tag status-approved">${svcCount} Service${svcCount !== 1 ? 's' : ''} Required</span>
+        </div>
+      `;
+
+      // Required services badges
+      html += `<div style="margin: 12px 0 8px; font-size: 0.82rem; color: #334155;"><strong>Required Departmental Services:</strong></div>`;
+      html += `<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">`;
+      (decision.required_services || []).forEach(svc => {
+        html += `<span class="status-tag status-approved" style="font-size: 0.78rem;">${svc}</span>`;
+      });
+      html += `</div>`;
+
+      // Execution plan grouped by wave
+      if (decision.execution_plan && decision.execution_plan.length > 0) {
+        const waves = {};
+        decision.execution_plan.forEach(step => {
+          const w = step.wave || 1;
+          if (!waves[w]) waves[w] = [];
+          waves[w].push(step);
+        });
+
+        Object.keys(waves).sort((a, b) => a - b).forEach(waveNum => {
+          html += `<div class="rag-wave-group">`;
+          html += `<div class="rag-wave-header">Execution Wave ${waveNum}</div>`;
+          waves[waveNum].forEach(step => {
+            const depText = step.depends_on
+              ? (Array.isArray(step.depends_on) ? step.depends_on.join(', ') : step.depends_on)
+              : null;
+            html += `
+              <div class="rag-wave-step">
+                <div style="font-weight: 600; color: #0f172a;">${step.service}</div>
+                ${depText
+                  ? `<div style="font-size: 0.78rem; color: #64748b;">Depends on: ${depText}</div>`
+                  : '<div style="font-size: 0.78rem; color: #16a34a;">No dependencies — can start immediately</div>'}
+                ${step.reason ? `<div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">${step.reason}</div>` : ''}
+              </div>
+            `;
+          });
+          html += `</div>`;
+        });
+      }
+
+      // Reasoning block
+      if (decision.reasoning) {
+        html += `<div class="rag-justification" style="margin-top: 14px;"><strong>Regulatory Reasoning:</strong><br>`;
+        if (typeof decision.reasoning === 'string') {
+          html += decision.reasoning;
+        } else {
+          Object.entries(decision.reasoning).forEach(([key, val]) => {
+            html += `<div style="margin-top: 4px;"><strong>${key}:</strong> ${val}</div>`;
+          });
+        }
+        html += `</div>`;
+      }
+
+      // Transfer to Apply for Plant
+      html += `
+        <div style="margin-top: 16px; text-align: right;">
+          <button onclick="transferToPipeline()" class="btn btn-primary" style="padding: 10px 20px;">
+            Proceed to Apply for Plant ➔
+          </button>
+        </div>
+      `;
+
+      card.innerHTML = html;
+      chatWindow.appendChild(card);
     }
 
     function resetRagSession() {
       ragSessionId = 'sess_' + Date.now();
+      ragProfileComplete = false;
+      sessionStorage.removeItem('maitri_decision');
       const chatWindow = document.getElementById('ragChatWindow');
       chatWindow.innerHTML = `
         <div class="rag-box">
@@ -1206,6 +1332,96 @@
           </p>
         </div>
       `;
+    }
+
+    // Enter key support for chat input
+    document.getElementById('ragUserInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendRagMessage();
+      }
+    });
+
+    // ==========================================
+    // Dynamic Consent Gate Builder (from RAG decision)
+    // ==========================================
+    function buildConsentGate() {
+      const deptContainer = document.getElementById('deptFieldsContainer');
+      const consentContainer = document.getElementById('consentCheckboxes');
+      if (!deptContainer || !consentContainer) return;
+
+      const decisionRaw = sessionStorage.getItem('maitri_decision');
+
+      // Maps service key patterns to their corresponding form fields and consent checkboxes
+      const SERVICE_MAP = {
+        land: {
+          fieldLabel: 'Land Survey Number',
+          fieldId: 'pipeSurvey',
+          fieldValue: '101',
+          fieldPlaceholder: 'e.g. 101',
+          consentId: 'consentLand',
+          consentLabel: 'Consent for Land Revenue API',
+          match: (svc) => /land|revenue|7\/12|712|jamabandi/i.test(svc)
+        },
+        electricity: {
+          fieldLabel: 'Electricity App / Consumer ID',
+          fieldId: 'pipeElec',
+          fieldValue: 'ELEC-2026-00101',
+          fieldPlaceholder: 'e.g. ELEC-2026-00101',
+          consentId: 'consentElec',
+          consentLabel: 'Consent for MSEDCL Discom API',
+          match: (svc) => /elec|msedcl|discom|power|ht/i.test(svc)
+        },
+        pollution: {
+          fieldLabel: 'MPCB Application Number',
+          fieldId: 'pipePoll',
+          fieldValue: 'MPCB-8821',
+          fieldPlaceholder: 'e.g. MPCB-8821',
+          consentId: 'consentPoll',
+          consentLabel: 'Consent for MPCB Pollution API',
+          match: (svc) => /poll|mpcb|environment|cte|consent.to.establish/i.test(svc)
+        }
+      };
+
+      let requiredKeys = ['land', 'electricity', 'pollution']; // fallback: show all 3
+
+      if (decisionRaw) {
+        try {
+          const decision = JSON.parse(decisionRaw);
+          if (decision.required_services && decision.required_services.length > 0) {
+            const matched = [];
+            decision.required_services.forEach(svc => {
+              Object.entries(SERVICE_MAP).forEach(([key, cfg]) => {
+                if (cfg.match(svc) && !matched.includes(key)) matched.push(key);
+              });
+            });
+            if (matched.length > 0) requiredKeys = matched;
+          }
+        } catch (e) { /* invalid JSON — fallback to all */ }
+      }
+
+      // Render department input fields
+      deptContainer.innerHTML = '';
+      requiredKeys.forEach(key => {
+        const cfg = SERVICE_MAP[key];
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+          <label class="form-label">${cfg.fieldLabel}</label>
+          <input type="text" id="${cfg.fieldId}" class="form-input" value="${cfg.fieldValue}" placeholder="${cfg.fieldPlaceholder}" required>
+        `;
+        deptContainer.appendChild(div);
+      });
+
+      // Render consent checkboxes (default checked)
+      consentContainer.innerHTML = '';
+      requiredKeys.forEach(key => {
+        const cfg = SERVICE_MAP[key];
+        const label = document.createElement('label');
+        label.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer;';
+        label.innerHTML = `<input type="checkbox" id="${cfg.consentId}" checked required> ${cfg.consentLabel}`;
+        consentContainer.appendChild(label);
+      });
     }
 
     function transferToPipeline() {
@@ -1225,9 +1441,9 @@
       const payload = {
         project_name: document.getElementById('pipeProjectName').value.trim(),
         organization_pan: document.getElementById('pipePan').value.trim().toUpperCase(),
-        land_survey_number: document.getElementById('pipeSurvey').value.trim(),
-        electricity_application_number: document.getElementById('pipeElec').value.trim(),
-        pollution_application_number: document.getElementById('pipePoll').value.trim(),
+        land_survey_number: (document.getElementById('pipeSurvey')?.value || '').trim(),
+        electricity_application_number: (document.getElementById('pipeElec')?.value || '').trim(),
+        pollution_application_number: (document.getElementById('pipePoll')?.value || '').trim(),
         industry_type: document.getElementById('pipeIndustryType').value
       };
 
