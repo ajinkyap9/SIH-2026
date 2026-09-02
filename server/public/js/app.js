@@ -1,4 +1,4 @@
-// Government Interoperability Platform — Native Vanilla JavaScript Logic
+// G2C Citizen Interoperability Gateway — Native Vanilla JavaScript Logic
 
 let currentSession = null;
 let currentTxnData = null;
@@ -46,11 +46,11 @@ function updateInputPlaceholder() {
   input.value = '';
 
   if (isAadhaar) {
-    label.innerHTML = 'Enter 12-Digit Aadhaar Number <span class="req-star">*</span>';
+    label.innerHTML = 'Enter 12-Digit Citizen Aadhaar Number <span class="req-star">*</span>';
     input.placeholder = 'e.g. 9988-7766-5544';
   } else {
-    label.innerHTML = 'Enter 10-Character Permanent Account Number (PAN) <span class="req-star">*</span>';
-    input.placeholder = 'e.g. ABCDE1234F';
+    label.innerHTML = 'Enter 10-Character Citizen PAN Card <span class="req-star">*</span>';
+    input.placeholder = 'e.g. RMPTL1234F';
   }
 }
 
@@ -80,7 +80,7 @@ async function handleRequestOtp(e) {
     return;
   }
   if (!isAadhaar && cleanVal.length !== 10) {
-    showError('Please enter a valid 10-character PAN number (e.g. ABCDE1234F).');
+    showError('Please enter a valid 10-character PAN number (e.g. RMPTL1234F).');
     return;
   }
 
@@ -167,7 +167,7 @@ async function verifyOtpSubmit() {
   }
 }
 
-// Render Interoperability Dashboard View
+// Render G2C Citizen Interoperability Dashboard View
 function showDashboard(user) {
   document.getElementById('authSection').style.display = 'none';
   document.getElementById('dashboardSection').style.display = 'block';
@@ -183,7 +183,7 @@ function showDashboard(user) {
 }
 
 async function evaluateProject(surveyNo) {
-  const surveyToUse = surveyNo || currentSession.registeredLandSurvey || '102';
+  const surveyToUse = surveyNo || currentSession.registeredLandSurvey || '101';
 
   try {
     const res = await fetch('/api/interop/evaluate-project', {
@@ -191,6 +191,7 @@ async function evaluateProject(surveyNo) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         applicantPan: currentSession.pan,
+        applicantAadhaar: currentSession.aadhaar,
         surveyNumber: surveyToUse
       })
     });
@@ -216,13 +217,13 @@ function renderWorkflowTable(workflow) {
     const tr = document.createElement('tr');
     let statusClass = 'status-waiting';
     if (dep.status === 'RESOLVED') statusClass = 'status-resolved';
-    if (dep.status === 'BLOCKED' || dep.status === 'FAILED') statusClass = 'status-blocked';
+    if (dep.status === 'BLOCKED' || dep.status === 'FAILED' || dep.status === 'ACTION_REQUIRED') statusClass = 'status-blocked';
 
     tr.innerHTML = `
       <td><strong>${dep.title}</strong></td>
       <td>${dep.department}</td>
       <td><span class="status-tag ${statusClass}">${dep.status}</span></td>
-      <td style="font-size: 0.8rem; color: #475569;">${dep.reason || 'Prerequisites satisfied'}</td>
+      <td style="font-size: 0.8rem; color: #475569;">${dep.reason || 'Citizen prerequisites satisfied'}</td>
     `;
     tbody.appendChild(tr);
   });
