@@ -393,7 +393,53 @@ body {
 .sidebar-divider {
   height: 1px;
   background: var(--gov-border);
-  margin: 12px 0;
+  margin: 10px 0;
+}
+
+.sidebar-group-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  padding: 6px 10px 2px;
+  margin-top: 4px;
+}
+
+.sidebar-subgroup-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  margin: 6px 0 2px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-subgroup-toggle:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.sidebar-subgroup-content {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 6px;
+  border-left: 2px solid #e2e8f0;
+  margin-left: 6px;
+  margin-top: 4px;
+}
+
+.sidebar-subgroup-content.open {
+  display: flex;
 }
 
 /* Dashboard Main Content */

@@ -57,50 +57,59 @@
 
     <!-- LEFT SIDEBAR -->
     <aside class="dashboard-sidebar">
+
+      <!-- Subgroup 1: Core Citizen & Investor Services -->
+      <div class="sidebar-group-label">Citizen Services</div>
       <button type="button" class="sidebar-item active" id="menu-dashboard" onclick="switchSection('dashboard')">
-        <span>📊</span> Dashboard
+        <span>📊</span> Overview
       </button>
       <button type="button" class="sidebar-item" id="menu-process" onclick="switchSection('process')">
-        <span>🪄</span> Investor Wizard (RAG)
+        <span>🪄</span> Find Permissions
       </button>
       <button type="button" class="sidebar-item" id="menu-pipeline" onclick="switchSection('pipeline')">
-        <span>⚡</span> Interop Pipeline
+        <span>⚡</span> Apply for Plant
       </button>
       <button type="button" class="sidebar-item" id="menu-status" onclick="switchSection('status')">
-        <span>🔍</span> Check Status
-      </button>
-
-      <div class="sidebar-divider"></div>
-      <div style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; padding: 4px 12px; text-transform: uppercase;">
-        Evaluator & System Tools
-      </div>
-
-      <button type="button" class="sidebar-item" id="menu-schema" onclick="switchSection('schema')">
-        <span>⚙️</span> AI Schema Drift
-      </button>
-      <button type="button" class="sidebar-item" id="menu-resilience" onclick="switchSection('resilience')">
-        <span>🛡️</span> Resilience Sandbox
-      </button>
-      <button type="button" class="sidebar-item" id="menu-audit" onclick="switchSection('audit')">
-        <span>📜</span> Masked Audit Trail
+        <span>🔍</span> Track Application
       </button>
 
       <div class="sidebar-divider"></div>
 
+      <!-- Subgroup 2: Helpdesk, Support & Grievances -->
+      <div class="sidebar-group-label">Help & Complaints</div>
       <button type="button" class="sidebar-item" id="menu-query" onclick="switchSection('query')">
-        <span>❓</span> Query Dashboard
+        <span>❓</span> Ask a Question
       </button>
       <button type="button" class="sidebar-item" id="menu-grievance" onclick="switchSection('grievance')">
-        <span>📝</span> Grievance Dashboard
+        <span>📝</span> File Complaint
       </button>
       <button type="button" class="sidebar-item" id="menu-feedback" onclick="switchSection('feedback')">
-        <span>📋</span> Feedback
+        <span>📋</span> Share Feedback
       </button>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Subgroup 3: Masked Technical & Evaluator Tools (Collapsible on click) -->
+      <button type="button" class="sidebar-subgroup-toggle" onclick="toggleSubgroup('subgroup-tools')">
+        <span>⚙️ System Tools</span>
+        <span id="subgroup-tools-arrow">▾</span>
+      </button>
+      <div id="subgroup-tools" class="sidebar-subgroup-content">
+        <button type="button" class="sidebar-item" id="menu-schema" onclick="switchSection('schema')" style="font-size: 0.8rem; padding: 7px 10px;">
+          <span>⚙️</span> API Auto-Updates
+        </button>
+        <button type="button" class="sidebar-item" id="menu-resilience" onclick="switchSection('resilience')" style="font-size: 0.8rem; padding: 7px 10px;">
+          <span>🛡️</span> Outage Testing
+        </button>
+        <button type="button" class="sidebar-item" id="menu-audit" onclick="switchSection('audit')" style="font-size: 0.8rem; padding: 7px 10px;">
+          <span>📜</span> Privacy Audit Logs
+        </button>
+      </div>
 
       <div class="sidebar-divider"></div>
 
       <a href="/" class="sidebar-item" style="color: #64748b;">
-        <span>🏠</span> Public Portal
+        <span>🏠</span> Public Home
       </a>
     </aside>
 
@@ -1011,9 +1020,28 @@
     const initialTab = urlParams.get('tab');
     if (initialTab) switchSection(initialTab);
 
-    // Sidebar navigation
+    // Sidebar navigation & subgroup toggle
+    function toggleSubgroup(id) {
+      const el = document.getElementById(id);
+      const arrow = document.getElementById(id + '-arrow');
+      if (el) {
+        el.classList.toggle('open');
+        if (arrow) arrow.innerText = el.classList.contains('open') ? '▴' : '▾';
+      }
+    }
+
     function switchSection(secName) {
       const sections = ['dashboard', 'process', 'pipeline', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
+      const advancedTools = ['schema', 'resilience', 'audit'];
+
+      // If user navigates to an advanced tool, auto-expand the collapsible subgroup
+      if (advancedTools.includes(secName)) {
+        const sub = document.getElementById('subgroup-tools');
+        const arrow = document.getElementById('subgroup-tools-arrow');
+        if (sub) sub.classList.add('open');
+        if (arrow) arrow.innerText = '▴';
+      }
+
       sections.forEach(s => {
         const el = document.getElementById(`section-${s}`);
         const menuBtn = document.getElementById(`menu-${s}`);
