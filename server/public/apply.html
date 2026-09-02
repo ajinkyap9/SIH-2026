@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Single Window Application Submission | MAITRI</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+  <!-- Tricolor Accent Top Bar -->
+  <div class="tricolor-stripe"></div>
+
+  <!-- Official Metadata Bar -->
+  <div class="gov-top-bar">
+    <div>
+      <span style="font-weight: 600;">Government of Maharashtra</span>
+      <span style="margin-left: 10px; color: rgba(255,255,255,.6);">MAITRI Single Window Clearance System</span>
+    </div>
+    <div>
+      <a href="#">Skip to main content</a> |
+      <a href="#">A-</a> <a href="#">A</a> <a href="#">A+</a> |
+      <a href="#">English</a> | <a href="#">मराठी</a>
+    </div>
+  </div>
+
+  <!-- Main Government Header -->
+  <header class="gov-header">
+    <div class="gov-header-brand">
+      <div class="gov-header-logo">LOGO</div>
+      <div>
+        <h1>Single Window Application Submission</h1>
+        <p>Unified Project Clearance & Interoperability Orchestration (Secondary Feature)</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="background: #fff; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--text-muted); font-size: 13px;">Search...</span>
+        <span style="color: var(--navy);">🔍</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="gov-nav">
+    <a href="/"><span>MAITRI Home</span></a>
+    <a href="/apply.html"><span class="active">Apply / Submit</span></a>
+    <a href="/land.html"><span>Land Department</span></a>
+    <a href="/electricity.html"><span>Electricity</span></a>
+    <a href="/pollution.html"><span>Pollution / MPCB</span></a>
+  </nav>
+
+  <div class="container">
+    <div class="section-heading">
+      <span>Unified Industrial Project Application Form (CAF)</span>
+    </div>
+
+    <div class="info-banner" style="margin-bottom: 20px;">
+      <div>
+        <strong>ℹ️ Interoperability Application Notice:</strong> Submitting this Common Application Form (CAF) triggers parallel verification workflows across the Land Revenue Department, MSEDCL Electricity, and MPCB Pollution Control.
+      </div>
+    </div>
+
+    <!-- Demo Presets -->
+    <div class="preset-grid" style="margin-bottom: 24px;">
+      <div class="preset-card" onclick="autofillApplication('ABC Industries Pvt Ltd', 'ABCDE1234F', 'INDUSTRIAL', '101', '500')">
+        <strong>ABC Industries</strong>
+        <span>PAN: ABCDE1234F • Industrial Land #101 • 500 kW</span>
+      </div>
+      <div class="preset-card" onclick="autofillApplication('XYZ Manufacturing Ltd', 'FGHIJ5678K', 'INDUSTRIAL', '102', '250')">
+        <strong>XYZ Manufacturing</strong>
+        <span>PAN: FGHIJ5678K • Chakan MIDC • 250 kW</span>
+      </div>
+      <div class="preset-card" onclick="autofillApplication('Konkan Agro Ventures', 'RSTUV3456W', 'COMMERCIAL', '104', '80')">
+        <strong>Konkan Agro Ventures</strong>
+        <span>PAN: RSTUV3456W • Agro-Processing • 80 kW</span>
+      </div>
+    </div>
+
+    <!-- Application Form -->
+    <div class="card">
+      <div class="card-header">
+        <span>Part A: Organization & Project Particulars</span>
+        <span class="tag tag-blue">PAN-Based Identity</span>
+      </div>
+      <div class="card-body">
+        <form id="submissionForm" onsubmit="handleApplicationSubmit(event)">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Legal Organization Name <span class="req">*</span></label>
+              <input type="text" id="orgNameInput" class="form-input" placeholder="e.g. ABC Industries Pvt Ltd" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Organization PAN <span class="req">*</span></label>
+              <input type="text" id="orgPanInput" class="form-input" placeholder="e.g. ABCDE1234F" maxlength="10" required style="text-transform: uppercase;">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Project / Industry Category <span class="req">*</span></label>
+              <select id="projectTypeInput" class="form-input" required>
+                <option value="INDUSTRIAL">Industrial / Manufacturing (Orange/Red Category)</option>
+                <option value="COMMERCIAL">Commercial / IT Park</option>
+                <option value="AGRICULTURAL">Agro-Processing Unit</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Proposed Land Survey / Gat No <span class="req">*</span></label>
+              <input type="text" id="surveyNoInput" class="form-input" placeholder="e.g. 101" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Required Power Load (kW) <span class="req">*</span></label>
+              <input type="number" id="loadInput" class="form-input" placeholder="e.g. 500" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">District / Location <span class="req">*</span></label>
+              <input type="text" id="locationInput" class="form-input" placeholder="e.g. Pune / Haveli" required value="Pune">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <span style="font-size: 12px; color: var(--text-muted);">Self-declaration: Authorized signatory verified via corporate PAN.</span>
+            <button type="submit" id="submitBtn" class="btn btn-primary">Submit Application ➔</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Submission Acknowledgement & Dependency Workflow Result -->
+    <div id="submissionResult" style="display: none;">
+      <div class="card" style="border-top: 3px solid var(--success);">
+        <div class="card-header">
+          <span>Application Acknowledged (Workflow Initiated)</span>
+          <span id="appStatusBadge" class="tag tag-green">WORKFLOW_INITIATED</span>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+            <div>
+              <div style="font-size: 12px; color: var(--text-muted);">Application Reference Number:</div>
+              <strong id="ackAppId" style="font-size: 18px; color: var(--navy); font-family: monospace;">MAITRI-APP-000000</strong>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 12px; color: var(--text-muted);">Primary Identifier (PAN):</div>
+              <strong id="ackPan" style="font-size: 15px; color: var(--text);">ABCDE1234F</strong>
+            </div>
+          </div>
+
+          <div class="section-heading" style="margin-top: 10px; font-size: 13px;">
+            <span>Generated Parallel Department Verification Dependencies:</span>
+          </div>
+
+          <div id="dependencyChecklist">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Orchestration Payload Response -->
+      <div class="card">
+        <div class="card-header" style="font-size: 12px; padding: 8px 12px;">
+          <span>Interoperability Layer Orchestration Response (JSON)</span>
+        </div>
+        <div class="card-body" style="padding: 8px;">
+          <div id="rawSubmitJson" class="json-block" style="color: #4ade80;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End Container -->
+
+  <footer class="gov-footer">
+    <span>© 2026 Government of Maharashtra • MAITRI Interoperability Layer</span>
+    <span>Simulated Single Window Portal</span>
+  </footer>
+
+  <script src="/js/apply.js"></script>
+</body>
+</html>

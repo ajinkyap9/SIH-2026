@@ -61,42 +61,61 @@ async function handleVerify(e) {
   hideOutage();
 
   try {
-    const res = await fetch(`${ELECTRICITY_API_URL}/verify`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ application_number: appNo, pan: pan })
-    });
-    
-    const data = await res.json();
-    
-    if (!res.ok) {
-      return showOutage(data.message || data.detail || 'API Outage simulated or error.');
+    // 1. Fetch raw record from Department API
+    const resRaw = await fetch(`${ELECTRICITY_API_URL}/applications/${appNo}`, { headers: getHeaders() });
+    const dataRaw = await resRaw.json();
+
+    if (resRaw.status === 503) {
+      return showOutage(dataRaw.message || dataRaw.detail || 'API Outage simulated.');
     }
 
-    document.getElementById('verificationCard').style.display = 'block';
-    document.getElementById('rawLegacyJson').innerText = 'Fetched internally by engine...';
-    document.getElementById('canonicalJson').innerText = JSON.stringify(data.application, null, 2);
-    
-    const statusBadge = document.getElementById('dependencyStatus');
-    statusBadge.innerText = data.status === 'SUCCESS' ? (data.pan_match ? 'RESOLVED' : 'PAN MISMATCH') : data.status;
-    statusBadge.className = 'tag ' + (
-      data.pan_match ? 'tag-green' : 'tag-red'
-    );
+    if (!resRaw.ok) {
+        return alert(`Error fetching raw record: ${dataRaw.message || dataRaw.detail}`);
+    }
 
-    const checksContainer = document.getElementById('checksList');
-    checksContainer.innerHTML = '';
-    
-    const row = document.createElement('div');
-    row.className = 'list-row';
-    row.innerHTML = `
-      <span>PAN Match</span>
-      <span style="font-weight:bold; color: ${data.pan_match ? 'var(--success)' : 'var(--danger)'};">${data.pan_match ? 'PASS' : 'FAIL'}</span>
-    `;
-    checksContainer.appendChild(row);
+    document.getElementById('rawLegacyJson').innerText = JSON.stringify(dataRaw, null, 2);
 
+    // 2. Send to Central Interoperability Engine
+    const resInterop = await fetch(`http://localhost:5000/api/interop/verify-dependency`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+          department: 'ELECTRICITY', 
+          rawData: dataRaw, 
+          organizationPan: pan 
+      })
+    });
+    
+    const data = await resInterop.json();
+    
+    if (resInterop.ok) {
+      document.getElementById('verificationCard').style.display = 'block';
+      document.getElementById('canonicalJson').innerText = JSON.stringify(data.canonicalModel, null, 2);
+      
+      const statusBadge = document.getElementById('dependencyStatus');
+      statusBadge.innerText = data.dependencyStatus;
+      statusBadge.className = 'tag ' + (
+        data.dependencyStatus === 'RESOLVED' ? 'tag-green' : 
+        data.dependencyStatus === 'WAITING' ? 'tag-amber' : 'tag-red'
+      );
+
+      const checksContainer = document.getElementById('checksList');
+      checksContainer.innerHTML = '';
+      
+      const row = document.createElement('div');
+      row.className = 'list-row';
+      row.innerHTML = `
+        <span>Reasoning</span>
+        <span style="font-weight:bold; color: var(--text);">${data.dependencyReason}</span>
+      `;
+      checksContainer.appendChild(row);
+      
+    } else {
+      alert(`Interop Engine Error: ${data.message}`);
+    }
     fetchAuditLogs();
   } catch (err) {
-    showOutage('Connection refused. Is the Electricity API running on port 4001?');
+    showOutage('Connection refused or Interop backend unavailable.');
   }
 }
 
@@ -140,17 +159,17 @@ async function toggleStatus() {
 
 async function fetchAuditLogs() {
   try {
-    const res = await fetch(`${ELECTRICITY_API_URL}/audit/logs?limit=5`, { headers: getHeaders() });
+    const res = await fetch(`http://localhost:4001/api/audit?limit=5`, { headers: getHeaders() });
     const data = await res.json();
-    if (res.ok && data.logs) {
+    if (res.ok && Array.isArray(data)) {
       const list = document.getElementById('auditLogList');
       list.innerHTML = '';
-      data.logs.forEach(log => {
+      data.forEach(log => {
         const item = document.createElement('div');
         item.className = 'audit-row';
         item.innerHTML = `
-          <span>[${log.timestamp}] ${log.endpoint} (${log.outcome})</span>
-          <span style="color: var(--navy);">${log.transaction_id}</span>
+          <span>[${log.timestamp || new Date().toISOString()}] ${log.endpoint} (${log.outcome})</span>
+          <span style="color: var(--navy);">${log.transaction_id || ''}</span>
         `;
         list.appendChild(item);
       });

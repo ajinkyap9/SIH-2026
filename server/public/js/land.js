@@ -71,47 +71,61 @@ async function handleVerify(e) {
   hideOutage();
 
   try {
-    const res = await fetch(`${LAND_API_URL}/verify`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ surveyNumber: survey, pan: pan })
-    });
-    
-    const data = await res.json();
-    
-    if (res.status === 503) {
-      return showOutage(data.message || 'API Outage simulated.');
+    // 1. Fetch raw record from Department API
+    const resRaw = await fetch(`${LAND_API_URL}/records/${survey}`, { headers: getHeaders() });
+    const dataRaw = await resRaw.json();
+
+    if (resRaw.status === 503) {
+      return showOutage(dataRaw.message || 'API Outage simulated.');
     }
 
-    if (res.ok) {
+    if (!resRaw.ok) {
+        return alert(`Error fetching raw record: ${dataRaw.message}`);
+    }
+
+    document.getElementById('rawLegacyJson').innerText = JSON.stringify(dataRaw, null, 2);
+
+    // 2. Send to Central Interoperability Engine
+    const resInterop = await fetch(`http://localhost:5000/api/interop/verify-dependency`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+          department: 'LAND', 
+          rawData: dataRaw, 
+          organizationPan: pan 
+      })
+    });
+    
+    const data = await resInterop.json();
+    
+    if (resInterop.ok) {
       document.getElementById('verificationCard').style.display = 'block';
-      document.getElementById('rawLegacyJson').innerText = 'Fetched internally by engine...';
-      document.getElementById('canonicalJson').innerText = JSON.stringify(data.canonical, null, 2);
+      document.getElementById('canonicalJson').innerText = JSON.stringify(data.canonicalModel, null, 2);
       
       const statusBadge = document.getElementById('dependencyStatus');
-      statusBadge.innerText = data.dependency_status;
+      statusBadge.innerText = data.dependencyStatus;
       statusBadge.className = 'tag ' + (
-        data.dependency_status === 'RESOLVED' ? 'tag-green' : 
-        data.dependency_status === 'WAITING' ? 'tag-amber' : 'tag-red'
+        data.dependencyStatus === 'RESOLVED' ? 'tag-green' : 
+        data.dependencyStatus === 'WAITING' ? 'tag-amber' : 'tag-red'
       );
 
       const checksContainer = document.getElementById('checksList');
       checksContainer.innerHTML = '';
-      for (const [key, value] of Object.entries(data.checks)) {
-        const row = document.createElement('div');
-        row.className = 'list-row';
-        row.innerHTML = `
-          <span>${key}</span>
-          <span style="font-weight:bold; color: ${value ? 'var(--success)' : 'var(--danger)'};">${value ? 'PASS' : 'FAIL'}</span>
-        `;
-        checksContainer.appendChild(row);
-      }
+      
+      const row = document.createElement('div');
+      row.className = 'list-row';
+      row.innerHTML = `
+        <span>Reasoning</span>
+        <span style="font-weight:bold; color: var(--text);">${data.dependencyReason}</span>
+      `;
+      checksContainer.appendChild(row);
+      
     } else {
-      alert(`Error: ${data.message}`);
+      alert(`Interop Engine Error: ${data.message}`);
     }
     fetchAuditLogs();
   } catch (err) {
-    showOutage('Connection refused. Is the Land API running on port 4000?');
+    showOutage('Connection refused or Interop backend unavailable.');
   }
 }
 

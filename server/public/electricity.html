@@ -28,6 +28,7 @@
 
   <nav class="gov-nav">
     <a href="/"><span>MAITRI Home</span></a>
+    <a href="/apply.html"><span>Apply / Submit</span></a>
     <a href="/land.html"><span>Land Department</span></a>
     <a href="/electricity.html"><span class="active">Electricity</span></a>
     <a href="/pollution.html"><span>Pollution / MPCB</span></a>
@@ -75,7 +76,7 @@
       </div>
     </div>
 
-    <div id="resultsSection" style="display: none;">
+    <div id="resultsSection">
       <div id="outageAlert" class="error-banner" style="display:none;"></div>
 
       <div id="verificationCard" class="card" style="display: none; border-top: 3px solid var(--navy);">
@@ -99,13 +100,13 @@
         <div class="card">
           <div class="card-header" style="font-size: 12px; padding: 8px 12px;">Legacy Record (Raw JSON)</div>
           <div class="card-body" style="padding: 8px;">
-            <div id="rawLegacyJson" class="json-block" style="color: #fbbf24;"></div>
+            <div id="rawLegacyJson" class="json-block" style="color: #fbbf24;">Click "Fetch Record" or "Run Verification" to view data...</div>
           </div>
         </div>
         <div class="card">
           <div class="card-header" style="font-size: 12px; padding: 8px 12px;">Canonical Interop Model</div>
           <div class="card-body" style="padding: 8px;">
-            <div id="canonicalJson" class="json-block" style="color: #4ade80;"></div>
+            <div id="canonicalJson" class="json-block" style="color: #4ade80;">Normalized canonical schema will appear here...</div>
           </div>
         </div>
       </div>
@@ -113,7 +114,7 @@
       <div class="card">
         <div class="card-header"><span>Recent API Access Logs</span></div>
         <div class="card-body" style="padding: 12px;">
-          <div id="auditLogList"></div>
+          <div id="auditLogList"><span style="color: var(--text-muted); font-size: 12px;">Logs will populate after an API call...</span></div>
         </div>
       </div>
     </div>
