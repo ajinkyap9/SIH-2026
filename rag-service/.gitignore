@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Environment
+.env
+*.env
+.env.*
+!.env.example
+
+# FAISS Vector Index
+faiss_index/
+
+# Logs
+*.log
