@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAITRI Interoperability & e-KYC Gateway | Government of Maharashtra</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+</head>
+<body>
+
+  <!-- Tricolor Accent Top Bar -->
+  <div class="tricolor-stripe"></div>
+
+  <!-- Official Metadata Bar -->
+  <div class="gov-top-bar">
+    <div>
+      <strong>GOVERNMENT OF INDIA</strong> • National Single Window System Interoperability Gateway
+    </div>
+    <div>
+      <span>🔒 256-Bit e-KYC Encrypted</span>
+      <a href="#">English</a> | <a href="#">मराठी</a> | <a href="#">हिन्दी</a>
+    </div>
+  </div>
+
+  <!-- Main Government Header -->
+  <header class="gov-main-header">
+    <div class="gov-brand">
+      <div class="gov-logo-box">🏛️</div>
+      <div class="gov-title-text">
+        <h1>MAITRI Interoperability Platform</h1>
+        <p>Cross-Departmental API & Dependency Resolution Layer • Land, Electricity & MPCB</p>
+      </div>
+    </div>
+    <div>
+      <div class="ekyc-badge">
+        ✓ DigiLocker e-KYC Certified
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="gov-container">
+
+    <!-- Evaluator Demo Panel -->
+    <div class="evaluator-demo-box">
+      <div class="demo-title">
+        <span>⚡ Evaluator Quick Presets (Click to Auto-Fill Credentials)</span>
+        <span style="font-size: 0.75rem; font-weight: normal; color: #78350f;">SIH 2026 Submission</span>
+      </div>
+      <div class="demo-buttons-grid">
+        <button type="button" class="demo-btn" onclick="selectDemoPreset('pan', 'ABCDE1234F')">
+          <strong>ABC Industries Pvt Ltd</strong>
+          <span>PAN: ABCDE1234F • Industrial Land Survey #102 (Approved)</span>
+        </button>
+        <button type="button" class="demo-btn" onclick="selectDemoPreset('pan', 'RJSHI5678K')">
+          <strong>Rajesh Infrastructure Ltd</strong>
+          <span>PAN: RJSHI5678K • Land Survey #103 (Pending Mutation)</span>
+        </button>
+        <button type="button" class="demo-btn" onclick="selectDemoPreset('aadhaar', '1234-5678-9012')">
+          <strong>Priya Ramesh Sharma (Citizen)</strong>
+          <span>Aadhaar: 1234-5678-9012 • Land Survey #104 (Encumbered)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- AUTH SECTION -->
+    <div id="authSection">
+      <div class="gov-card">
+        <div class="gov-card-header">
+          <span>Official Identity & Corporate Authentication</span>
+          <span style="font-size: 0.8rem; font-weight: normal; color: #475569;">Aadhaar & PAN Verification Gateway</span>
+        </div>
+        <div class="gov-card-body">
+          
+          <form id="authForm">
+            <!-- Tabs / Radio selectors -->
+            <div class="gov-tabs-container">
+              <label class="gov-tab-label">
+                <input type="radio" name="authType" id="radioPan" value="pan" checked>
+                <span>🏢 Corporate / Business PAN</span>
+              </label>
+              <label class="gov-tab-label">
+                <input type="radio" name="authType" id="radioAadhaar" value="aadhaar">
+                <span>🪪 Individual Citizen Aadhaar</span>
+              </label>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="authError" style="display:none; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 10px 14px; border-radius: 4px; font-size: 0.85rem; margin-bottom: 16px;"></div>
+
+            <!-- Input Field -->
+            <div class="form-group">
+              <label id="identifierLabel" class="form-label" for="identifierInput">
+                Enter 10-Character Permanent Account Number (PAN) <span class="req-star">*</span>
+              </label>
+              <input type="text" id="identifierInput" class="gov-input" placeholder="e.g. ABCDE1234F" autocomplete="off">
+              <div style="font-size: 0.78rem; color: #64748b; margin-top: 6px;">
+                🔒 Verified directly against Income Tax / UIDAI simulated e-KYC registry via DigiLocker
+              </div>
+            </div>
+
+            <button type="submit" class="btn-gov-primary">
+              <span>Get SMS OTP Verification Code</span> ➔
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD SECTION (Hidden by default) -->
+    <div id="dashboardSection" style="display:none;">
+      
+      <!-- Profile Banner -->
+      <div class="gov-card" style="border-left: 4px solid #10b981;">
+        <div class="gov-card-header" style="background: #f0fdf4;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">🏛️</span>
+            <span id="userName" style="font-size: 1.1rem; color: #166534;">ABC Industries Pvt Ltd</span>
+            <span class="ekyc-badge">✓ DigiLocker e-KYC Verified</span>
+          </div>
+          <button class="btn-gov-secondary" onclick="logout()" style="font-size: 0.8rem; padding: 4px 10px;">Exit Session</button>
+        </div>
+        <div class="gov-card-body" style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 0.88rem;">
+          <div>
+            <p><strong>Authorized Representative:</strong> <span id="userAuthorized">Vikram Malhotra</span></p>
+            <p><strong>Registered Address:</strong> <span id="userAddress">Pune, Maharashtra</span></p>
+          </div>
+          <div>
+            <p><strong>Entity PAN:</strong> <span id="userPan" style="color: #b45309; font-weight: 700;">ABCDE1234F</span></p>
+            <p><strong>Target Survey #:</strong> <span id="userSurvey" style="color: #1d4ed8; font-weight: 700;">102</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluator Simulator Toolbar -->
+      <div class="gov-card" style="background: #fffbeb; border: 1px solid #fde68a;">
+        <div class="gov-card-body" style="padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <strong style="color: #b45309; font-size: 0.88rem;">⚙️ Evaluator Live State Simulator:</strong>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-gov-secondary" onclick="toggleMutationStatus()">🔄 Toggle Jamabandi Mutation (PENDING ↔ APPROVED)</button>
+            <button class="btn-gov-secondary" onclick="toggleOutageSimulation()">⚠️ Simulate 503 Land API Outage</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow Table -->
+      <div class="gov-card">
+        <div class="gov-card-header">
+          <span>Cross-Department Workflow Engine & Dependency State</span>
+        </div>
+        <div class="gov-card-body">
+          <table class="gov-table">
+            <thead>
+              <tr>
+                <th>Prerequisite Verification Item</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Engine Dependency Resolution</th>
+              </tr>
+            </thead>
+            <tbody id="workflowTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- JSON Comparison -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="gov-card">
+          <div class="gov-card-header" style="background: #fff7ed; color: #c2410c;">
+            <span>Raw Land Department Legacy JSON (gtn, malak_name)</span>
+          </div>
+          <div class="gov-card-body" style="padding: 12px;">
+            <pre id="rawLegacyJson" style="background: #0f172a; color: #fbbf24; padding: 12px; border-radius: 4px; font-size: 0.78rem; overflow-x: auto; max-height: 250px;"></pre>
+          </div>
+        </div>
+
+        <div class="gov-card">
+          <div class="gov-card-header" style="background: #f0fdf4; color: #15803d;">
+            <span>Normalized Canonical Platform Schema</span>
+          </div>
+          <div class="gov-card-body" style="padding: 12px;">
+            <pre id="canonicalJson" style="background: #0f172a; color: #4ade80; padding: 12px; border-radius: 4px; font-size: 0.78rem; overflow-x: auto; max-height: 250px;"></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- OTP MODAL DIALOG -->
+  <div id="otpModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3 style="font-size: 1.15rem; color: var(--gov-navy); margin-bottom: 8px;">Simulated Mobile OTP Verification</h3>
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 16px;">
+        Enter 6-digit OTP code sent to registered mobile <strong id="maskedPhoneSpan" style="color: #b45309;">98765*****0</strong>
+      </p>
+
+      <!-- Evaluator Helper Banner -->
+      <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 10px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <span>Demo OTP: <strong id="demoOtpCodeSpan" style="color: #b45309;">654321</strong></span>
+        <button type="button" onclick="autoFillOtp()" style="background: #f59e0b; color: white; border: none; padding: 3px 8px; border-radius: 3px; font-weight: bold; cursor: pointer; font-size: 0.75rem;">1-Click Auto Fill</button>
+      </div>
+
+      <div id="otpError" style="display:none; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 12px;"></div>
+
+      <div class="form-group">
+        <input type="text" id="otpInput" class="gov-input" placeholder="Enter 6-digit OTP" maxLength="6" style="letter-spacing: 4px; text-align: center; font-weight: bold; font-size: 1.2rem;">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn-gov-secondary" onclick="closeOtpModal()">Cancel</button>
+        <button type="button" class="btn-gov-primary" onclick="verifyOtpSubmit()">Verify e-KYC OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Official Footer -->
+  <footer class="gov-footer">
+    National Interoperability & Workflow Platform • SIH 2026 Prototype • Government of Maharashtra Integration
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
