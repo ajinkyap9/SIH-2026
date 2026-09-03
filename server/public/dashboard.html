@@ -75,6 +75,9 @@
       <button type="button" class="sidebar-item" id="menu-process" onclick="switchSection('process')">
         Find Permissions
       </button>
+      <button type="button" class="sidebar-item" id="menu-flowchart" onclick="switchSection('flowchart')">
+        Application Flowchart
+      </button>
       <button type="button" class="sidebar-item" id="menu-pipeline" onclick="switchSection('pipeline')">
         Apply for Plant
       </button>
@@ -127,10 +130,10 @@
 
       <!-- Top Horizontal Nav Tabs -->
       <div class="dashboard-top-tabs">
-        <button class="top-tab active" onclick="setTopTab(this)">Application Count</button>
-        <button class="top-tab" onclick="setTopTab(this)">Application Summary</button>
-        <button class="top-tab" onclick="setTopTab(this)">Multi-Department Flow</button>
-        <button class="top-tab" onclick="setTopTab(this)">Department Adapters</button>
+        <button class="top-tab active" onclick="setTopTab(this); switchSection('dashboard');">Application Overview</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('process');">Find Permissions</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('flowchart');">Multi-Department Flow</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('pipeline');">Plant Verification</button>
       </div>
 
       <!-- ======================================================== -->
@@ -253,148 +256,379 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 2: INVESTOR WIZARD (RAG INTAKE & DECISION ENGINE) -->
+      <!-- SECTION 2: FIND PERMISSIONS (10-QUESTION RAG WIZARD) -->
       <!-- ======================================================== -->
       <div id="section-process" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Investor Wizard — Regulatory Intake & Execution Waves</h2>
-          <p>Backed by the backend regulatory intake engine. Evaluates project scope to recommend mandatory microservices and execution dependency waves.</p>
+          <h2>Find Permissions — 10-Question Regulatory Clearance Wizard</h2>
+          <p>Powered by the RAG Decision Engine. Answer 10 progressive questions to identify required departmental microservices, prerequisite gates, and clearance pathways.</p>
         </div>
 
-        <!-- Mode Toggle -->
-        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-          <button type="button" class="btn btn-primary" id="btnModeForm" onclick="toggleWizardMode('form')" style="font-size: 0.82rem; padding: 8px 16px;">
-            Standard Structured Questionnaire
-          </button>
-          <button type="button" class="btn btn-outline" id="btnModeRag" onclick="toggleWizardMode('rag')" style="font-size: 0.82rem; padding: 8px 16px;">
-            Interactive Regulatory Assistant
-          </button>
-        </div>
+        <!-- Wizard Card -->
+        <div id="quizContainer">
+          <!-- Stepper Header -->
+          <div class="quiz-stepper-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">
+                  Question <span id="quizCurrStep">1</span> of <span id="quizTotalSteps">10</span>
+                </span>
+                <span id="quizTopicBadge" class="status-tag status-approved" style="margin-left: 10px;">
+                  Project Profile
+                </span>
+              </div>
+              <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
+                <span id="quizProgressPercent">10%</span> Completed
+              </div>
+            </div>
+            <div class="quiz-progress-track">
+              <div id="quizProgressBar" class="quiz-progress-bar" style="width: 10%;"></div>
+            </div>
+          </div>
 
-        <!-- Mode 1: Standard Structured Questionnaire -->
-        <div id="wizFormContainer" class="dashboard-panel">
-          <form id="wizardForm">
-            <div class="form-group">
-              <label class="form-label">1. Proposed Industry Type & Category: <span class="req-star">*</span></label>
-              <select id="wizProjectType" class="form-input" required>
-                <option value="manufacturing_chemical">Chemical / Agro-Chemical Manufacturing (Red Category)</option>
-                <option value="agro_processing">Agro Processing & Food Cold Chain (Orange Category)</option>
-                <option value="it_office" selected>IT / ITES Software & Commercial Office (Green Category)</option>
-                <option value="warehouse">Logistics, Warehousing & Distribution (White/Green)</option>
-                <option value="residential">Residential Commercial Complex</option>
-              </select>
+          <!-- Active Question Card -->
+          <div id="quizActiveBox" class="quiz-question-box">
+            <div id="quizQuestionText" class="quiz-question-title">
+              1. What type of project are you establishing?
+            </div>
+            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">
+              Select one option below to continue.
+            </p>
+
+            <div id="quizOptionsContainer" class="quiz-options-grid">
+              <!-- Dynamically populated options -->
             </div>
 
-            <div class="form-group">
-              <label class="form-label">2. Land Ownership / Site Status: <span class="req-star">*</span></label>
-              <div style="display: flex; gap: 16px; margin-top: 6px;">
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
-                  <input type="radio" name="wizLand" value="yes" checked> Private Land with 7/12 Extract
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
-                  <input type="radio" name="wizLand" value="no"> Require MIDC Industrial Plot
-                </label>
+            <!-- Context / Justification -->
+            <div id="quizWhyBox" class="quiz-why-callout">
+              <div style="font-size: 1.1rem; line-height: 1;">ℹ️</div>
+              <div>
+                <strong>Regulatory Rationale:</strong>
+                <div id="quizWhyText" style="margin-top: 2px;">
+                  Different project types require different departmental verifications under Maharashtra state policies.
+                </div>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">3. Electricity Sanction Demand: <span class="req-star">*</span></label>
-              <div style="display: flex; gap: 16px; margin-top: 6px;">
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
-                  <input type="radio" name="wizPower" value="high" checked> High Tension (HT) Power Load (&gt; 100 kVA)
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
-                  <input type="radio" name="wizPower" value="low"> Low Tension (LT) Power Load
-                </label>
+            <!-- Navigation Controls -->
+            <div class="quiz-nav-row">
+              <button type="button" id="btnQuizPrev" onclick="quizPrev()" class="btn btn-outline" style="padding: 8px 18px;" disabled>
+                ⏴ Previous Question
+              </button>
+              <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="resetQuiz()" class="btn btn-outline" style="font-size: 0.8rem; padding: 8px 14px; color: #64748b;">
+                  Restart Interview
+                </button>
+                <button type="button" id="btnQuizNext" onclick="quizNext()" class="btn btn-primary" style="padding: 9px 24px; font-weight: 600;">
+                  Next Question ➔
+                </button>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label class="form-label">4. Environmental Discharge Profile (MPCB CTE Category): <span class="req-star">*</span></label>
-              <select id="wizEnv" class="form-input" required>
-                <option value="green" selected>Low emissions / Green (Zero trade effluent)</option>
-                <option value="orange">Moderate emissions / Orange (ETP required)</option>
-                <option value="red">High pollution potential / Red (Full EIA Clearance)</option>
-              </select>
+          <!-- 10-Question Analysis & Completion Assessment -->
+          <div id="quizResultsContainer" class="dashboard-panel" style="display: none; border-top: 4px solid #10b981;">
+            <div class="panel-title" style="margin-bottom: 14px;">
+              <div>
+                <span style="color: #166534; font-size: 1.15rem; font-weight: 800;">✓ 10-Question Regulatory Analysis Completed</span>
+                <p style="font-size: 0.8rem; color: #475569; font-weight: normal; margin-top: 4px;">
+                  The decision engine has synthesized your 10 responses and identified statutory clearances across Land, Electricity, and Pollution departments.
+                </p>
+              </div>
+              <span id="quizBadgeCount" class="status-tag status-approved">4 Clearances Identified</span>
             </div>
 
-            <button type="submit" id="btnRunWizard" class="btn btn-primary" style="padding: 12px 24px;">
-              Evaluate with Decision Engine ➔
+            <!-- 10 Analysis Findings Grid -->
+            <h3 style="font-size: 0.95rem; color: #1e3a8a; margin: 18px 0 10px 0;">Comprehensive 10-Point Analysis</h3>
+            <div id="quizAnalysisGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 24px;">
+              <!-- Dynamically populated from analysisBreakdown -->
+            </div>
+
+            <!-- Recommended Microservices Table -->
+            <h3 style="font-size: 0.95rem; color: #1e3a8a; margin: 18px 0 10px 0;">Mandatory Department Microservices</h3>
+            <table class="gov-table" style="margin-bottom: 24px;">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Service Code</th>
+                  <th>Required Microservice</th>
+                  <th>Statutory Authority</th>
+                  <th>TAT (Days)</th>
+                  <th>Execution Wave</th>
+                </tr>
+              </thead>
+              <tbody id="quizServicesTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+
+            <!-- Ready to Apply CTA -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 2px solid #93c5fd; padding: 20px 24px; border-radius: 12px; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <h3 style="color: #1e3a8a; margin-bottom: 4px; font-size: 1.05rem;">Ready to Apply for Department Clearances?</h3>
+                <p style="font-size: 0.82rem; color: #1e40af;">
+                  All 10 analyses recorded. Proceed to the Interactive Multi-Department Flowchart to apply for Land, Electricity, and Pollution clearances with zero document resubmission.
+                </p>
+              </div>
+              <button type="button" onclick="goToFlowchart()" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                Ready to Apply — Follow Steps ➔
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECTION: MULTI-DEPARTMENT FLOWCHART & APPLICATION -->
+      <!-- ======================================================== -->
+      <div id="section-flowchart" class="content-section" style="display: none;">
+        <div class="dash-title-section">
+          <h2>Multi-Department Interoperability Flowchart</h2>
+          <p>End-to-end dependency pipeline connecting Land Revenue, MSEDCL Electricity, and MPCB Pollution departments into a single deterministic gateway.</p>
+        </div>
+
+        <!-- Interactive Visual Flowchart Card -->
+        <div class="flowchart-diagram-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="font-size: 0.95rem; font-weight: 700; color: #1e3a8a;">
+              Clearance Execution Architecture & Dependency Waves
+            </div>
+            <button onclick="resetFlowchart()" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">
+              Reset Pipeline Status
             </button>
-          </form>
+          </div>
+
+          <div class="flowchart-nodes-wrapper">
+            <!-- Tier 1: Project Profile Start Node -->
+            <div class="flowchart-tier-row">
+              <div class="fc-node wave-3 active-stage" style="max-width: 460px; text-align: center;">
+                <div class="fc-node-header">
+                  <span class="fc-node-title">🏢 Enterprise Project Profile</span>
+                  <span class="status-tag status-approved">INITIALIZED</span>
+                </div>
+                <div class="fc-node-desc">
+                  Project: <strong id="fcProfileProject">Manufacturing Unit</strong> | Location: <strong id="fcProfileLoc">Pune</strong><br>
+                  PAN Key: <strong id="fcProfilePan">ABCDE1234F</strong> (Strict Single Identity Join)
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector to Wave 1 -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Prerequisite Dependency (Gate 1)</span>
+            </div>
+
+            <!-- Tier 2: Wave 1 Gate - Land Department -->
+            <div class="flowchart-tier-row">
+              <div id="fcNodeLand" class="fc-node wave-1 active-stage" style="max-width: 500px;">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #dcfce7; color: #15803d;">WAVE 1 GATE</span>
+                    <span class="fc-node-title" style="margin-left: 8px;">Land Revenue & Settlement Department</span>
+                  </div>
+                  <span id="fcLandStatusBadge" class="status-tag status-pending">PENDING APPLICATION</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Service:</strong> 7/12 Jamabandi & Mutation Entry Verification (Survey #<span id="fcLandSurveyDisplay">101</span>)<br>
+                  <strong>Rule:</strong> <span style="color: #b45309;">Prerequisite Gate.</span> Must be RESOLVED first. Both Electricity and Pollution clearances automatically check and inherit this verified land record.
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector to Parallel Wave 2 -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Land Verified ➔ Unlocks Parallel Execution (Wave 2)</span>
+            </div>
+
+            <!-- Tier 3: Wave 2 Parallel Clearances -->
+            <div class="flowchart-tier-row">
+              <!-- Electricity Node -->
+              <div id="fcNodeElec" class="fc-node wave-2">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">WAVE 2 PARALLEL</span>
+                    <span class="fc-node-title" style="margin-left: 6px;">Electricity (MSEDCL)</span>
+                  </div>
+                  <span id="fcElecStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Demand:</strong> <span id="fcElecDemandDisplay">300 kW (HT 11kV Feeder)</span><br>
+                  <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
+                </div>
+              </div>
+
+              <!-- Pollution Node -->
+              <div id="fcNodePoll" class="fc-node wave-2">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #fef3c7; color: #b45309;">WAVE 2 PARALLEL</span>
+                    <span class="fc-node-title" style="margin-left: 6px;">Pollution Board (MPCB)</span>
+                  </div>
+                  <span id="fcPollStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Clearance:</strong> <span id="fcPollDemandDisplay">Consent to Establish (CTE)</span><br>
+                  <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector to Certificate -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Multi-Department Clearances Merged into Canonical Model</span>
+            </div>
+
+            <!-- Tier 4: Unified Sanction -->
+            <div class="flowchart-tier-row">
+              <div id="fcNodeCert" class="fc-node wave-1" style="max-width: 480px; text-align: center;">
+                <div class="fc-node-header" style="justify-content: center; gap: 12px;">
+                  <span class="fc-node-title">📜 Unified Maharashtra Industrial Clearance</span>
+                  <span id="fcCertStatusBadge" class="status-tag status-waiting">GATEWAY LOCKED</span>
+                </div>
+                <div class="fc-node-desc" id="fcCertDesc">
+                  Sanction locked. Complete departmental applications below to unlock the unified single window certificate.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Mode 2: Interactive RAG Intake Assistant -->
-        <div id="wizRagContainer" class="dashboard-panel" style="display: none;">
-          <div class="panel-title">
-            <span>Conversational Regulatory Intake (Backed by RAG Knowledge)</span>
-            <button class="btn btn-outline" onclick="resetRagSession()" style="font-size: 0.75rem; padding: 4px 8px;">Reset Session</button>
-          </div>
-
-          <div id="ragChatWindow" style="min-height: 200px; max-height: 400px; overflow-y: auto; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 14px;">
-            <div class="rag-box">
-              <strong>Regulatory Assistant:</strong>
-              <p style="margin-top: 4px; font-size: 0.85rem; color: #1e293b;">
-                Welcome! I am connected to the Maharashtra Interoperability Knowledge Base. What type of industrial or commercial plant are you setting up?
-              </p>
-              <div class="rag-justification">
-                <strong>Regulatory Context:</strong> Section 25 of the Water Act (1974) and Section 21 of the Air Act (1981) mandate different clearance tiers based on industry category.
-              </div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="ragUserInput" class="form-input" placeholder="e.g. Setting up a chemical manufacturing plant in Chakan with 500kVA power..." style="flex: 1;">
-            <button type="button" onclick="sendRagMessage()" class="btn btn-primary" style="padding: 10px 18px;">Send ➔</button>
-          </div>
+        <!-- ======================================================== -->
+        <!-- 3 DEPARTMENT APPLICATION CARDS -->
+        <!-- ======================================================== -->
+        <div class="dash-title-section" style="margin-top: 24px;">
+          <h3>Direct Departmental Application Hub</h3>
+          <p>Submit applications or trigger verification for each department below. Notice how the prerequisite rules govern each stage.</p>
         </div>
 
-        <!-- Wizard Results (Rendered by Decision Engine) -->
-        <div id="wizardResults" class="dashboard-panel" style="display: none; border-left: 4px solid #10b981;">
-          <div class="panel-title">
-            <span style="color: #166534;">✓ Identified Mandatory Department Microservices</span>
-            <span id="wizTotalBadge" class="status-tag status-approved">4 Services</span>
-          </div>
-          <p id="wizNote" style="font-size: 0.82rem; color: #475569; margin-bottom: 16px;"></p>
-
-          <!-- Execution Waves (Matching interop_backend) -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px;">
-              <strong style="color: #166534; font-size: 0.85rem;">Execution Wave 1: Prerequisite Resolution</strong>
-              <div style="font-size: 0.78rem; color: #14532d; margin-top: 4px;">
-                Land Revenue 7/12 & Mutation status must be verified first. All subsequent approvals automatically inherit this verified land record.
-              </div>
-            </div>
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 14px; border-radius: 8px;">
-              <strong style="color: #1e40af; font-size: 0.85rem;">Execution Wave 2: Parallel Clearances</strong>
-              <div style="font-size: 0.78rem; color: #1e3a8a; margin-top: 4px;">
-                MPCB Consent to Establish (CTE) and MSEDCL HT Power feasibility run concurrently once Wave 1 is locked.
-              </div>
-            </div>
-          </div>
-
-          <table class="gov-table" style="margin-bottom: 20px;">
-            <thead>
-              <tr>
-                <th>Service Code</th>
-                <th>Required Microservice</th>
-                <th>Department / Authority</th>
-                <th>TAT (Days)</th>
-                <th>Wave Priority</th>
-              </tr>
-            </thead>
-            <tbody id="wizServicesBody"></tbody>
-          </table>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 18px; border-radius: 8px;">
+        <div class="dept-action-grid">
+          <!-- CARD 1: LAND DEPARTMENT -->
+          <div class="dept-action-card" id="cardDeptLand" style="border-top: 4px solid #16a34a;">
             <div>
-              <strong style="font-size: 0.85rem; color: #0f172a;">Ready to apply?</strong>
-              <div style="font-size: 0.75rem; color: #64748b;">Zero document resubmission. Execute directly through the Interop Gateway.</div>
+              <div class="dept-card-header">
+                <div>
+                  <span class="dept-badge" style="background: #dcfce7; color: #166534;">1. Prerequisite Gate</span>
+                  <h4 style="margin-top: 4px; color: #0f172a;">Land Revenue Department</h4>
+                </div>
+                <span id="landCardPill" class="status-tag status-pending">Stage 1</span>
+              </div>
+              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                Verifies 7/12 Land Mutation, ownership title deed, and encumbrance flags via Land Department API.
+              </p>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">Survey / Gat Number:</label>
+                <input type="text" id="appLandSurvey" class="form-input" value="101" placeholder="e.g. 101, 102, 103">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">Enterprise / Owner PAN:</label>
+                <input type="text" id="appLandPan" class="form-input" value="ABCDE1234F" style="text-transform: uppercase;">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label" style="font-size: 0.76rem;">Land Area:</label>
+                <input type="text" id="appLandArea" class="form-input" value="3.0 Hectares" readonly style="background: #f1f5f9;">
+              </div>
             </div>
-            <button onclick="transferToPipeline()" class="btn btn-primary" style="padding: 10px 20px;">
-              Transfer to Pipeline & Verify Plant ➔
-            </button>
+
+            <div>
+              <div id="landCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+              <button type="button" id="btnApplyLandAction" onclick="submitLandApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                Apply for Land Verification ➔
+              </button>
+            </div>
           </div>
+
+          <!-- CARD 2: ELECTRICITY DEPARTMENT -->
+          <div class="dept-action-card" id="cardDeptElec" style="border-top: 4px solid #0284c7;">
+            <div>
+              <div class="dept-card-header">
+                <div>
+                  <span class="dept-badge" style="background: #e0f2fe; color: #0284c7;">2. Parallel Clearance</span>
+                  <h4 style="margin-top: 4px; color: #0f172a;">Electricity (MSEDCL)</h4>
+                </div>
+                <span id="elecCardPill" class="status-tag status-waiting">Stage 2</span>
+              </div>
+              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                Processes High Tension (HT) / Low Tension (LT) grid load sanction and feeder feasibility.
+              </p>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">MSEDCL Application No:</label>
+                <input type="text" id="appElecId" class="form-input" value="ELEC-2026-00101">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">Sanction Load Demand:</label>
+                <input type="text" id="appElecLoad" class="form-input" value="300 kW (High Tension HT)" readonly style="background: #f1f5f9;">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
+                <input type="text" id="appElecLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
+              </div>
+            </div>
+
+            <div>
+              <div id="elecCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+              <button type="button" id="btnApplyElecAction" onclick="submitElecApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                Apply for Electricity Sanction ➔
+              </button>
+            </div>
+          </div>
+
+          <!-- CARD 3: POLLUTION DEPARTMENT -->
+          <div class="dept-action-card" id="cardDeptPoll" style="border-top: 4px solid #d97706;">
+            <div>
+              <div class="dept-card-header">
+                <div>
+                  <span class="dept-badge" style="background: #fef3c7; color: #b45309;">3. Parallel Clearance</span>
+                  <h4 style="margin-top: 4px; color: #0f172a;">Pollution Board (MPCB)</h4>
+                </div>
+                <span id="pollCardPill" class="status-tag status-waiting">Stage 2</span>
+              </div>
+              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                Issues Consent to Establish (CTE) under Water (1974) and Air (1981) Prevention of Pollution Acts.
+              </p>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">MPCB Application ID:</label>
+                <input type="text" id="appPollId" class="form-input" value="MPCB-8821">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label" style="font-size: 0.76rem;">Evaluated Category:</label>
+                <input type="text" id="appPollCat" class="form-input" value="Orange Category (ETP Required)" readonly style="background: #f1f5f9;">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
+                <input type="text" id="appPollLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
+              </div>
+            </div>
+
+            <div>
+              <div id="pollCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+              <button type="button" id="btnApplyPollAction" onclick="submitPollApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                Apply for MPCB CTE ➔
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interop Gateway Summary Card -->
+        <div style="background: white; border: 1px solid var(--gov-border); border-radius: 10px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <strong style="color: #0f172a; font-size: 0.9rem;">Execute via Full Interoperability Pipeline?</strong>
+            <p style="font-size: 0.78rem; color: #64748b;">Runs the end-to-end 3-department pipeline with schema drift normalization and circuit breakers.</p>
+          </div>
+          <button type="button" onclick="transferToPipeline()" class="btn btn-outline" style="padding: 9px 18px; font-size: 0.82rem;">
+            Open Plant Pipeline ➔
+          </button>
         </div>
       </div>
 
@@ -1036,7 +1270,7 @@
     }
 
     function switchSection(secName) {
-      const sections = ['dashboard', 'process', 'pipeline', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
+      const sections = ['dashboard', 'process', 'flowchart', 'pipeline', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
       const advancedTools = ['schema', 'resilience', 'audit'];
 
       // If user navigates to an advanced tool, auto-expand the collapsible subgroup
@@ -1056,6 +1290,15 @@
           else menuBtn.classList.remove('active');
         }
       });
+
+      // Update top tabs active state if matching
+      document.querySelectorAll('.top-tab').forEach(t => {
+        const onclickAttr = t.getAttribute('onclick') || '';
+        if (onclickAttr.includes(`'${secName}'`)) {
+          document.querySelectorAll('.top-tab').forEach(b => b.classList.remove('active'));
+          t.classList.add('active');
+        }
+      });
     }
 
     function setTopTab(btn) {
@@ -1069,143 +1312,660 @@
       window.location.href = '/login.html';
     }
 
-    // ==========================================
-    // 1. INVESTOR WIZARD & RAG INTAKE
-    // ==========================================
-    function toggleWizardMode(mode) {
-      if (mode === 'rag') {
-        document.getElementById('wizFormContainer').style.display = 'none';
-        document.getElementById('wizRagContainer').style.display = 'block';
-        document.getElementById('btnModeRag').className = 'btn btn-primary';
-        document.getElementById('btnModeForm').className = 'btn btn-outline';
+    // ========================================================
+    // 1. 10-QUESTION RAG PERMISSION WIZARD (interview/questions.py)
+    // ========================================================
+    const QUESTION_BANK = [
+      {
+        id: 'project_type',
+        number: 1,
+        topic: 'Project Profile',
+        text: 'What type of project are you establishing?',
+        options: [
+          { label: 'Manufacturing Unit', value: 'MANUFACTURING' },
+          { label: 'Logistics / Warehouse', value: 'WAREHOUSE' },
+          { label: 'IT / Commercial Office', value: 'IT_OFFICE' },
+          { label: 'Other Enterprise Project', value: 'OTHER' }
+        ],
+        why: 'Different project types require distinct departmental verifications (e.g. Manufacturing triggers Factory Act, MPCB & HT Power; IT/Office qualifies for White/Green fast-track).',
+        skip: () => false
+      },
+      {
+        id: 'industry_type',
+        number: 2,
+        topic: 'Industry Profile',
+        text: 'What industry does your manufacturing project belong to?',
+        options: [
+          { label: 'Chemical / Agro-Chemicals', value: 'CHEMICAL' },
+          { label: 'Pharmaceutical & Formulations', value: 'PHARMACEUTICAL' },
+          { label: 'Food & Agro Processing', value: 'FOOD_PROCESSING' },
+          { label: 'Textile & Garmenting', value: 'TEXTILE' },
+          { label: 'Electronics & Hardware', value: 'ELECTRONICS' },
+          { label: 'General Engineering', value: 'GENERAL' },
+          { label: 'Other Manufacturing', value: 'OTHER' }
+        ],
+        why: 'Industry classification determines environmental discharge tiers (Red, Orange, Green) and Directorate of Industrial Safety (DISH) inspection requirements.',
+        skip: (ans) => ans.project_type && ans.project_type !== 'MANUFACTURING'
+      },
+      {
+        id: 'location_district',
+        number: 3,
+        topic: 'Jurisdiction & Location',
+        text: 'Where is the proposed project located in Maharashtra?',
+        options: [
+          { label: 'Pune District (Haveli / Chakan / Talegaon)', value: 'Pune' },
+          { label: 'Mumbai Metropolitan Region (MMR / Thane)', value: 'Mumbai' },
+          { label: 'Nashik Industrial Region (Sinnar / Ambad)', value: 'Nashik' },
+          { label: 'Nagpur Industrial Hub (MIHAN / Butibori)', value: 'Nagpur' },
+          { label: 'Other Maharashtra District', value: 'Other' }
+        ],
+        why: 'Location determines jurisdictional District Collectorate for Revenue 7/12, MSEDCL Circle Office, and MPCB Regional Office.',
+        skip: () => false
+      },
+      {
+        id: 'land_required',
+        number: 4,
+        topic: 'Site & Land Need',
+        text: 'Does your project require a specific physical land or industrial site?',
+        options: [
+          { label: 'Yes (Physical Land / Factory Plot)', value: 'true' },
+          { label: 'No (Virtual / Leased Co-working Space)', value: 'false' }
+        ],
+        why: 'Physical land triggers statutory Revenue 7/12 Jamabandi verification, Title Deed check, and Land Mutation clearance.',
+        skip: () => false
+      },
+      {
+        id: 'land_owned',
+        number: 5,
+        topic: 'Land Ownership Status',
+        text: 'Do you already own the proposed land or hold a 7/12 extract?',
+        options: [
+          { label: 'Yes (Privately Owned with 7/12 Extract)', value: 'Yes' },
+          { label: 'No (Require MIDC Industrial Plot Allotment)', value: 'No' },
+          { label: 'Under Acquisition / Pending Sub-Registrar', value: 'Under acquisition' }
+        ],
+        why: 'Owned land is validated via Land Records API; non-owned land routes to MIDC Industrial Plot Allotment & Land Leasing service.',
+        skip: (ans) => ans.land_required === 'false'
+      },
+      {
+        id: 'land_area',
+        number: 6,
+        topic: 'Land Parcel Scale',
+        text: 'What is the approximate land requirement for the establishment?',
+        options: [
+          { label: 'Less than 1 hectare (< 2.47 Acres)', value: '0.5' },
+          { label: '1 to 5 hectares (2.5 – 12.3 Acres)', value: '3.0' },
+          { label: '5 to 10 hectares (12.3 – 24.7 Acres)', value: '7.5' },
+          { label: 'Large Mega Parcel (> 10 hectares)', value: '15.0' }
+        ],
+        why: 'Land area scale determines Town Planning Directorate scrutiny, layout approval, and external approach road clearances.',
+        skip: (ans) => ans.land_required === 'false'
+      },
+      {
+        id: 'electricity_required',
+        number: 7,
+        topic: 'Power Connectivity',
+        text: 'Will your project require a dedicated utility electricity connection?',
+        options: [
+          { label: 'Yes (Requires MSEDCL Grid Supply)', value: 'true' },
+          { label: 'No (Self-Generated / Off-grid / Solar Only)', value: 'false' }
+        ],
+        why: 'Grid power triggers MSEDCL / Mahavitaran technical capacity check and feeder feasibility evaluation.',
+        skip: () => false
+      },
+      {
+        id: 'electricity_load',
+        number: 8,
+        topic: 'Power Demand Scale',
+        text: 'What is your expected electricity sanctioned demand?',
+        options: [
+          { label: 'Low Tension (LT) Commercial (< 100 kW)', value: '50' },
+          { label: 'High Tension (HT) Medium (100 – 500 kW)', value: '300' },
+          { label: 'High Tension (HT) Heavy (500 kW – 1 MW)', value: '750' },
+          { label: 'Extra High Tension (EHT) Bulk (> 1 MW)', value: '1500' }
+        ],
+        why: 'Demand >= 100 kW mandates High Tension (HT 11kV/22kV) dedicated transformer bay and substation sanction from MSEDCL Chief Engineer.',
+        skip: (ans) => ans.electricity_required === 'false'
+      },
+      {
+        id: 'industrial_emissions',
+        number: 9,
+        topic: 'Environmental Discharge',
+        text: 'Will the project generate industrial trade effluent, wastewater, or stack emissions?',
+        options: [
+          { label: 'Yes (Industrial Wastewater / Process Emissions)', value: 'true' },
+          { label: 'No (Domestic Sewage Only / Zero Discharge)', value: 'false' },
+          { label: 'Not Sure (To be verified by Environmental Audit)', value: 'not_sure' }
+        ],
+        why: 'Trade effluent mandates Effluent Treatment Plant (ETP) scrutiny and Consent to Establish (CTE) under Section 25 of the Water Act 1974.',
+        skip: () => false
+      },
+      {
+        id: 'hazardous_waste',
+        number: 10,
+        topic: 'Hazardous Waste',
+        text: 'Will the project handle, generate, or store hazardous chemicals or scheduled waste?',
+        options: [
+          { label: 'Yes (Hazardous Waste / Toxic Chemicals)', value: 'true' },
+          { label: 'No (Non-hazardous Solid Waste Only)', value: 'false' },
+          { label: 'Not Sure (Under Threshold Assessment)', value: 'not_sure' }
+        ],
+        why: 'Hazardous chemicals mandate Red Category classification, hazardous waste authorization (HWMR rules), and Common Hazardous Waste TSDF membership.',
+        skip: () => false
+      }
+    ];
+
+    let quizCurrentIdx = 0;
+    let quizAnswers = {
+      project_type: 'MANUFACTURING',
+      industry_type: 'CHEMICAL',
+      location_district: 'Pune',
+      land_required: 'true',
+      land_owned: 'Yes',
+      land_area: '3.0',
+      electricity_required: 'true',
+      electricity_load: '300',
+      industrial_emissions: 'true',
+      hazardous_waste: 'true'
+    };
+    let evaluatedClearanceData = null;
+
+    function initQuiz() {
+      // Find first non-skipped question
+      quizCurrentIdx = 0;
+      renderCurrentQuestion();
+    }
+
+    function getApplicableQuestions() {
+      return QUESTION_BANK.filter(q => !q.skip(quizAnswers));
+    }
+
+    function renderCurrentQuestion() {
+      const q = QUESTION_BANK[quizCurrentIdx];
+      if (!q) return;
+
+      // Check if current question should be skipped; if so, advance
+      if (q.skip(quizAnswers)) {
+        quizNext();
+        return;
+      }
+
+      const applicable = getApplicableQuestions();
+      const currentPosInApplicable = applicable.findIndex(x => x.id === q.id) + 1;
+      const totalApplicable = applicable.length;
+
+      // Update Stepper Header
+      document.getElementById('quizCurrStep').innerText = currentPosInApplicable;
+      document.getElementById('quizTotalSteps').innerText = totalApplicable;
+      document.getElementById('quizTopicBadge').innerText = q.topic;
+
+      const pct = Math.round((currentPosInApplicable / totalApplicable) * 100);
+      document.getElementById('quizProgressPercent').innerText = `${pct}%`;
+      document.getElementById('quizProgressBar').style.width = `${pct}%`;
+
+      // Update Question Title
+      document.getElementById('quizQuestionText').innerText = `${currentPosInApplicable}. ${q.text}`;
+
+      // Update Context / Why box
+      document.getElementById('quizWhyText').innerText = q.why;
+
+      // Render Options
+      const container = document.getElementById('quizOptionsContainer');
+      container.innerHTML = '';
+
+      const currentVal = quizAnswers[q.id];
+
+      q.options.forEach(opt => {
+        const card = document.createElement('div');
+        const isSelected = String(currentVal) === String(opt.value);
+        card.className = `quiz-option-card ${isSelected ? 'selected' : ''}`;
+        card.innerHTML = `
+          <div class="quiz-radio-indicator"></div>
+          <div class="quiz-option-text">${opt.label}</div>
+        `;
+        card.onclick = () => selectQuizOption(q.id, opt.value, card);
+        container.appendChild(card);
+      });
+
+      // Navigation button states
+      document.getElementById('btnQuizPrev').disabled = (currentPosInApplicable === 1);
+      document.getElementById('btnQuizNext').innerText = (currentPosInApplicable === totalApplicable) ? 'Complete Assessment ➔' : 'Next Question ➔';
+
+      document.getElementById('quizActiveBox').style.display = 'block';
+      document.getElementById('quizResultsContainer').style.display = 'none';
+    }
+
+    function selectQuizOption(questionId, value, cardElement) {
+      quizAnswers[questionId] = value;
+
+      // Highlight card visually
+      const parent = cardElement.parentElement;
+      parent.querySelectorAll('.quiz-option-card').forEach(c => c.classList.remove('selected'));
+      cardElement.classList.add('selected');
+
+      // Auto-advance smoothly after 300ms
+      setTimeout(() => {
+        quizNext();
+      }, 300);
+    }
+
+    function quizNext() {
+      // Find next question that is not skipped
+      let nextIdx = quizCurrentIdx + 1;
+      while (nextIdx < QUESTION_BANK.length && QUESTION_BANK[nextIdx].skip(quizAnswers)) {
+        nextIdx++;
+      }
+
+      if (nextIdx < QUESTION_BANK.length) {
+        quizCurrentIdx = nextIdx;
+        renderCurrentQuestion();
       } else {
-        document.getElementById('wizRagContainer').style.display = 'none';
-        document.getElementById('wizFormContainer').style.display = 'block';
-        document.getElementById('btnModeForm').className = 'btn btn-primary';
-        document.getElementById('btnModeRag').className = 'btn btn-outline';
+        // Finished all questions!
+        completeQuizAssessment();
       }
     }
 
-    // Standard Wizard Submission
-    document.getElementById('wizardForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('btnRunWizard');
-      btn.disabled = true;
-      btn.innerText = 'Evaluating regulatory rules...';
+    function quizPrev() {
+      let prevIdx = quizCurrentIdx - 1;
+      while (prevIdx >= 0 && QUESTION_BANK[prevIdx].skip(quizAnswers)) {
+        prevIdx--;
+      }
 
-      const payload = {
-        projectType: document.getElementById('wizProjectType').value,
-        landAcquired: document.querySelector('input[name="wizLand"]:checked')?.value || 'yes',
-        powerRequired: document.querySelector('input[name="wizPower"]:checked')?.value || 'high',
-        envCategory: document.getElementById('wizEnv').value
+      if (prevIdx >= 0) {
+        quizCurrentIdx = prevIdx;
+        renderCurrentQuestion();
+      }
+    }
+
+    function resetQuiz() {
+      quizAnswers = {
+        project_type: 'MANUFACTURING',
+        industry_type: 'CHEMICAL',
+        location_district: 'Pune',
+        land_required: 'true',
+        land_owned: 'Yes',
+        land_area: '3.0',
+        electricity_required: 'true',
+        electricity_load: '300',
+        industrial_emissions: 'true',
+        hazardous_waste: 'true'
       };
+      quizCurrentIdx = 0;
+      renderCurrentQuestion();
+    }
+
+    async function completeQuizAssessment() {
+      const activeBox = document.getElementById('quizActiveBox');
+      activeBox.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+          <div class="spinner" style="margin: 0 auto 16px auto;"></div>
+          <h3 style="color: #1e3a8a;">Synthesizing 10-Question Regulatory Analysis...</h3>
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: 6px;">Evaluating Maharashtra Industrial Policy, MSEDCL Grid Code, and MPCB Regulations.</p>
+        </div>
+      `;
 
       try {
         let res = await fetch('/api/portal/process-wizard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(quizAnswers)
         }).catch(() => null);
 
         let data = res ? await res.json() : null;
 
-        // Graceful deterministic fallback matching interop_backend knowledge
         if (!data || !data.success) {
+          // Fallback deterministic response
           data = {
             success: true,
             totalServicesIdentified: 4,
-            guidanceNote: "Evaluated under Maharashtra Industrial Development Act, MPCB Environment Policy, and MSEDCL Grid Code.",
+            pollutionTier: 'RED',
+            analysisBreakdown: [
+              { questionNumber: 1, title: 'Project Nature & Sector', userSelection: quizAnswers.project_type, implication: 'Classified under Maharashtra Industrial Policy.' },
+              { questionNumber: 2, title: 'Industry Classification', userSelection: quizAnswers.industry_type || 'General', implication: 'Environmental and DISH worker safety regulations apply.' },
+              { questionNumber: 3, title: 'Jurisdiction & Location', userSelection: quizAnswers.location_district || 'Pune', implication: 'District Collectorate and MSEDCL Circle Office authority.' },
+              { questionNumber: 4, title: 'Land Prerequisite (Wave 1 Gate)', userSelection: `${quizAnswers.land_owned} (${quizAnswers.land_area || 3} Ha)`, implication: 'Mandatory prerequisite gate before downstream sanctions.' },
+              { questionNumber: 7, title: 'Power Grid Sanction Demand', userSelection: `${quizAnswers.electricity_load || 300} kW (HT)`, implication: 'Requires dedicated transformer site and MSEDCL feasibility.' },
+              { questionNumber: 9, title: 'Environmental Consent Tier', userSelection: 'Red Category (Water/Air Acts CTE)', implication: 'Mandatory CTE clearance prior to site construction.' }
+            ],
             services: [
-              { code: "REV-712-JAMABANDI", title: "7/12 Jamabandi Land Title Verification", department: "Revenue & Land Records", turnaroundDays: 3, priority: "Wave 1: Mandatory" },
-              { code: "REV-MUT-NOC", title: "Non-Encumbrance & Title Mutation Clearance", department: "Sub-Registrar / Tahsildar", turnaroundDays: 7, priority: "Wave 1: Mandatory" },
-              { code: "MPCB-CTE-CONSENT", title: "Consent to Establish (CTE) Environmental Review", department: "Pollution Control Board", turnaroundDays: 14, priority: "Wave 2: Concurrent" },
-              { code: "MSEDCL-HT-ALLOC", title: "High Tension (HT) Power Feasibility Sanction", department: "MSEDCL Discom", turnaroundDays: 10, priority: "Wave 2: Concurrent" }
+              { departmentCode: 'LAND', code: 'LAND-VERIFY', title: '7/12 Land Mutation & Title Deed Verification', department: 'Revenue & Land Settlement', authority: 'District Collectorate', turnaroundDays: 7, priority: 'PREREQUISITE_STAGE_1', wave: 1 },
+              { departmentCode: 'ELECTRICITY', code: 'MSEDCL-HT', title: 'High Tension (HT) Power Sanction (300 kW)', department: 'MSEDCL / Mahavitaran', authority: 'Chief Engineer', turnaroundDays: 10, priority: 'STAGE_2_PARALLEL', wave: 2 },
+              { departmentCode: 'POLLUTION', code: 'MPCB-CTE-RED', title: 'Consent to Establish (CTE) — Red Category', department: 'MPCB Pollution Board', authority: 'Regional Officer', turnaroundDays: 21, priority: 'STAGE_2_PARALLEL', wave: 2 },
+              { departmentCode: 'DISH', code: 'FACTORY-ACT', title: 'Directorate of Industrial Safety & Health (DISH) Plan Approval', department: 'Labour & DISH Department', authority: 'Director of Industrial Safety', turnaroundDays: 12, priority: 'STAGE_3', wave: 2 }
             ]
           };
         }
 
-        btn.disabled = false;
-        btn.innerText = 'Evaluate with Decision Engine ➔';
-
-        document.getElementById('wizardResults').style.display = 'block';
-        document.getElementById('wizTotalBadge').innerText = `${data.totalServicesIdentified} Services`;
-        document.getElementById('wizNote').innerText = data.guidanceNote;
-
-        const tbody = document.getElementById('wizServicesBody');
-        tbody.innerHTML = '';
-        data.services.forEach(s => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><code>${s.code}</code></td>
-            <td><strong>${s.title}</strong></td>
-            <td>${s.department}</td>
-            <td>${s.turnaroundDays} Days</td>
-            <td><span class="status-tag status-approved">${s.priority}</span></td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        document.getElementById('wizardResults').scrollIntoView({ behavior: 'smooth' });
+        evaluatedClearanceData = data;
+        renderQuizResults(data);
       } catch (err) {
-        btn.disabled = false;
-        btn.innerText = 'Evaluate with Decision Engine ➔';
+        console.error('Quiz assessment error:', err);
       }
-    });
+    }
 
-    // RAG Conversational Simulation / Call
-    let ragSessionId = 'sess_' + Date.now();
-    async function sendRagMessage() {
-      const input = document.getElementById('ragUserInput');
-      const text = input.value.trim();
-      if (!text) return;
+    function renderQuizResults(data) {
+      document.getElementById('quizActiveBox').style.display = 'none';
+      const resultsContainer = document.getElementById('quizResultsContainer');
+      resultsContainer.style.display = 'block';
 
-      const chatWindow = document.getElementById('ragChatWindow');
+      document.getElementById('quizBadgeCount').innerText = `${data.totalServicesIdentified || 4} Clearances Identified`;
 
-      // User Bubble
-      const userDiv = document.createElement('div');
-      userDiv.style.margin = '10px 0';
-      userDiv.style.textAlign = 'right';
-      userDiv.innerHTML = `<span style="background: #2563eb; color: white; padding: 8px 14px; border-radius: 12px; font-size: 0.82rem; display: inline-block;">${text}</span>`;
-      chatWindow.appendChild(userDiv);
-      input.value = '';
+      // 1. Populate 10-Point Analysis Grid
+      const analysisGrid = document.getElementById('quizAnalysisGrid');
+      analysisGrid.innerHTML = '';
+      (data.analysisBreakdown || []).forEach(item => {
+        const card = document.createElement('div');
+        card.style.background = '#f8fafc';
+        card.style.border = '1px solid #e2e8f0';
+        card.style.borderRadius = '8px';
+        card.style.padding = '12px 14px';
+        card.innerHTML = `
+          <div style="font-size: 0.72rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">Analysis #${item.questionNumber} • ${item.title}</div>
+          <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a; margin: 4px 0;">Selected: ${item.userSelection}</div>
+          <div style="font-size: 0.76rem; color: #475569; line-height: 1.4;">${item.implication}</div>
+        `;
+        analysisGrid.appendChild(card);
+      });
 
-      // Assistant Response (Calls /api/interview/message or uses regulatory knowledge)
+      // 2. Populate Services Table
+      const tbody = document.getElementById('quizServicesTableBody');
+      tbody.innerHTML = '';
+      (data.services || []).forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="color: #1e3a8a;">${s.departmentCode || s.department}</strong></td>
+          <td><code>${s.code}</code></td>
+          <td><strong>${s.title}</strong><div style="font-size: 0.72rem; color: #64748b;">${s.details || ''}</div></td>
+          <td>${s.authority || s.department}</td>
+          <td>${s.turnaroundDays} Days</td>
+          <td><span class="status-tag status-approved">Wave ${s.wave || 1}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ========================================================
+    // 2. REDIRECT TO FLOWCHART & DEPARTMENT APPLICATIONS
+    // ========================================================
+    function goToFlowchart() {
+      // 1. Pre-fill flowchart nodes with interview answers
+      const pType = quizAnswers.project_type || 'MANUFACTURING';
+      const indType = quizAnswers.industry_type || 'Chemical';
+      const dist = quizAnswers.location_district || 'Pune';
+      const isHt = parseFloat(quizAnswers.electricity_load || 300) >= 100;
+      const loadKw = quizAnswers.electricity_load || 300;
+      const pollCat = evaluatedClearanceData ? evaluatedClearanceData.pollutionTier : 'ORANGE';
+
+      document.getElementById('fcProfileProject').innerText = `${indType} ${pType.toLowerCase()}`;
+      document.getElementById('fcProfileLoc').innerText = dist;
+
+      document.getElementById('fcElecDemandDisplay').innerText = `${loadKw} kW (${isHt ? 'HT 11kV Feeder' : 'LT 415V Three-Phase'})`;
+      document.getElementById('fcPollDemandDisplay').innerText = `Consent to Establish (CTE) — ${pollCat} Category`;
+
+      // Pre-fill department cards
+      document.getElementById('appLandArea').value = `${quizAnswers.land_area || 3.0} Hectares`;
+      document.getElementById('appElecLoad').value = `${loadKw} kW (${isHt ? 'High Tension HT' : 'Low Tension LT'})`;
+      document.getElementById('appPollCat').value = `${pollCat} Category (CTE)`;
+
+      // Pre-fill Land PAN from citizen session
+      if (citizen && citizen.pan) {
+        const panFld = document.getElementById('appLandPan');
+        if (panFld && !panFld.value) panFld.value = citizen.pan;
+      }
+
+      // Reset flowchart state for fresh start
+      resetFlowchart();
+
+      // 2. Switch section to flowchart
+      switchSection('flowchart');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Flowchart application execution state
+    let flowchartState = {
+      land: 'PENDING',
+      elec: 'WAITING',
+      poll: 'WAITING',
+      cert: 'LOCKED'
+    };
+
+    function resetFlowchart() {
+      flowchartState = { land: 'PENDING', elec: 'WAITING', poll: 'WAITING', cert: 'LOCKED' };
+
+      document.getElementById('fcNodeLand').className = 'fc-node wave-1 active-stage';
+      document.getElementById('fcLandStatusBadge').className = 'status-tag status-pending';
+      document.getElementById('fcLandStatusBadge').innerText = 'PENDING APPLICATION';
+      document.getElementById('landCardPill').className = 'status-tag status-pending';
+      document.getElementById('landCardPill').innerText = 'Stage 1';
+      document.getElementById('landCardResult').style.display = 'none';
+      document.getElementById('btnApplyLandAction').disabled = false;
+      document.getElementById('btnApplyLandAction').innerText = 'Apply for Land Verification ➔';
+
+      document.getElementById('fcNodeElec').className = 'fc-node wave-2';
+      document.getElementById('fcElecStatusBadge').className = 'status-tag status-waiting';
+      document.getElementById('fcElecStatusBadge').innerText = 'WAITING ON LAND';
+      document.getElementById('elecCardPill').className = 'status-tag status-waiting';
+      document.getElementById('elecCardPill').innerText = 'Stage 2';
+      document.getElementById('appElecLandRef').value = 'Waiting on Land Gate...';
+      document.getElementById('elecCardResult').style.display = 'none';
+      document.getElementById('btnApplyElecAction').disabled = false;
+      document.getElementById('btnApplyElecAction').innerText = 'Apply for Electricity Sanction ➔';
+
+      document.getElementById('fcNodePoll').className = 'fc-node wave-2';
+      document.getElementById('fcPollStatusBadge').className = 'status-tag status-waiting';
+      document.getElementById('fcPollStatusBadge').innerText = 'WAITING ON LAND';
+      document.getElementById('pollCardPill').className = 'status-tag status-waiting';
+      document.getElementById('pollCardPill').innerText = 'Stage 2';
+      document.getElementById('appPollLandRef').value = 'Waiting on Land Gate...';
+      document.getElementById('pollCardResult').style.display = 'none';
+      document.getElementById('btnApplyPollAction').disabled = false;
+      document.getElementById('btnApplyPollAction').innerText = 'Apply for MPCB CTE ➔';
+
+      document.getElementById('fcNodeCert').className = 'fc-node wave-1';
+      document.getElementById('fcCertStatusBadge').className = 'status-tag status-waiting';
+      document.getElementById('fcCertStatusBadge').innerText = 'GATEWAY LOCKED';
+      document.getElementById('fcCertDesc').innerText = 'Sanction locked. Complete departmental applications below to unlock the unified single window certificate.';
+    }
+
+    // Apply 1: Land Department
+    async function submitLandApp() {
+      const btn = document.getElementById('btnApplyLandAction');
+      btn.disabled = true;
+      btn.innerText = 'Calling Land Revenue API...';
+
+      const surveyNo = document.getElementById('appLandSurvey').value.trim() || '101';
+      // Auto-fill PAN from citizen session if field is empty
+      const panField = document.getElementById('appLandPan');
+      if (!panField.value.trim() && citizen && citizen.pan) panField.value = citizen.pan;
+      const pan = panField.value.trim().toUpperCase() || 'RMPTL1234F';
+
       try {
-        let res = await fetch('/api/interview/message', {
+        let res = await fetch('/api/interop/evaluate-project', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session_id: ragSessionId, user_response: text })
+          body: JSON.stringify({ surveyNumber: surveyNo, applicantPan: pan })
         }).catch(() => null);
 
         let data = res ? await res.json() : null;
 
-        const aiDiv = document.createElement('div');
-        aiDiv.className = 'rag-box';
-        aiDiv.innerHTML = `
-          <strong>Regulatory Assistant:</strong>
-          <p style="margin-top: 4px; font-size: 0.85rem; color: #1e293b;">
-            Based on your requirement for <strong>${text.slice(0, 40)}...</strong>, the system identified prerequisite requirements: Land 7/12 ownership extract is required before MPCB Consent to Establish (CTE) can be evaluated.
-          </p>
-          <div class="rag-justification">
-            <strong>RAG Regulation Match:</strong> MPCB Environmental Siting Guidelines (Maharashtra Water Pollution Prevention Board) mandate verified site coordinates prior to environmental review.
-          </div>
+        // Check if Land API returned an objection, pending mutation, or identity mismatch
+        if (data && data.workflow && data.workflow.dependencies && data.workflow.dependencies[0] && data.workflow.dependencies[0].status !== 'RESOLVED') {
+          btn.disabled = false;
+          btn.innerText = 'Apply for Land Verification ➔';
+          const dep = data.workflow.dependencies[0];
+          const resultBox = document.getElementById('landCardResult');
+          resultBox.style.display = 'block';
+          resultBox.style.background = '#fef2f2';
+          resultBox.style.border = '1px solid #fca5a5';
+          resultBox.style.color = '#991b1b';
+          resultBox.innerHTML = `
+            <strong>⚠️ Land Department Flag: ${dep.status}</strong>
+            <div>${dep.reason || 'Land record requirements not satisfied.'}</div>
+            <div style="font-size: 0.72rem; color: #7f1d1d; margin-top: 4px;">Tip: For demo Survey 101, use owner PAN <code>RMPTL1234F</code> (Ramesh Patil).</div>
+          `;
+          return;
+        }
+
+        flowchartState.land = 'APPROVED';
+
+        // Update Land flowchart node
+        const fcLand = document.getElementById('fcNodeLand');
+        fcLand.className = 'fc-node wave-1 approved-stage';
+        document.getElementById('fcLandStatusBadge').className = 'status-tag status-approved';
+        document.getElementById('fcLandStatusBadge').innerText = 'VERIFIED ✓';
+        document.getElementById('fcLandSurveyDisplay').innerText = surveyNo;
+
+        // Update Land card
+        document.getElementById('landCardPill').className = 'status-tag status-approved';
+        document.getElementById('landCardPill').innerText = 'APPROVED ✓';
+        btn.disabled = true;
+        btn.innerText = '✓ Land Verified & Registered';
+
+        const resultBox = document.getElementById('landCardResult');
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#f0fdf4';
+        resultBox.style.border = '1px solid #86efac';
+        resultBox.style.color = '#166534';
+        resultBox.innerHTML = `
+          <strong>✓ Land Prerequisite Gate Resolved!</strong>
+          <div>Survey #${surveyNo}: 7/12 Jamabandi Approved. Title clear.</div>
+          <div style="font-size: 0.72rem; color: #15803d; margin-top: 4px;">Unlocked downstream Wave 2: Electricity & Pollution departments are now ready to apply!</div>
         `;
-        chatWindow.appendChild(aiDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-      } catch (err) {}
+
+        // Unlock Wave 2: Electricity & Pollution nodes!
+        document.getElementById('fcNodeElec').className = 'fc-node wave-2 active-stage';
+        document.getElementById('fcElecStatusBadge').className = 'status-tag status-pending';
+        document.getElementById('fcElecStatusBadge').innerText = 'READY TO APPLY';
+        document.getElementById('appElecLandRef').value = `✓ Inherited: Survey #${surveyNo} Verified`;
+        document.getElementById('appElecLandRef').style.color = '#15803d';
+
+        document.getElementById('fcNodePoll').className = 'fc-node wave-2 active-stage';
+        document.getElementById('fcPollStatusBadge').className = 'status-tag status-pending';
+        document.getElementById('fcPollStatusBadge').innerText = 'READY TO APPLY';
+        document.getElementById('appPollLandRef').value = `✓ Inherited: Survey #${surveyNo} Verified`;
+        document.getElementById('appPollLandRef').style.color = '#15803d';
+
+        checkUnifiedCertificateReady();
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Apply for Land Verification ➔';
+      }
     }
 
-    function resetRagSession() {
-      ragSessionId = 'sess_' + Date.now();
-      const chatWindow = document.getElementById('ragChatWindow');
-      chatWindow.innerHTML = `
-        <div class="rag-box">
-          <strong>Regulatory Assistant:</strong>
-          <p style="margin-top: 4px; font-size: 0.85rem; color: #1e293b;">
-            Session reset. What type of industrial or commercial plant are you setting up?
-          </p>
-        </div>
-      `;
+    // Apply 2: Electricity Department
+    async function submitElecApp() {
+      const resultBox = document.getElementById('elecCardResult');
+
+      // Check Land Prerequisite Gate!
+      if (flowchartState.land !== 'APPROVED') {
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#fef2f2';
+        resultBox.style.border = '1px solid #fca5a5';
+        resultBox.style.color = '#991b1b';
+        resultBox.innerHTML = `
+          <strong>⚠️ Prerequisite Gate Blocked!</strong>
+          <div>MSEDCL grid sanction requires verified Land title and substation transformer earmarking.</div>
+          <div style="margin-top: 4px; font-weight: 700;">Please click "Apply for Land Verification" in Card 1 first.</div>
+        `;
+        return;
+      }
+
+      const btn = document.getElementById('btnApplyElecAction');
+      btn.disabled = true;
+      btn.innerText = 'Processing Power Sanction...';
+
+      setTimeout(() => {
+        flowchartState.elec = 'APPROVED';
+
+        // Update Electricity flowchart node
+        const fcElec = document.getElementById('fcNodeElec');
+        fcElec.className = 'fc-node wave-2 approved-stage';
+        document.getElementById('fcElecStatusBadge').className = 'status-tag status-approved';
+        document.getElementById('fcElecStatusBadge').innerText = 'SANCTIONED ✓';
+
+        // Update Electricity card
+        document.getElementById('elecCardPill').className = 'status-tag status-approved';
+        document.getElementById('elecCardPill').innerText = 'SANCTIONED ✓';
+        btn.disabled = true;
+        btn.innerText = '✓ Power Sanction Issued';
+
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#f0fdf4';
+        resultBox.style.border = '1px solid #86efac';
+        resultBox.style.color = '#166534';
+        resultBox.innerHTML = `
+          <strong>✓ MSEDCL Load Sanction Approved!</strong>
+          <div>Sanction Order #ELEC-MH-2026-991 generated. Dedicated feeder bay earmarked.</div>
+        `;
+
+        checkUnifiedCertificateReady();
+      }, 700);
+    }
+
+    // Apply 3: Pollution Department
+    async function submitPollApp() {
+      const resultBox = document.getElementById('pollCardResult');
+
+      // Check Land Prerequisite Gate!
+      if (flowchartState.land !== 'APPROVED') {
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#fef2f2';
+        resultBox.style.border = '1px solid #fca5a5';
+        resultBox.style.color = '#991b1b';
+        resultBox.innerHTML = `
+          <strong>⚠️ Prerequisite Gate Blocked!</strong>
+          <div>MPCB Consent to Establish (CTE) strictly requires verified site coordinates from Land Department.</div>
+          <div style="margin-top: 4px; font-weight: 700;">Please click "Apply for Land Verification" in Card 1 first.</div>
+        `;
+        return;
+      }
+
+      const btn = document.getElementById('btnApplyPollAction');
+      btn.disabled = true;
+      btn.innerText = 'Evaluating Environmental Siting...';
+
+      setTimeout(() => {
+        flowchartState.poll = 'APPROVED';
+
+        // Update Pollution flowchart node
+        const fcPoll = document.getElementById('fcNodePoll');
+        fcPoll.className = 'fc-node wave-2 approved-stage';
+        document.getElementById('fcPollStatusBadge').className = 'status-tag status-approved';
+        document.getElementById('fcPollStatusBadge').innerText = 'CTE ISSUED ✓';
+
+        // Update Pollution card
+        document.getElementById('pollCardPill').className = 'status-tag status-approved';
+        document.getElementById('pollCardPill').innerText = 'CTE ISSUED ✓';
+        btn.disabled = true;
+        btn.innerText = '✓ MPCB CTE Approved';
+
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#f0fdf4';
+        resultBox.style.border = '1px solid #86efac';
+        resultBox.style.color = '#166534';
+        resultBox.innerHTML = `
+          <strong>✓ Consent to Establish (CTE) Issued!</strong>
+          <div>MPCB Consent Order #CTE-2026-MH-4412 issued under Water (1974) & Air (1981) Acts.</div>
+        `;
+
+        checkUnifiedCertificateReady();
+      }, 700);
+    }
+
+    function checkUnifiedCertificateReady() {
+      if (flowchartState.land === 'APPROVED' && flowchartState.elec === 'APPROVED' && flowchartState.poll === 'APPROVED') {
+        flowchartState.cert = 'APPROVED';
+        const nodeCert = document.getElementById('fcNodeCert');
+        nodeCert.className = 'fc-node wave-1 approved-stage';
+        document.getElementById('fcCertStatusBadge').className = 'status-tag status-approved';
+        document.getElementById('fcCertStatusBadge').innerText = 'ISSUED & READY ✓';
+        document.getElementById('fcCertDesc').innerHTML = `
+          <div style="color: #166534; font-weight: 700; margin-bottom: 4px;">🎉 All 3 Departmental Clearances Satisfied!</div>
+          <div style="color: #15803d; font-size: 0.8rem;">Single Window Interoperable Certificate <strong>#MAITRI-CLEARANCE-2026-MH</strong> has been cryptographically signed and issued.</div>
+        `;
+      }
     }
 
     function transferToPipeline() {
@@ -1429,6 +2189,9 @@
         fbAlert.style.display = 'block';
       }
     });
+
+    // Initialize 10-question wizard on startup
+    initQuiz();
   </script>
 </body>
 </html>
