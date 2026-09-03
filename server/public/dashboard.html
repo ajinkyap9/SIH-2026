@@ -76,7 +76,10 @@
         Find Permissions
       </button>
       <button type="button" class="sidebar-item" id="menu-flowchart" onclick="switchSection('flowchart')">
-        Application Flowchart
+        Multi-Department Flow
+      </button>
+      <button type="button" class="sidebar-item" id="menu-portal" onclick="switchSection('portal')">
+        Government Portals
       </button>
       <button type="button" class="sidebar-item" id="menu-status" onclick="switchSection('status')">
         Track Application
@@ -127,9 +130,11 @@
 
       <!-- Top Horizontal Nav Tabs -->
       <div class="dashboard-top-tabs">
-        <button class="top-tab active" onclick="setTopTab(this); switchSection('dashboard');">Application Overview</button>
-        <button class="top-tab" onclick="setTopTab(this); switchSection('process');">Find Permissions</button>
-        <button class="top-tab" onclick="setTopTab(this); switchSection('flowchart');">Multi-Department Flow</button>
+        <button class="top-tab active" onclick="setTopTab(this); switchSection('dashboard');">Overview</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('process');">1. Find Permissions</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('flowchart');">2. Multi-Department Flow</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('portal');">3. Government Portals</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('status');">4. Track Application</button>
       </div>
 
       <!-- ======================================================== -->
@@ -563,406 +568,392 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION: MULTI-DEPARTMENT WORKFLOW & DEPENDENCY PIPELINE -->
+      <!-- SECTION 2: MULTI-DEPARTMENT WORKFLOW & DEPENDENCY PIPELINE -->
       <!-- ======================================================== -->
       <div id="section-flowchart" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Multi-Department Interoperability Flowchart</h2>
-          <p>Verify information and coordinate dependencies across Land Revenue, MSEDCL Electricity, and MPCB Pollution departments.</p>
+          <h2>Multi-Department Dependency Flowchart</h2>
+          <p>The Interoperability Layer resolves prerequisite dependencies across Land, Electricity, and Pollution departments before official portal submission.</p>
         </div>
 
-        <!-- Workflow Component Container (Structured for side-by-side integration) -->
-        <div class="workflow-container-layout" id="workflowContainerLayout">
-          <!-- Primary Workflow Column: Current Implementation -->
-          <div class="workflow-column primary-workflow" id="workflowPrimaryCol">
-
-            <!-- Interactive Visual Flowchart Card -->
-            <div class="flowchart-diagram-card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div style="font-size: 0.95rem; font-weight: 700; color: #1e3a8a;">
-                  Clearance Execution Architecture &amp; Dependency Waves
-                </div>
-                <button onclick="resetFlowchart()" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">
-                  Reset Pipeline Status
-                </button>
+        <!-- Interactive Visual Flowchart Card -->
+        <div class="flowchart-diagram-card" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <div style="font-size: 1rem; font-weight: 700; color: #1e3a8a;">
+                Interoperability Dependency Resolution Pipeline
               </div>
-
-              <div class="flowchart-nodes-wrapper">
-                <!-- Tier 1: Project Profile Start Node -->
-                <div class="flowchart-tier-row">
-                  <div class="fc-node wave-3 active-stage" style="max-width: 460px; text-align: center;">
-                    <div class="fc-node-header">
-                      <span class="fc-node-title">🏢 Enterprise Project Profile</span>
-                      <span class="status-tag status-approved">INITIALIZED</span>
-                    </div>
-                    <div class="fc-node-desc">
-                      Project: <strong id="fcProfileProject">Manufacturing Unit</strong> | Location: <strong id="fcProfileLoc">Pune</strong><br>
-                      PAN Key: <strong id="fcProfilePan">ABCDE1234F</strong> (Strict Single Identity Join)
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Connector to Wave 1 -->
-                <div class="fc-connector-arrow">
-                  <div class="fc-connector-line"></div>
-                  <span>▼ Prerequisite Dependency (Gate 1)</span>
-                </div>
-
-                <!-- Tier 2: Wave 1 Gate - Land Department -->
-                <div class="flowchart-tier-row">
-                  <div id="fcNodeLand" class="fc-node wave-1 active-stage" style="max-width: 500px;">
-                    <div class="fc-node-header">
-                      <div>
-                        <span class="dept-badge" style="background: #dcfce7; color: #15803d;">WAVE 1 GATE</span>
-                        <span class="fc-node-title" style="margin-left: 8px;">Land Revenue &amp; Settlement Department</span>
-                      </div>
-                      <span id="fcLandStatusBadge" class="status-tag status-pending">PENDING VERIFICATION</span>
-                    </div>
-                    <div class="fc-node-desc">
-                      <strong>Service:</strong> 7/12 Jamabandi &amp; Mutation Entry Verification (Survey #<span id="fcLandSurveyDisplay">101</span>)<br>
-                      <strong>Rule:</strong> <span style="color: #b45309;">Prerequisite Gate.</span> Must be RESOLVED first. Both Electricity and Pollution clearances automatically check and inherit this verified land record.
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Connector to Parallel Wave 2 -->
-                <div class="fc-connector-arrow">
-                  <div class="fc-connector-line"></div>
-                  <span>▼ Land Verified ➔ Unlocks Parallel Execution (Wave 2)</span>
-                </div>
-
-                <!-- Tier 3: Wave 2 Parallel Clearances -->
-                <div class="flowchart-tier-row">
-                  <!-- Electricity Node -->
-                  <div id="fcNodeElec" class="fc-node wave-2">
-                    <div class="fc-node-header">
-                      <div>
-                        <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">WAVE 2 PARALLEL</span>
-                        <span class="fc-node-title" style="margin-left: 6px;">Electricity (MSEDCL)</span>
-                      </div>
-                      <span id="fcElecStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
-                    </div>
-                    <div class="fc-node-desc">
-                      <strong>Demand:</strong> <span id="fcElecDemandDisplay">300 kW (HT 11kV Feeder)</span><br>
-                      <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
-                    </div>
-                  </div>
-
-                  <!-- Pollution Node -->
-                  <div id="fcNodePoll" class="fc-node wave-2">
-                    <div class="fc-node-header">
-                      <div>
-                        <span class="dept-badge" style="background: #fef3c7; color: #b45309;">WAVE 2 PARALLEL</span>
-                        <span class="fc-node-title" style="margin-left: 6px;">Pollution Board (MPCB)</span>
-                      </div>
-                      <span id="fcPollStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
-                    </div>
-                    <div class="fc-node-desc">
-                      <strong>Clearance:</strong> <span id="fcPollDemandDisplay">Consent to Establish (CTE)</span><br>
-                      <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Connector to Certificate -->
-                <div class="fc-connector-arrow">
-                  <div class="fc-connector-line"></div>
-                  <span>▼ Multi-Department Clearances Merged into Canonical Model</span>
-                </div>
-
-                <!-- Tier 4: Unified Dependency Resolution -->
-                <div class="flowchart-tier-row">
-                  <div id="fcNodeCert" class="fc-node wave-1" style="max-width: 520px; text-align: center;">
-                    <div class="fc-node-header" style="justify-content: center; gap: 12px;">
-                      <span class="fc-node-title">📜 Multi-Department Dependencies Resolution</span>
-                      <span id="fcCertStatusBadge" class="status-tag status-waiting">GATEWAY LOCKED</span>
-                    </div>
-                    <div class="fc-node-desc" id="fcCertDesc">
-                      Dependencies locked. Verify departmental records below to coordinate clearances and proceed to the official portal.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ======================================================== -->
-            <!-- 3 DEPARTMENT VERIFICATION CARDS -->
-            <!-- ======================================================== -->
-            <div class="dash-title-section" style="margin-top: 24px;">
-              <h3>Departmental Verification Hub — Dependency Coordination</h3>
-              <p>Verify information and coordinate dependencies across Land, Electricity, and Pollution departments before continuing to the official portal.</p>
-            </div>
-
-            <div class="dept-action-grid">
-              <!-- CARD 1: LAND DEPARTMENT -->
-              <div class="dept-action-card" id="cardDeptLand" style="border-top: 4px solid #16a34a;">
-                <div>
-                  <div class="dept-card-header">
-                    <div>
-                      <span class="dept-badge" style="background: #dcfce7; color: #166534;">1. Prerequisite Gate</span>
-                      <h4 style="margin-top: 4px; color: #0f172a;">Land Revenue Department</h4>
-                    </div>
-                    <span id="landCardPill" class="status-tag status-pending">Stage 1</span>
-                  </div>
-                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                    Verifies 7/12 Land Mutation, ownership title deed, and encumbrance flags via Land Department API.
-                  </p>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Survey / Gat Number:</label>
-                    <input type="text" id="appLandSurvey" class="form-input" value="101" placeholder="e.g. 101, 102, 103">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Enterprise / Owner PAN:</label>
-                    <input type="text" id="appLandPan" class="form-input" value="ABCDE1234F" style="text-transform: uppercase;">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Land Area:</label>
-                    <input type="text" id="appLandArea" class="form-input" value="3.0 Hectares" readonly style="background: #f1f5f9;">
-                  </div>
-                </div>
-
-                <div>
-                  <div id="landCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-                  <button type="button" id="btnApplyLandAction" onclick="submitLandApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                    Verify Land Record ➔
-                  </button>
-                </div>
-              </div>
-
-              <!-- CARD 2: ELECTRICITY DEPARTMENT -->
-              <div class="dept-action-card" id="cardDeptElec" style="border-top: 4px solid #0284c7;">
-                <div>
-                  <div class="dept-card-header">
-                    <div>
-                      <span class="dept-badge" style="background: #e0f2fe; color: #0284c7;">2. Parallel Clearance</span>
-                      <h4 style="margin-top: 4px; color: #0f172a;">Electricity (MSEDCL)</h4>
-                    </div>
-                    <span id="elecCardPill" class="status-tag status-waiting">Stage 2</span>
-                  </div>
-                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                    Processes High Tension (HT) / Low Tension (LT) grid load sanction and feeder feasibility.
-                  </p>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">MSEDCL Application No:</label>
-                    <input type="text" id="appElecId" class="form-input" value="ELEC-2026-00101">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Sanction Load Demand:</label>
-                    <input type="text" id="appElecLoad" class="form-input" value="300 kW (High Tension HT)" readonly style="background: #f1f5f9;">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
-                    <input type="text" id="appElecLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
-                  </div>
-                </div>
-
-                <div>
-                  <div id="elecCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-                  <button type="button" id="btnApplyElecAction" onclick="submitElecApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                    Verify Power Sanction ➔
-                  </button>
-                </div>
-              </div>
-
-              <!-- CARD 3: POLLUTION DEPARTMENT -->
-              <div class="dept-action-card" id="cardDeptPoll" style="border-top: 4px solid #d97706;">
-                <div>
-                  <div class="dept-card-header">
-                    <div>
-                      <span class="dept-badge" style="background: #fef3c7; color: #b45309;">3. Parallel Clearance</span>
-                      <h4 style="margin-top: 4px; color: #0f172a;">Pollution Board (MPCB)</h4>
-                    </div>
-                    <span id="pollCardPill" class="status-tag status-waiting">Stage 2</span>
-                  </div>
-                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                    Issues Consent to Establish (CTE) under Water (1974) and Air (1981) Prevention of Pollution Acts.
-                  </p>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">MPCB Application ID:</label>
-                    <input type="text" id="appPollId" class="form-input" value="MPCB-8821">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 10px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Evaluated Category:</label>
-                    <input type="text" id="appPollCat" class="form-input" value="Orange Category (ETP Required)" readonly style="background: #f1f5f9;">
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 14px;">
-                    <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
-                    <input type="text" id="appPollLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
-                  </div>
-                </div>
-
-                <div>
-                  <div id="pollCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-                  <button type="button" id="btnApplyPollAction" onclick="submitPollApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                    Verify Pollution Consent (CTE) ➔
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div><!-- end .workflow-column.primary-workflow -->
-
-          <!-- Secondary Workflow Column: External Government Department Portals (Krishna's Roadmap UI) -->
-          <div class="workflow-column krishna-workflow" id="workflowKrishnaCol">
-            
-            <div class="dashboard-panel" style="margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-              <div class="panel-title" style="margin-bottom: 8px;">
-                <span>External Department Portals &amp; Live Filings</span>
-                <span class="status-tag status-approved">Official Gateways</span>
-              </div>
-              <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 16px;">
-                Complete statutory filings via the official departmental portals. Clicking a service opens the respective department's portal in a new tab; verified tokens sync back automatically.
+              <p style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                Statutory prerequisite sequence evaluated under Maharashtra Interoperability Framework
               </p>
+            </div>
+            <button type="button" onclick="resetFlowchart()" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">
+              Reset Flow
+            </button>
+          </div>
 
-              <!-- Land Department Step Card -->
-              <div class="step-card" id="kLandCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 12px; flex-wrap: wrap;">
-                <div class="step-info" style="flex: 1; min-width: 200px;">
-                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">1. Land Revenue 7/12 &amp; Mutation</h4>
-                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Revenue &amp; Land Settlement Department (Port 4000)</p>
-                  <div style="margin-top: 8px;" id="kLandStatusContainer">
-                    <span class="status-badge status-pending" id="kLandBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
-                  </div>
+          <div class="flowchart-nodes-wrapper">
+            <!-- Tier 1: Project Profile Start Node -->
+            <div class="flowchart-tier-row">
+              <div class="fc-node wave-3 active-stage" style="max-width: 480px; text-align: center;">
+                <div class="fc-node-header">
+                  <span class="fc-node-title">🏢 1. Enterprise Project Profile</span>
+                  <span class="status-tag status-approved">VERIFIED</span>
                 </div>
-                <div>
-                  <button type="button" id="kLandBtn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.82rem;" onclick="openKrishnaLandService()">Proceed to Land Portal ➔</button>
+                <div class="fc-node-desc">
+                  Project: <strong id="fcProfileProject">Manufacturing Unit</strong> | Location: <strong id="fcProfileLoc">Pune</strong><br>
+                  PAN Join Key: <strong id="fcProfilePan">ABCDE1234F</strong> (Single Citizen Identity)
                 </div>
-              </div>
-
-              <!-- Electricity Department Step Card -->
-              <div class="step-card" id="kElectricityCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); opacity: 0.6; gap: 12px; flex-wrap: wrap;">
-                <div class="step-info" style="flex: 1; min-width: 200px;">
-                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">2. High Tension (HT) Power Feasibility</h4>
-                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Maharashtra State Electricity Distribution Co. Ltd. (Port 8000)</p>
-                  <div style="margin-top: 8px;" id="kElectricityStatusContainer">
-                    <span class="status-badge status-pending" id="kElectricityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
-                  </div>
-                </div>
-                <div>
-                  <button type="button" id="kElectricityBtn" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.82rem;" disabled>Locked (Complete Land First)</button>
-                </div>
-              </div>
-
-              <!-- Pollution Department Step Card -->
-              <div class="step-card" id="kPollutionCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); opacity: 0.6; gap: 12px; flex-wrap: wrap;">
-                <div class="step-info" style="flex: 1; min-width: 200px;">
-                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">3. Consent to Establish (CTE)</h4>
-                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Maharashtra Pollution Control Board (MPCB)</p>
-                  <div style="margin-top: 8px;">
-                    <span class="status-badge status-pending" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
-                  </div>
-                </div>
-                <div>
-                  <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.82rem;" disabled>Locked (Complete Land First)</button>
-                </div>
-              </div>
-
-              <div style="margin-top: 14px; text-align: right;">
-                <a href="/further-steps.html" target="_blank" class="btn btn-outline" style="font-size: 0.78rem; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                  Open Dedicated Roadmap View ↗
-                </a>
               </div>
             </div>
 
-          </div><!-- end .workflow-column.krishna-workflow -->
-        </div><!-- end .workflow-container-layout -->
-      </div><!-- end #section-flowchart -->
+            <!-- Connector to Wave 1 -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Prerequisite Dependency Discovery</span>
+            </div>
 
+            <!-- Tier 2: Wave 1 Gate - Land Department -->
+            <div class="flowchart-tier-row">
+              <div id="fcNodeLand" class="fc-node wave-1 active-stage" style="max-width: 520px;">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #dcfce7; color: #15803d;">WAVE 1 PREREQUISITE</span>
+                    <span class="fc-node-title" style="margin-left: 8px;">Land Revenue Department</span>
+                  </div>
+                  <span id="fcLandStatusBadge" class="status-tag status-approved">AUTO-VERIFIED ✓</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Clearance:</strong> 7/12 Jamabandi &amp; Mutation Entry (Survey #<span id="fcLandSurveyDisplay">101</span>)<br>
+                  <strong>Resolution:</strong> Title clear &amp; unencumbered. Verified land record is automatically bound downstream.
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector to Parallel Wave 2 -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Land Verified ➔ Unlocks Concurrent Clearances (Wave 2)</span>
+            </div>
+
+            <!-- Tier 3: Wave 2 Parallel Clearances -->
+            <div class="flowchart-tier-row">
+              <!-- Electricity Node -->
+              <div id="fcNodeElec" class="fc-node wave-2 active-stage">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">WAVE 2 CONCURRENT</span>
+                    <span class="fc-node-title" style="margin-left: 6px;">Electricity (MSEDCL)</span>
+                  </div>
+                  <span id="fcElecStatusBadge" class="status-tag status-approved">AUTO-VERIFIED ✓</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Demand:</strong> <span id="fcElecDemandDisplay">300 kW (HT 11kV Feeder)</span><br>
+                  <strong>Resolution:</strong> Grid capacity feasible. Inherited verified land coordinates.
+                </div>
+              </div>
+
+              <!-- Pollution Node -->
+              <div id="fcNodePoll" class="fc-node wave-2 active-stage">
+                <div class="fc-node-header">
+                  <div>
+                    <span class="dept-badge" style="background: #fef3c7; color: #b45309;">WAVE 2 CONCURRENT</span>
+                    <span class="fc-node-title" style="margin-left: 6px;">Pollution Board (MPCB)</span>
+                  </div>
+                  <span id="fcPollStatusBadge" class="status-tag status-approved">AUTO-VERIFIED ✓</span>
+                </div>
+                <div class="fc-node-desc">
+                  <strong>Clearance:</strong> <span id="fcPollDemandDisplay">Consent to Establish (CTE)</span><br>
+                  <strong>Resolution:</strong> Siting parameters verified against environmental zone rules.
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector to Certificate -->
+            <div class="fc-connector-arrow">
+              <div class="fc-connector-line"></div>
+              <span>▼ Multi-Department Clearances Coordinated</span>
+            </div>
+
+            <!-- Tier 4: Unified Dependency Resolution -->
+            <div class="flowchart-tier-row">
+              <div id="fcNodeCert" class="fc-node wave-1 approved-stage" style="max-width: 520px; text-align: center;">
+                <div class="fc-node-header" style="justify-content: center; gap: 12px;">
+                  <span class="fc-node-title">📜 4. Dependencies Resolved &amp; Coordinated</span>
+                  <span id="fcCertStatusBadge" class="status-tag status-approved">READY ✓</span>
+                </div>
+                <div class="fc-node-desc" id="fcCertDesc">
+                  <div style="color: #166534; font-weight: 700; margin-bottom: 4px;">✓ All Department Prerequisites Satisfied</div>
+                  <div style="color: #15803d; font-size: 0.8rem;">Data verified across Land (7/12), Power (MSEDCL), and Environment (MPCB). Zero document re-upload required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Automated Dependency Coordination Summary (Clean Statuses, No Manual Buttons) -->
+        <div class="dashboard-panel" style="background: #f8fafc; border: 1px solid var(--gov-border); margin-bottom: 24px;">
+          <div class="panel-title" style="margin-bottom: 12px;">
+            <span>Automated Departmental Coordination Status</span>
+            <span class="status-tag status-approved">All Clearances Aligned</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <div style="background: white; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: #166534; font-size: 0.88rem;">1. Land Revenue (7/12)</strong>
+                <span class="status-tag status-approved">Auto-Verified ✓</span>
+              </div>
+              <div style="font-size: 0.78rem; color: #64748b;">Survey #101 verified • Title deed clear • Mutation approved</div>
+            </div>
+            <div style="background: white; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: #0369a1; font-size: 0.88rem;">2. MSEDCL Power Sanction</strong>
+                <span class="status-tag status-approved">Auto-Verified ✓</span>
+              </div>
+              <div style="font-size: 0.78rem; color: #64748b;">300 kW HT Feeder load allocated • Land coordinates inherited</div>
+            </div>
+            <div style="background: white; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: #b45309; font-size: 0.88rem;">3. MPCB Pollution CTE</strong>
+                <span class="status-tag status-approved">Auto-Verified ✓</span>
+              </div>
+              <div style="font-size: 0.78rem; color: #64748b;">Orange Category parameters met • ETP compliance mapped</div>
+            </div>
+          </div>
+
+          <!-- Primary CTA: Proceed to the Separate Next Page -->
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div style="font-weight: 700; color: #1e3a8a; font-size: 0.95rem;">Dependencies Ready — Next Step: Official Portals</div>
+              <div style="font-size: 0.8rem; color: #1e40af;">Proceed to the official government portals to complete your statutory filings with pre-verified data.</div>
+            </div>
+            <button type="button" onclick="switchSection('portal')" class="btn btn-primary" style="padding: 11px 26px; font-size: 0.9rem; font-weight: 700;">
+              Proceed to Government Portals ➔
+            </button>
+          </div>
+        </div>
+
+      </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 4: CHECK STATUS (WITH MILESTONE STEPPER) -->
+      <!-- SECTION 3: GOVERNMENT APPLICATIONS & OFFICIAL PORTALS (SEPARATE NEXT PAGE) -->
+      <!-- ======================================================== -->
+      <div id="section-portal" class="content-section" style="display: none;">
+        <div class="dash-title-section">
+          <h2>Official Government Department Portals</h2>
+          <p>All cross-department dependencies and prerequisite data have been verified by the Interoperability Layer. You may now proceed to the official department portals to complete statutory submission, document signing, and fee payment.</p>
+        </div>
+
+        <div class="info-banner" style="margin-bottom: 24px;">
+          <strong>Official Submission Notice:</strong> Legally binding statutory applications, payments, and digital signatures are executed on the official departmental portals below. The Interoperability Layer pre-fills your verified data so you never have to re-upload documents.
+        </div>
+
+        <!-- Official Portals Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 28px;">
+
+          <!-- Portal 1: Land Revenue -->
+          <div class="dashboard-panel" id="kLandCard" style="border-top: 4px solid #16a34a; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                  <span class="dept-badge" style="background: #dcfce7; color: #166534;">Revenue &amp; Land Settlement</span>
+                  <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">1. Land Revenue &amp; 7/12 Portal</h3>
+                </div>
+                <span class="status-badge status-pending" id="kLandBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Port 4000</span>
+              </div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
+                File and confirm 7/12 Land Mutation, ownership title deed records, and survey boundary certifications.
+              </p>
+              <div id="kLandStatusContainer" style="font-size: 0.78rem; color: #166534; font-weight: 600; margin-bottom: 12px;">
+                ✓ Interop Check: Survey #101 Pre-Verified
+              </div>
+            </div>
+            <div>
+              <button type="button" id="kLandBtn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" onclick="openKrishnaLandService()">
+                Proceed to Official Land Portal ➔
+              </button>
+            </div>
+          </div>
+
+          <!-- Portal 2: Electricity MSEDCL -->
+          <div class="dashboard-panel" id="kElectricityCard" style="border-top: 4px solid #0284c7; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                  <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">MSEDCL Discom</span>
+                  <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">2. Power Sanction &amp; Grid Portal</h3>
+                </div>
+                <span class="status-badge status-pending" id="kElectricityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Port 8000</span>
+              </div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
+                Submit High Tension (HT) / Low Tension (LT) power supply application with inherited land coordinates.
+              </p>
+              <div id="kElectricityStatusContainer" style="font-size: 0.78rem; color: #0369a1; font-weight: 600; margin-bottom: 12px;">
+                ✓ Interop Check: 300 kW Feeder Earmarked
+              </div>
+            </div>
+            <div>
+              <button type="button" id="kElectricityBtn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" onclick="openKrishnaElectricityService()">
+                Proceed to Official Electricity Portal ➔
+              </button>
+            </div>
+          </div>
+
+          <!-- Portal 3: MPCB Pollution -->
+          <div class="dashboard-panel" id="kPollutionCard" style="border-top: 4px solid #d97706; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                  <span class="dept-badge" style="background: #fef3c7; color: #b45309;">Pollution Control Board</span>
+                  <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">3. MPCB Consent (CTE) Portal</h3>
+                </div>
+                <span class="status-badge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">Official Gateway</span>
+              </div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
+                Apply for statutory Consent to Establish (CTE) under the Water (1974) and Air (1981) Pollution Control Acts.
+              </p>
+              <div style="font-size: 0.78rem; color: #b45309; font-weight: 600; margin-bottom: 12px;">
+                ✓ Interop Check: Orange Category Rules Mapped
+              </div>
+            </div>
+            <div>
+              <a href="https://mpcb.gov.in" target="_blank" class="btn btn-outline" style="width: 100%; padding: 10px 16px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                Proceed to Official MPCB Portal ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Portal 4: MAITRI Apex Single Window -->
+          <div class="dashboard-panel" style="border-top: 4px solid #1e3a8a; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                  <span class="dept-badge" style="background: #eff6ff; color: #1e3a8a;">Maharashtra Government</span>
+                  <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">4. MAITRI Single Window Portal</h3>
+                </div>
+                <span class="status-badge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">Apex System</span>
+              </div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
+                Access the unified single-window portal for state-level composite industrial approval and tracking.
+              </p>
+              <div style="font-size: 0.78rem; color: #1e3a8a; font-weight: 600; margin-bottom: 12px;">
+                ✓ Interop Check: Combined Application Form Ready
+              </div>
+            </div>
+            <div>
+              <a href="https://maitri.mahaonline.gov.in" target="_blank" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                Proceed to Official MAITRI Portal ↗
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Return / Next Step Helper -->
+        <div style="background: #f8fafc; border: 1px solid var(--gov-border); border-radius: 8px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <strong style="color: #0f172a; font-size: 0.9rem;">Completed your submission on the government portal?</strong>
+            <p style="font-size: 0.78rem; color: #64748b;">Select your registered application anytime to track real-time milestone progress.</p>
+          </div>
+          <button type="button" onclick="switchSection('status')" class="btn btn-outline" style="padding: 9px 20px; font-size: 0.85rem; font-weight: 600;">
+            Track Application Status ➔
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 4: TRACK APPLICATION (Application Selector & Government Status) -->
       <!-- ======================================================== -->
       <div id="section-status" class="content-section" style="display: none;">
         <div class="dash-title-section">
-          <h2>Check Application & Transaction Status</h2>
-          <p>Enter your Application Reference Number or Gateway Transaction ID to track real-time milestone progress.</p>
+          <h2>Track Government Application Status</h2>
+          <p>Select your registered application to fetch real-time milestone progress from the respective government departments.</p>
         </div>
 
-        <div class="dashboard-panel">
-          <form id="statusForm" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 260px;">
-              <label class="form-label" for="statusAppId">Application or Transaction Reference:</label>
-              <input type="text" id="statusAppId" class="form-input" placeholder="e.g. APP-MH-2026-101 or TXN-20260903-AB1C2D" required>
-            </div>
-            <button type="submit" id="btnCheckStatus" class="btn btn-primary" style="padding: 10px 20px;">
-              Track Status
+        <!-- Application Selector (Dropdown) -->
+        <div class="dashboard-panel" style="margin-bottom: 24px;">
+          <label class="form-label" for="trackAppSelector" style="font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 8px;">
+            Select Application / Project:
+          </label>
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <select id="trackAppSelector" class="form-input" style="flex: 1; min-width: 280px; font-size: 0.95rem; padding: 10px 14px;" onchange="onSelectTrackApplication(this.value)">
+              <option value="">— Select an application from your account —</option>
+              <option value="APP-MH-2026-101" selected>ABC Industries – Manufacturing Plant (Ref: APP-MH-2026-101)</option>
+              <option value="APP-MH-2026-102">XYZ Logistics – Warehouse &amp; Cold Storage (Ref: APP-MH-2026-102)</option>
+              <option value="APP-MH-2026-103">Alpha Green Pharma – API Facility (Ref: APP-MH-2026-103)</option>
+            </select>
+            <button type="button" class="btn btn-primary" onclick="fetchSelectedAppStatus()" style="padding: 10px 20px; font-weight: 700; white-space: nowrap;">
+              Fetch Latest Status 🔄
             </button>
-          </form>
+          </div>
         </div>
 
-        <!-- Status Milestone Result Card -->
-        <div id="statusResultCard" class="dashboard-panel" style="display: none;">
-          <div class="panel-title">
-            <span id="resAppId">APP-MH-2026-101</span>
-            <span id="resStatusBadge" class="status-tag status-approved">APPROVED</span>
+        <!-- Government Application Status Result Card -->
+        <div id="statusResultCard" class="dashboard-panel" style="display: block;">
+          <div class="panel-title" style="margin-bottom: 16px;">
+            <div>
+              <span id="resAppTitle" style="font-weight: 700; color: #0f172a; font-size: 1.05rem;">ABC Industries – Manufacturing Plant</span>
+              <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Application Reference: <strong id="resAppId">APP-MH-2026-101</strong></div>
+            </div>
+            <span id="resStatusBadge" class="status-tag status-pending">UNDER REVIEW</span>
           </div>
 
           <!-- Milestone Stepper -->
-          <div class="stepper-container">
-            <div class="stepper-step completed" id="step1">
+          <div class="stepper-container" style="margin-bottom: 24px;">
+            <div class="stepper-step completed" id="trackStep1">
               <div class="stepper-circle">✓</div>
-              <div class="stepper-label">Identity & Consent</div>
-              <div class="stepper-sublabel">DPDP Verified</div>
+              <div class="stepper-label">1. Interop Verified</div>
+              <div class="stepper-sublabel">Clearances Coordinated</div>
             </div>
-            <div class="stepper-step completed" id="step2">
+            <div class="stepper-step completed" id="trackStep2">
               <div class="stepper-circle">✓</div>
-              <div class="stepper-label">Land Revenue 7/12</div>
-              <div class="stepper-sublabel">Mutation Verified</div>
+              <div class="stepper-label">2. Portal Submitted</div>
+              <div class="stepper-sublabel">Official Filing Logged</div>
             </div>
-            <div class="stepper-step completed" id="step3">
-              <div class="stepper-circle">✓</div>
-              <div class="stepper-label">MPCB Consent</div>
-              <div class="stepper-sublabel">CTE Approved</div>
+            <div class="stepper-step active" id="trackStep3">
+              <div class="stepper-circle">⏳</div>
+              <div class="stepper-label">3. Department Review</div>
+              <div class="stepper-sublabel">Technical Siting</div>
             </div>
-            <div class="stepper-step completed" id="step4">
-              <div class="stepper-circle">✓</div>
-              <div class="stepper-label">MSEDCL Power</div>
-              <div class="stepper-sublabel">Sanctioned</div>
-            </div>
-            <div class="stepper-step completed" id="step5">
-              <div class="stepper-circle">✓</div>
-              <div class="stepper-label">Composite NOC</div>
-              <div class="stepper-sublabel">Issued</div>
+            <div class="stepper-step" id="trackStep4">
+              <div class="stepper-circle">○</div>
+              <div class="stepper-label">4. Final Clearance</div>
+              <div class="stepper-sublabel">Composite Approval</div>
             </div>
           </div>
 
-          <!-- Details Grid -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.85rem; margin-bottom: 16px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <!-- Structured Details Grid (Prepared for dynamic API responses) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.85rem; margin-bottom: 20px; background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <div>
-              <span style="color: var(--gov-text-muted);">Service Applied:</span>
-              <div id="resServiceType" style="font-weight: 600; color: #0f172a;">Single Window Plant Establishment</div>
+              <span style="color: var(--gov-text-muted); font-size: 0.78rem;">Department / Authority:</span>
+              <div id="resDepartment" style="font-weight: 700; color: #0f172a; font-size: 0.95rem; margin-top: 2px;">MPCB &amp; MSEDCL</div>
             </div>
             <div>
-              <span style="color: var(--gov-text-muted);">Department Authorities:</span>
-              <div id="resDepartment" style="font-weight: 600; color: #0f172a;">Revenue, MSEDCL, MPCB</div>
+              <span style="color: var(--gov-text-muted); font-size: 0.78rem;">Current Government Stage:</span>
+              <div id="resCurrentStage" style="font-weight: 700; color: #1e40af; font-size: 0.95rem; margin-top: 2px;">Under Department Technical Review</div>
             </div>
             <div>
-              <span style="color: var(--gov-text-muted);">Survey / Site ID:</span>
-              <div id="resSurvey" style="font-weight: 600; color: #0f172a;">Survey #101 (Chakan, Pune)</div>
+              <span style="color: var(--gov-text-muted); font-size: 0.78rem;">Last Updated:</span>
+              <div id="resLastUpdated" style="font-weight: 600; color: #0f172a; margin-top: 2px;">Just now</div>
             </div>
             <div>
-              <span style="color: var(--gov-text-muted);">Turnaround SLA:</span>
-              <div style="font-weight: 600; color: #166534;">Statutory 14 Days (RTS Compliant)</div>
+              <span style="color: var(--gov-text-muted); font-size: 0.78rem;">Next Action:</span>
+              <div id="resNextAction" style="font-weight: 600; color: #b45309; margin-top: 2px;">Waiting for field officer site inspection clearance</div>
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gov-border); padding-top: 14px; flex-wrap: wrap; gap: 12px;">
             <div style="font-size: 0.82rem; color: #334155;">
-              <strong>Policy Verdict:</strong> <span id="resRemarks">All 3 department checks completed successfully. Composite NOC valid for 3 years.</span>
+              <strong>Policy Record:</strong> <span id="resRemarks">Cross-departmental interoperability verification validated. Composite token issued.</span>
             </div>
-            <button onclick="printCertificate()" class="btn btn-outline" style="font-size: 0.8rem; padding: 6px 14px;">
-              Print Composite Certificate
+            <button type="button" onclick="printCertificate()" class="btn btn-outline" style="font-size: 0.8rem; padding: 6px 14px;">
+              Print Status Summary
             </button>
           </div>
+
         </div>
+
       </div>
 
       <!-- ======================================================== -->
@@ -1328,6 +1319,7 @@
     const initialTab = urlParams.get('tab');
     if (initialTab) switchSection(initialTab);
     checkExternalServiceCallbacks();
+    fetchSelectedAppStatus();
 
     // Sidebar navigation & subgroup toggle
     function toggleSubgroup(id) {
@@ -1340,7 +1332,7 @@
     }
 
     function switchSection(secName) {
-      const sections = ['dashboard', 'process', 'flowchart', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
+      const sections = ['dashboard', 'process', 'flowchart', 'portal', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
       const advancedTools = ['schema', 'resilience', 'audit'];
 
       // If user navigates to an advanced tool, auto-expand the collapsible subgroup
@@ -1877,7 +1869,7 @@
       const kElecRef = urlParams.get('electricity_ref');
 
       if (kLandStatus === 'COMPLETED') {
-        switchSection('flowchart');
+        switchSection('portal');
         const kLandCard = document.getElementById('kLandCard');
         if (kLandCard) kLandCard.style.borderLeft = '4px solid #10b981';
         const kBadge = document.getElementById('kLandBadge');
@@ -1912,7 +1904,7 @@
       }
 
       if (kElecStatus === 'COMPLETED') {
-        switchSection('flowchart');
+        switchSection('portal');
         const kElecCard = document.getElementById('kElectricityCard');
         if (kElecCard) {
           kElecCard.style.borderLeft = '4px solid #10b981';
@@ -1942,31 +1934,92 @@
     }
 
     // ==========================================
-    // 3. CHECK STATUS & MILESTONE STEPPER
+    // 3. TRACK APPLICATION & GOVERNMENT STATUS (Application Selector)
     // ==========================================
-    document.getElementById('statusForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const ref = document.getElementById('statusAppId').value.trim();
-      const btn = document.getElementById('btnCheckStatus');
-      btn.disabled = true;
-      btn.innerText = 'Checking Gateway...';
-
-      try {
-        let res = await fetch(`/api/projects/transactions/${ref}`).catch(() => null);
-        let data = res ? await res.json() : null;
-
-        btn.disabled = false;
-        btn.innerText = 'Track Status';
-
-        document.getElementById('statusResultCard').style.display = 'block';
-        document.getElementById('resAppId').innerText = ref;
-        document.getElementById('resRemarks').innerText = `Transaction ${ref} verified across Land, Electricity, and Pollution registers. Composite clearance active.`;
-        document.getElementById('statusResultCard').scrollIntoView({ behavior: 'smooth' });
-      } catch (err) {
-        btn.disabled = false;
-        btn.innerText = 'Track Status';
+    // Pre-registered applications on our platform
+    const registeredApplications = {
+      'APP-MH-2026-101': {
+        title: 'ABC Industries – Manufacturing Plant',
+        id: 'APP-MH-2026-101',
+        department: 'MPCB & MSEDCL',
+        currentStage: 'Under Department Technical Review',
+        badge: 'UNDER REVIEW',
+        badgeClass: 'status-tag status-pending',
+        lastUpdated: 'Today at 16:45 IST',
+        nextAction: 'Waiting for field officer site inspection clearance',
+        step: 3
+      },
+      'APP-MH-2026-102': {
+        title: 'XYZ Logistics – Warehouse & Cold Storage',
+        id: 'APP-MH-2026-102',
+        department: 'Revenue & Town Planning',
+        currentStage: 'Land 7/12 Jamabandi Approved',
+        badge: 'INTEROP VERIFIED ✓',
+        badgeClass: 'status-tag status-approved',
+        lastUpdated: 'Yesterday at 11:15 IST',
+        nextAction: 'Ready to proceed to MSEDCL Electricity Portal',
+        step: 2
+      },
+      'APP-MH-2026-103': {
+        title: 'Alpha Green Pharma – API Facility',
+        id: 'APP-MH-2026-103',
+        department: 'MPCB, MSEDCL, Revenue',
+        currentStage: 'Composite Clearances Granted & Signed',
+        badge: 'APPROVED ✓',
+        badgeClass: 'status-tag status-approved',
+        lastUpdated: '02 Sep 2026',
+        nextAction: 'Download Composite Statutory Clearance Certificate',
+        step: 4
       }
-    });
+    };
+
+    function onSelectTrackApplication(appId) {
+      if (!appId) return;
+      fetchSelectedAppStatus(appId);
+    }
+
+    async function fetchSelectedAppStatus(appId) {
+      const selectedId = appId || document.getElementById('trackAppSelector')?.value || 'APP-MH-2026-101';
+      const appData = registeredApplications[selectedId];
+      if (!appData) return;
+
+      const titleEl = document.getElementById('resAppTitle');
+      const idEl = document.getElementById('resAppId');
+      const deptEl = document.getElementById('resDepartment');
+      const stageEl = document.getElementById('resCurrentStage');
+      const updatedEl = document.getElementById('resLastUpdated');
+      const nextActionEl = document.getElementById('resNextAction');
+      const badgeEl = document.getElementById('resStatusBadge');
+
+      if (titleEl) titleEl.innerText = appData.title;
+      if (idEl) idEl.innerText = appData.id;
+      if (deptEl) deptEl.innerText = appData.department;
+      if (stageEl) stageEl.innerText = appData.currentStage;
+      if (updatedEl) updatedEl.innerText = appData.lastUpdated;
+      if (nextActionEl) nextActionEl.innerText = appData.nextAction;
+
+      if (badgeEl) {
+        badgeEl.className = appData.badgeClass;
+        badgeEl.innerText = appData.badge;
+      }
+
+      // Update milestone stepper
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`trackStep${i}`);
+        if (!stepEl) continue;
+        const circle = stepEl.querySelector('.stepper-circle');
+        if (i < appData.step) {
+          stepEl.className = 'stepper-step completed';
+          if (circle) circle.innerText = '✓';
+        } else if (i === appData.step) {
+          stepEl.className = 'stepper-step active';
+          if (circle) circle.innerText = (appData.step === 4) ? '✓' : '⏳';
+        } else {
+          stepEl.className = 'stepper-step';
+          if (circle) circle.innerText = '○';
+        }
+      }
+    }
 
     function printCertificate() {
       window.print();
