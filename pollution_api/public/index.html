@@ -3,164 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MPCB — Consent to Establish (CTE) & Environmental Clearance</title>
+  <title>Environmental Consent - MPCB</title>
   <link rel="stylesheet" href="/css/pollution-style.css">
 </head>
 <body>
 
-  <div class="top-bar">
-    <span>GOVERNMENT OF MAHARASHTRA • MAHARASHTRA POLLUTION CONTROL BOARD (MPCB)</span>
-    <span>Official Portal</span>
-  </div>
-
-  <header class="header">
-    <div class="header-content">
-      <div style="font-size: 2.2rem;">🌱</div>
-      <div>
-        <h1>MAHARASHTRA POLLUTION CONTROL BOARD</h1>
-        <p>Consent Management & Environmental Compliance Siting Portal (CTE / CTO)</p>
-      </div>
-    </div>
+  <header class="mpcb-header">
+    <h2>GOVERNMENT OF MAHARASHTRA</h2>
+    <h1>MAHARASHTRA POLLUTION CONTROL BOARD</h1>
+    <p>Environmental Consent & Intimation (Green Category)</p>
   </header>
 
-  <div style="background: #166534; padding: 0 24px; display: flex; gap: 8px; justify-content: center;">
-    <button id="tabPollApplyBtn" onclick="switchPollTab('apply')" style="background: white; color: #166534; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; border-top-left-radius: 6px; border-top-right-radius: 6px; font-size: 0.88rem;">Apply for CTE Consent</button>
-    <button id="tabPollRecordsBtn" onclick="switchPollTab('records')" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; border-top-left-radius: 6px; border-top-right-radius: 6px; font-size: 0.88rem;">All MPCB Consent Records (Live DB)</button>
-  </div>
-
-  <div class="container">
+  <div class="mpcb-container">
     
-    <!-- Live MPCB Records Section (Dynamic from Database) -->
-    <div id="pollRecordsSection" class="card" style="display: none;">
-      <h2 class="section-title">Authoritative MPCB Environmental Applications & Clearances (PostgreSQL)</h2>
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px;">
-          <thead>
-            <tr style="background: #f1f5f9; text-align: left;">
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">App Number</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Industry Name</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">PAN</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Consent Type</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Category</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Compliance</th>
-              <th style="padding: 10px; border-bottom: 2px solid #cbd5e1;">Status</th>
-            </tr>
-          </thead>
-          <tbody id="pollRecordsBody">
-            <tr><td colspan="7" style="text-align: center; padding: 20px;">Loading live records from database...</td></tr>
-          </tbody>
-        </table>
+    <div class="mpcb-card" id="formCard">
+      <h3 class="mpcb-section-title">A. Application Information</h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">MAITRI Application ID</label>
+          <input type="text" id="appId" class="mpcb-input" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Industry Category</label>
+          <input type="text" id="industryCategory" class="mpcb-input" value="Green Category" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Applicant / Company Name</label>
+          <input type="text" id="companyName" class="mpcb-input" placeholder="e.g. ABC Industries Pvt Ltd">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Enterprise PAN</label>
+          <input type="text" id="pan" class="mpcb-input" placeholder="e.g. ABCDE1234F" style="text-transform:uppercase;">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Project Name</label>
+          <input type="text" id="projectName" class="mpcb-input" placeholder="e.g. Green Industrial Expansion">
+        </div>
       </div>
+
+      <h3 class="mpcb-section-title">B. Environmental Profile</h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Expected Emission Level</label>
+          <input type="text" class="mpcb-input" value="Low Emissions / Green" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Effluent Discharge</label>
+          <input type="text" class="mpcb-input" value="Zero Trade Effluent" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Water Consumption (KLD)</label>
+          <input type="number" id="water" class="mpcb-input" placeholder="e.g. 5">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Solid Waste Generation (Kg/day)</label>
+          <input type="number" id="solidWaste" class="mpcb-input" placeholder="e.g. 10">
+        </div>
+      </div>
+
+      <h3 class="mpcb-section-title">C. Consent Details</h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Consent Type</label>
+          <input type="text" class="mpcb-input" value="Consent to Establish (CTE)" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Project Status</label>
+          <input type="text" class="mpcb-input" value="New Industrial Project" readonly>
+        </div>
+      </div>
+
+      <button id="submitBtn" class="mpcb-btn mpcb-btn-primary">Submit Pollution Application</button>
     </div>
 
-    <!-- Application Form -->
-    <div id="applicationForm" class="card">
-      <!-- Auto-fill info bar -->
-      <div id="pollAutoFillBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:0.84rem; color:#1e40af;">
-        <span id="pollAutoFillMsg">Fetching your profile from database...</span>
-      </div>
-
-      <h2 class="section-title">A. MAITRI Application Context
-        <button type="button" onclick="fetchPollProfile()" style="margin-left:12px; font-size:0.72rem; padding:3px 10px; background:#166534; color:white; border:none; border-radius:4px; cursor:pointer;">&#8635; Auto-fill from DB</button>
-      </h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="appId">MAITRI Application ID</label>
-          <input type="text" id="appId" class="form-control" readonly>
-        </div>
-        <div class="form-group">
-          <label for="companyName">Industry / Enterprise Name</label>
-          <input type="text" id="companyName" class="form-control" placeholder="e.g. ABC Industries Pvt Ltd">
-        </div>
-        <div class="form-group">
-          <label for="pan">Enterprise PAN</label>
-          <input type="text" id="pan" class="form-control" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
-        </div>
-        <div class="form-group">
-          <label for="contactEmail">Contact Email</label>
-          <input type="email" id="contactEmail" class="form-control" placeholder="e.g. env@company.com">
-        </div>
-        <div class="form-group">
-          <label for="contactPhone">Contact Phone</label>
-          <input type="tel" id="contactPhone" class="form-control" placeholder="e.g. 9876543210">
-        </div>
-        <div class="form-group">
-          <label for="authRep">Authorized Representative</label>
-          <input type="text" id="authRep" class="form-control" placeholder="e.g. Rajesh Kumar">
-        </div>
-      </div>
-
-      <h2 class="section-title">B. Industrial Plant &amp; Siting Parameters</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="district">District / Region</label>
-          <select id="district" class="form-control">
-            <option value="Pune" selected>Pune Regional Office</option>
-            <option value="Mumbai">Mumbai Metropolitan Region</option>
-            <option value="Nagpur">Nagpur Region</option>
-            <option value="Nashik">Nashik Region</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="industryType">Industry Sector Category</label>
-          <input type="text" id="industryType" class="form-control" value="Chemical / Industrial">
-        </div>
-        <div class="form-group">
-          <label for="consentType">Consent Type Requested</label>
-          <select id="consentType" class="form-control">
-            <option value="CTE" selected>Consent to Establish (CTE)</option>
-            <option value="CTO">Consent to Operate (CTO)</option>
-          </select>
-        </div>
-      </div>
-
-      <h2 class="section-title">C. Environmental Mitigation &amp; Discharge Siting</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="airCategory">Air Emission Category</label>
-          <select id="airCategory" class="form-control">
-            <option value="RED">RED Category (High Polluting)</option>
-            <option value="ORANGE">ORANGE Category</option>
-            <option value="GREEN">GREEN Category</option>
-            <option value="WHITE">WHITE Category</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="etpPlan">Effluent Treatment Plant (ETP)</label>
-          <input type="text" id="etpPlan" class="form-control" value="Zero Liquid Discharge (ZLD) Proposed">
-        </div>
-        <div class="form-group" style="grid-column: 1 / -1;">
-          <label for="address">Industrial Plant Site Location</label>
-          <input type="text" id="address" class="form-control" value="MIDC Industrial Area, Pune, Maharashtra">
-        </div>
-      </div>
-
-      <div style="margin-top: 24px;">
-        <button type="button" id="submitBtn" class="btn btn-primary">
-          Submit MPCB Consent to Establish (CTE) Application
-        </button>
-      </div>
-    </div>
-
-
-    <!-- Success Message -->
-    <div id="successBox" class="success-box">
-      <div class="success-icon">✓</div>
-      <h2 style="color: #166534; font-size: 1.3rem; margin-bottom: 8px;">MPCB Consent Application Submitted Successfully</h2>
-      <p style="color: #475569; font-size: 0.9rem;">Your statutory application for Consent to Establish (CTE) has been recorded in the MPCB registry.</p>
+    <div class="mpcb-card mpcb-success" id="successCard">
+      <div class="mpcb-success-icon">✓</div>
+      <h2>Pollution Application Submitted Successfully</h2>
+      <p>Your Fast-Track Green Category Consent application is under processing.</p>
       
-      <div class="ref-number" id="refNumberDisplay">
-        MPCB Reference: MPCB-8821
+      <div class="mpcb-ref" id="refNumber">
+        MPCB-2026-XXXXX
       </div>
-      
-      <p style="margin-bottom: 24px; color: var(--mpcb-muted); font-size: 0.85rem;">
-        MAITRI App ID: <strong id="successAppId" style="color: #0f172a;"></strong> | 
-        Category: <strong style="color: #0f172a;">RED (CTE Approved)</strong>
-      </p>
-      
-      <button type="button" id="returnBtn" class="btn btn-secondary">
-        Return to MAITRI Single Window Portal ➔
-      </button>
+
+      <div style="margin-top: 20px;">
+        <button id="returnBtn" class="mpcb-btn mpcb-btn-secondary">Return to MAITRI Portal ➔</button>
+      </div>
     </div>
 
   </div>

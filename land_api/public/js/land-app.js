@@ -9,7 +9,6 @@
 
 const LAND_API = 'http://localhost:4000/api/land';
 const API_KEY = 'interop-demo-key-001';
-const MAITRI_API = 'http://localhost:5000/api/portal';
 
 // Read URL params for MAITRI integration (callback mechanism)
 const urlParams = new URLSearchParams(window.location.search);
@@ -17,86 +16,32 @@ const maitriAppId = urlParams.get('app_id');
 const maitriCallback = urlParams.get('callback');
 const maitriSurvey = urlParams.get('survey');
 const maitriPan = urlParams.get('pan');
-const maitriApplicant = urlParams.get('applicant');  // org name from MAITRI session
-const maitriEmail = urlParams.get('email');           // email from MAITRI session
-const maitriMobile = urlParams.get('mobile');         // mobile from MAITRI session
 
 // If arriving from MAITRI with context, pre-fill and go to apply
 window.addEventListener('DOMContentLoaded', () => {
   if (maitriAppId && maitriSurvey) {
+    // Pre-fill the apply form with MAITRI context
     switchTab('apply');
-    // Pre-fill from URL params (MAITRI session data)
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-    setVal('applyPan', maitriPan);
-    setVal('applySurvey', maitriSurvey);
-    setVal('applyOrg', maitriApplicant);
-    setVal('applyEmail', maitriEmail);
-    setVal('applyPhone', maitriMobile);
-
-    // Then auto-fetch full profile from DB if PAN provided (overrides URL params with DB truth)
-    if (maitriPan) {
-      fetchAndFillProfile();
+    if (maitriPan && document.getElementById('applyPan')) {
+      document.getElementById('applyPan').value = maitriPan;
+    }
+    if (maitriSurvey && document.getElementById('applySurvey')) {
+      document.getElementById('applySurvey').value = maitriSurvey;
+    }
+    const maitriApplicant = urlParams.get('applicant');
+    if (maitriApplicant) {
+      if (document.getElementById('applyName')) document.getElementById('applyName').value = maitriApplicant;
+      if (document.getElementById('applyOrg')) document.getElementById('applyOrg').value = maitriApplicant;
+    }
+    const maitriPhone = urlParams.get('mobile');
+    if (maitriPhone && document.getElementById('applyPhone')) {
+      document.getElementById('applyPhone').value = maitriPhone;
     }
   }
 
   // Load all records for the "All Records" tab
   loadAllRecords();
 });
-
-// =============================================
-// AUTO-FILL PROFILE FROM MAITRI DATABASE
-// =============================================
-async function fetchAndFillProfile() {
-  const panInput = document.getElementById('applyPan');
-  const pan = (maitriPan || panInput?.value || '').trim().toUpperCase();
-  if (!pan || pan.length < 10) {
-    alert('Please enter a valid 10-character PAN number first.');
-    return;
-  }
-
-  const bar = document.getElementById('autoFillBar');
-  const msg = document.getElementById('autoFillMsg');
-  const badge = document.getElementById('autoFillBadge');
-
-  if (bar) bar.style.display = 'block';
-  if (msg) msg.textContent = '🔄 Fetching your profile from MAITRI database...';
-
-  try {
-    const res = await fetch(`${MAITRI_API}/user-profile?pan=${encodeURIComponent(pan)}`);
-    const data = await res.json();
-
-    if (data.success && data.found) {
-      const p = data.profile;
-
-      // Auto-fill all fields — fully editable by user
-      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-      setVal('applyPan', p.pan);
-      setVal('applyName', p.full_name || p.organization_name);
-      setVal('applyOrg', p.organization_name);
-      setVal('applyPhone', p.mobile);
-      setVal('applyEmail', p.email);
-      setVal('applyAadhaar', p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '*') : '');
-
-      if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. You may edit any field before proceeding.`;
-      if (bar) bar.style.background = '#f0fdf4';
-      if (bar) bar.style.borderColor = '#86efac';
-      if (bar) bar.style.color = '#15803d';
-      if (badge) badge.style.display = 'inline-block';
-    } else {
-      if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found for this PAN. Please fill in manually.'}`;
-      if (bar) bar.style.background = '#fef9c3';
-      if (bar) bar.style.borderColor = '#fde047';
-      if (bar) bar.style.color = '#854d0e';
-    }
-  } catch (err) {
-    if (msg) msg.textContent = '❌ Could not connect to MAITRI database. Please fill manually.';
-    if (bar) bar.style.background = '#fef2f2';
-    if (bar) bar.style.borderColor = '#fca5a5';
-    if (bar) bar.style.color = '#991b1b';
-  }
-}
-
-
 
 // =============================================
 // TAB SWITCHING
@@ -142,14 +87,11 @@ async function handleTrackSubmit(e) {
   const survey = document.getElementById('trackSurvey').value.trim();
   const pan = document.getElementById('trackPan')?.value.trim();
   const query = survey || pan;
-  if (!query) {
-    showError('Please enter a Survey Number or Applicant PAN to search.');
-    return;
-  }
+  if (!query) return;
 
   const btn = document.getElementById('trackBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="land-spinner"></span> Fetching from Database...';
+  btn.innerHTML = '<span class="land-spinner"></span> Fetching...';
 
   hideError();
   document.getElementById('trackResult').style.display = 'none';
@@ -314,32 +256,26 @@ function populateReview() {
 async function handleApplySubmit() {
   const btn = document.getElementById('applySubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="land-spinner"></span> Saving Application to Database...';
+  btn.innerHTML = '<span class="land-spinner"></span> Submitting...';
 
   const pan = document.getElementById('applyPan').value.trim().toUpperCase();
   const survey = document.getElementById('applySurvey').value.trim();
-
   let refNo = 'LND-' + Date.now().toString().slice(-8);
 
   try {
-    const applyPayload = {
-      surveyNumber: survey,
-      pan: pan,
-      applicantName: document.getElementById('applyName')?.value.trim(),
-      district: document.getElementById('applyDistrict')?.value,
-      taluka: document.getElementById('applyTaluka')?.value,
-      village: document.getElementById('applyVillage')?.value,
-      area: document.getElementById('applyArea')?.value,
-      certificateType: document.getElementById('applyCertType')?.value
-    };
-
     const res = await fetch(`${LAND_API}/apply`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': API_KEY
-      },
-      body: JSON.stringify(applyPayload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        surveyNumber: survey,
+        pan: pan,
+        applicantName: document.getElementById('applyName')?.value.trim(),
+        district: document.getElementById('applyDistrict')?.value,
+        taluka: document.getElementById('applyTaluka')?.value,
+        village: document.getElementById('applyVillage')?.value,
+        area: document.getElementById('applyArea')?.value,
+        certificateType: document.getElementById('applyCertType')?.value
+      })
     });
     const data = await res.json();
     if (data.success && data.application_ref) {
@@ -355,9 +291,6 @@ async function handleApplySubmit() {
   document.getElementById('applyStep3').style.display = 'none';
   document.getElementById('applySuccess').style.display = 'block';
 
-  // Reload all records so the newly created application is visible immediately
-  loadAllRecords();
-
   // Show return-to-MAITRI if we came from there
   if (maitriAppId) {
     document.getElementById('returnToMaitriSection').style.display = 'block';
@@ -371,6 +304,8 @@ async function handleApplySubmit() {
 
   btn.disabled = false;
   btn.textContent = 'Submit Application';
+
+  loadAllRecords();
 }
 
 // =============================================
@@ -394,45 +329,16 @@ function returnToMaitri() {
 }
 
 // =============================================
-// ALL RECORDS & DYNAMIC PRESETS
+// ALL RECORDS
 // =============================================
 async function loadAllRecords() {
   const body = document.getElementById('allRecordsBody');
-  const presetContainer = document.getElementById('landPresetContainer');
 
   try {
     const res = await fetch(`${LAND_API}/all`);
     const data = await res.json();
-    let records = data.records || [];
+    const records = data.records || [];
 
-    // Prioritize user's own records if logged in via MAITRI
-    if (maitriPan) {
-      records = [...records].sort((a, b) => {
-        const aIsUser = a.malak_pan?.toUpperCase() === maitriPan.toUpperCase() ? 1 : 0;
-        const bIsUser = b.malak_pan?.toUpperCase() === maitriPan.toUpperCase() ? 1 : 0;
-        return bIsUser - aIsUser;
-      });
-    }
-
-    // 1. Render dynamic preset cards (live from database)
-    if (presetContainer && records.length > 0) {
-      presetContainer.innerHTML = records.slice(0, 4).map(r => {
-        const isOwner = maitriPan && r.malak_pan?.toUpperCase() === maitriPan.toUpperCase();
-        return `
-          <div class="land-card" style="cursor: pointer; margin-bottom: 0; ${isOwner ? 'border-left: 4px solid #16a34a;' : ''}" onclick="presetTrack('${r.gtn}', '${r.malak_pan}')">
-            <div class="land-card-body" style="padding: 14px 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #${r.gtn}</strong>
-                ${isOwner ? '<span style="font-size:0.68rem; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:700;">YOUR LAND</span>' : ''}
-              </div>
-              <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">${r.malak_name} · <span style="font-weight: 700; color: ${r.jamabandi === 'APPROVED' ? '#166534' : '#b45309'};">${r.jamabandi}</span> · ${r.district}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // 2. Render dynamic all records table
     if (body) {
       if (records.length === 0) {
         body.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px;">No records found in database.</td></tr>';
@@ -455,7 +361,7 @@ async function loadAllRecords() {
       }).join('');
     }
   } catch (err) {
-    if (body) body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--land-danger); padding: 32px;">Failed to load records from database.</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--land-danger); padding: 32px;">Failed to load records. Is the Land API running?</td></tr>';
   }
 }
 
