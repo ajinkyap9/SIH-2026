@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSEDCL - HT Industrial Power Load Sanction</title>
+    <link rel="stylesheet" href="/css/electricity-style.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        GOVERNMENT OF MAHARASHTRA
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <h1>ELECTRICITY DISTRIBUTION / INDUSTRIAL POWER SERVICES</h1>
+            <p>HT Industrial Power Load Sanction</p>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Application Form -->
+        <div id="applicationForm" class="card">
+            <h2 class="section-title">A. Application Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="appId">MAITRI Application ID</label>
+                    <input type="text" id="appId" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="companyName">Applicant / Company Name</label>
+                    <input type="text" id="companyName" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" class="form-control" readonly>
+                </div>
+            </div>
+
+            <h2 class="section-title">B. Site Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="district">District</label>
+                    <select id="district" class="form-control">
+                        <option value="">Select District...</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Nagpur">Nagpur</option>
+                        <option value="Nashik">Nashik</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taluka">Taluka</label>
+                    <input type="text" id="taluka" class="form-control">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="address">Address / Location</label>
+                    <textarea id="address" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+
+            <h2 class="section-title">C. Electricity Requirement</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="connType">Connection Type</label>
+                    <select id="connType" class="form-control" readonly>
+                        <option value="HT" selected>High Tension (HT)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reqLoad">Requested Load (kW/kVA)</label>
+                    <input type="number" id="reqLoad" class="form-control" readonly>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="purpose">Purpose of Connection</label>
+                    <input type="text" id="purpose" class="form-control" value="Industrial Plant Operations">
+                </div>
+            </div>
+
+            <h2 class="section-title">D. Applicant Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="authPerson">Authorized Person</label>
+                    <input type="text" id="authPerson" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control">
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="button" id="submitBtn" class="btn btn-primary btn-block">Submit Electricity Application</button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successBox" class="success-box">
+            <div class="success-icon">✓</div>
+            <h2>Electricity Application Submitted Successfully</h2>
+            <p>Your application for HT Industrial Power Load Sanction has been recorded.</p>
+            
+            <div class="ref-number" id="refNumberDisplay">
+                MSEDCL Reference: ELEC-2026-XXXXX
+            </div>
+            
+            <p style="margin-bottom: 24px; color: var(--text-light);">
+                MAITRI App ID: <span id="successAppId" style="font-weight: 600; color: var(--text-main);"></span><br>
+                Requested Load: <span id="successLoad" style="font-weight: 600; color: var(--text-main);"></span>
+            </p>
+            
+            <button type="button" id="returnBtn" class="btn btn-secondary">Return to MAITRI Portal ➔</button>
+        </div>
+
+    </div>
+
+    <script src="/js/electricity-app.js"></script>
+</body>
+</html>

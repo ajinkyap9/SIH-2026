@@ -277,9 +277,6 @@
               <!-- Q1 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">1.</span>
-                  Type of Project <span class="req-star">*</span>
-                </label>
                 <select id="q1_project_type" class="form-input" required onchange="updatePermissionUI()">
                   <option value="">— Select Project Type —</option>
                   <option value="MANUFACTURING">Manufacturing Unit (Factory / Plant)</option>
@@ -813,7 +810,69 @@
             </div>
 
           </div><!-- end .workflow-column.primary-workflow -->
-          <!-- Note: Future Krishna Workflow UI will be integrated as a second .workflow-column side-by-side here when merged from origin/krishna -->
+
+          <!-- Secondary Workflow Column: External Government Department Portals (Krishna's Roadmap UI) -->
+          <div class="workflow-column krishna-workflow" id="workflowKrishnaCol">
+            
+            <div class="dashboard-panel" style="margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+              <div class="panel-title" style="margin-bottom: 8px;">
+                <span>External Department Portals &amp; Live Filings</span>
+                <span class="status-tag status-approved">Official Gateways</span>
+              </div>
+              <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 16px;">
+                Complete statutory filings via the official departmental portals. Clicking a service opens the respective department's portal in a new tab; verified tokens sync back automatically.
+              </p>
+
+              <!-- Land Department Step Card -->
+              <div class="step-card" id="kLandCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 12px; flex-wrap: wrap;">
+                <div class="step-info" style="flex: 1; min-width: 200px;">
+                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">1. Land Revenue 7/12 &amp; Mutation</h4>
+                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Revenue &amp; Land Settlement Department (Port 4000)</p>
+                  <div style="margin-top: 8px;" id="kLandStatusContainer">
+                    <span class="status-badge status-pending" id="kLandBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
+                  </div>
+                </div>
+                <div>
+                  <button type="button" id="kLandBtn" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.82rem;" onclick="openKrishnaLandService()">Proceed to Land Portal ➔</button>
+                </div>
+              </div>
+
+              <!-- Electricity Department Step Card -->
+              <div class="step-card" id="kElectricityCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); opacity: 0.6; gap: 12px; flex-wrap: wrap;">
+                <div class="step-info" style="flex: 1; min-width: 200px;">
+                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">2. High Tension (HT) Power Feasibility</h4>
+                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Maharashtra State Electricity Distribution Co. Ltd. (Port 8000)</p>
+                  <div style="margin-top: 8px;" id="kElectricityStatusContainer">
+                    <span class="status-badge status-pending" id="kElectricityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
+                  </div>
+                </div>
+                <div>
+                  <button type="button" id="kElectricityBtn" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.82rem;" disabled>Locked (Complete Land First)</button>
+                </div>
+              </div>
+
+              <!-- Pollution Department Step Card -->
+              <div class="step-card" id="kPollutionCard" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); opacity: 0.6; gap: 12px; flex-wrap: wrap;">
+                <div class="step-info" style="flex: 1; min-width: 200px;">
+                  <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">3. Consent to Establish (CTE)</h4>
+                  <p style="margin: 0; color: #64748b; font-size: 0.78rem;">Maharashtra Pollution Control Board (MPCB)</p>
+                  <div style="margin-top: 8px;">
+                    <span class="status-badge status-pending" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Pending</span>
+                  </div>
+                </div>
+                <div>
+                  <button type="button" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.82rem;" disabled>Locked (Complete Land First)</button>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px; text-align: right;">
+                <a href="/further-steps.html" target="_blank" class="btn btn-outline" style="font-size: 0.78rem; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                  Open Dedicated Roadmap View ↗
+                </a>
+              </div>
+            </div>
+
+          </div><!-- end .workflow-column.krishna-workflow -->
         </div><!-- end .workflow-container-layout -->
       </div><!-- end #section-flowchart -->
 
@@ -1264,10 +1323,11 @@
       if (document.getElementById('fbEmail')) document.getElementById('fbEmail').value = citizen.email || '';
     }
 
-    // Tab routing
+    // Tab routing & external portal callback routing
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab) switchSection(initialTab);
+    checkExternalServiceCallbacks();
 
     // Sidebar navigation & subgroup toggle
     function toggleSubgroup(id) {
@@ -1785,6 +1845,99 @@
             Proceed to Official Portal ➔
           </a>
         `;
+      }
+    }
+
+    // ==========================================
+    // KRISHNA ROADMAP & EXTERNAL GOV PORTAL INTEGRATION
+    // ==========================================
+    const KRISHNA_APP_ID = 'MAITRI-' + Date.now().toString().slice(-6);
+
+    function openKrishnaLandService() {
+      const currentUrl = window.location.origin + window.location.pathname;
+      const surveyVal = document.getElementById('appLandSurvey')?.value || '101';
+      const panVal = document.getElementById('appLandPan')?.value || (citizen?.pan || 'ABCDE1234F');
+      const landPortalUrl = `http://localhost:4000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(currentUrl)}&survey=${encodeURIComponent(surveyVal)}&pan=${encodeURIComponent(panVal)}`;
+      window.open(landPortalUrl, '_blank');
+    }
+
+    function openKrishnaElectricityService() {
+      const currentUrl = window.location.origin + window.location.pathname;
+      const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=LAND-${Date.now().toString().slice(-4)}`;
+      const applicantName = citizen?.fullName || 'Demo Enterprise';
+      const electricityPortalUrl = `http://localhost:8000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&req_load=300`;
+      window.open(electricityPortalUrl, '_blank');
+    }
+
+    function checkExternalServiceCallbacks() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const kLandStatus = urlParams.get('land_status');
+      const kLandRef = urlParams.get('land_ref');
+      const kElecStatus = urlParams.get('electricity_status');
+      const kElecRef = urlParams.get('electricity_ref');
+
+      if (kLandStatus === 'COMPLETED') {
+        switchSection('flowchart');
+        const kLandCard = document.getElementById('kLandCard');
+        if (kLandCard) kLandCard.style.borderLeft = '4px solid #10b981';
+        const kBadge = document.getElementById('kLandBadge');
+        if (kBadge) {
+          kBadge.className = 'status-badge status-approved';
+          kBadge.style.background = '#dcfce7';
+          kBadge.style.color = '#166534';
+          kBadge.style.borderColor = '#bbf7d0';
+          kBadge.textContent = 'Completed ✓';
+        }
+        if (kLandRef) {
+          const container = document.getElementById('kLandStatusContainer');
+          if (container && !container.innerHTML.includes('Ref:')) {
+            container.innerHTML += `<span style="margin-left: 8px; font-size: 0.75rem; color: #166534; font-weight: 600;">Ref: ${kLandRef}</span>`;
+          }
+        }
+        const kBtn = document.getElementById('kLandBtn');
+        if (kBtn) {
+          kBtn.className = 'btn btn-outline';
+          kBtn.textContent = 'Verified on Portal ✓';
+          kBtn.disabled = true;
+        }
+        const kElecCard = document.getElementById('kElectricityCard');
+        if (kElecCard) kElecCard.style.opacity = '1';
+        const kElecBtn = document.getElementById('kElectricityBtn');
+        if (kElecBtn) {
+          kElecBtn.className = 'btn btn-primary';
+          kElecBtn.textContent = 'Proceed to Electricity Portal ➔';
+          kElecBtn.disabled = false;
+          kElecBtn.onclick = openKrishnaElectricityService;
+        }
+      }
+
+      if (kElecStatus === 'COMPLETED') {
+        switchSection('flowchart');
+        const kElecCard = document.getElementById('kElectricityCard');
+        if (kElecCard) {
+          kElecCard.style.borderLeft = '4px solid #10b981';
+          kElecCard.style.opacity = '1';
+        }
+        const kEBadge = document.getElementById('kElectricityBadge');
+        if (kEBadge) {
+          kEBadge.className = 'status-badge status-approved';
+          kEBadge.style.background = '#dcfce7';
+          kEBadge.style.color = '#166534';
+          kEBadge.style.borderColor = '#bbf7d0';
+          kEBadge.textContent = 'Sanctioned ✓';
+        }
+        if (kElecRef) {
+          const container = document.getElementById('kElectricityStatusContainer');
+          if (container && !container.innerHTML.includes('Ref:')) {
+            container.innerHTML += `<span style="margin-left: 8px; font-size: 0.75rem; color: #166534; font-weight: 600;">Ref: ${kElecRef}</span>`;
+          }
+        }
+        const kEBtn = document.getElementById('kElectricityBtn');
+        if (kEBtn) {
+          kEBtn.className = 'btn btn-outline';
+          kEBtn.textContent = 'Sanction Issued ✓';
+          kEBtn.disabled = true;
+        }
       }
     }
 

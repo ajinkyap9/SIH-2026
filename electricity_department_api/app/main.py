@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles  # pyrefly: ignore[missing-import]
+from pathlib import Path
 
 from app.config import settings
 from app.database import engine, Base, SessionLocal
@@ -112,3 +114,9 @@ app.include_router(verification_router)
 app.include_router(status_router)
 app.include_router(admin_router)
 app.include_router(audit_router)
+
+# Mount the static public directory for the Electricity UI Demo
+_THIS_DIR = Path(__file__).resolve().parent          # …/electricity_department_api/app
+_PUBLIC_DIR = _THIS_DIR.parent / "public"            # …/electricity_department_api/public
+if _PUBLIC_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(_PUBLIC_DIR), html=True), name="public")
