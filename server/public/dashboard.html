@@ -807,19 +807,19 @@
                   <span class="dept-badge" style="background: #fef3c7; color: #b45309;">Pollution Control Board</span>
                   <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">3. MPCB Consent (CTE) Portal</h3>
                 </div>
-                <span class="status-badge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">Official Gateway</span>
+                <span class="status-badge status-pending" id="kPollutionBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Port 4002</span>
               </div>
               <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
                 Apply for statutory Consent to Establish (CTE) under the Water (1974) and Air (1981) Pollution Control Acts.
               </p>
-              <div style="font-size: 0.78rem; color: #b45309; font-weight: 600; margin-bottom: 12px;">
+              <div id="kPollutionStatusContainer" style="font-size: 0.78rem; color: #b45309; font-weight: 600; margin-bottom: 12px;">
                 ✓ Interop Check: Orange Category Rules Mapped
               </div>
             </div>
             <div>
-              <a href="https://mpcb.gov.in" target="_blank" class="btn btn-outline" style="width: 100%; padding: 10px 16px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                Proceed to Official MPCB Portal ↗
-              </a>
+              <button type="button" id="kPollutionBtn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" onclick="openKrishnaPollutionService()">
+                Proceed to Official MPCB Portal ➔
+              </button>
             </div>
           </div>
 
@@ -1861,12 +1861,22 @@
       window.open(electricityPortalUrl, '_blank');
     }
 
+    function openKrishnaPollutionService() {
+      const currentUrl = window.location.origin + window.location.pathname;
+      const callbackUrl = `${currentUrl}?pollution_status=COMPLETED`;
+      const applicantName = citizen?.fullName || 'Demo Enterprise';
+      const pollutionPortalUrl = `http://localhost:4002/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&industry=Manufacturing`;
+      window.open(pollutionPortalUrl, '_blank');
+    }
+
     function checkExternalServiceCallbacks() {
       const urlParams = new URLSearchParams(window.location.search);
       const kLandStatus = urlParams.get('land_status');
       const kLandRef = urlParams.get('land_ref');
       const kElecStatus = urlParams.get('electricity_status');
       const kElecRef = urlParams.get('electricity_ref');
+      const kPollStatus = urlParams.get('pollution_status');
+      const kPollRef = urlParams.get('pollution_ref');
 
       if (kLandStatus === 'COMPLETED') {
         switchSection('portal');
@@ -1929,6 +1939,32 @@
           kEBtn.className = 'btn btn-outline';
           kEBtn.textContent = 'Sanction Issued ✓';
           kEBtn.disabled = true;
+        }
+      }
+
+      if (kPollStatus === 'COMPLETED') {
+        switchSection('portal');
+        const kPollCard = document.getElementById('kPollutionCard');
+        if (kPollCard) kPollCard.style.borderLeft = '4px solid #10b981';
+        const kPBadge = document.getElementById('kPollutionBadge');
+        if (kPBadge) {
+          kPBadge.className = 'status-badge status-approved';
+          kPBadge.style.background = '#dcfce7';
+          kPBadge.style.color = '#166534';
+          kPBadge.style.borderColor = '#bbf7d0';
+          kPBadge.textContent = 'CTE Issued ✓';
+        }
+        if (kPollRef) {
+          const container = document.getElementById('kPollutionStatusContainer');
+          if (container && !container.innerHTML.includes('Ref:')) {
+            container.innerHTML += `<span style="margin-left: 8px; font-size: 0.75rem; color: #166534; font-weight: 600;">Ref: ${kPollRef}</span>`;
+          }
+        }
+        const kPBtn = document.getElementById('kPollutionBtn');
+        if (kPBtn) {
+          kPBtn.className = 'btn btn-outline';
+          kPBtn.textContent = 'CTE Consent Issued ✓';
+          kPBtn.disabled = true;
         }
       }
     }
