@@ -744,14 +744,14 @@
           </div>
 
           <!-- Portal 2: Electricity MSEDCL -->
-          <div class="dashboard-panel" id="kElectricityCard" style="border-top: 4px solid #0284c7; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="dashboard-panel" id="kElectricityCard" style="border-top: 4px solid #0284c7; display: flex; flex-direction: column; justify-content: space-between; opacity: 0.6;">
             <div>
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
                   <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">MSEDCL Discom</span>
                   <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">2. Power Sanction &amp; Grid Portal</h3>
                 </div>
-                <span class="status-badge status-pending" id="kElectricityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Port 8000</span>
+                <span class="status-badge status-pending" id="kElectricityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Locked</span>
               </div>
               <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
                 Submit High Tension (HT) / Low Tension (LT) power supply application with inherited land coordinates.
@@ -761,21 +761,21 @@
               </div>
             </div>
             <div>
-              <button type="button" id="kElectricityBtn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" onclick="openKrishnaElectricityService()">
-                Proceed to Official Electricity Portal ➔
+              <button type="button" id="kElectricityBtn" class="btn btn-outline" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" disabled>
+                Locked (Complete Land First)
               </button>
             </div>
           </div>
 
           <!-- Portal 3: MPCB Pollution -->
-          <div class="dashboard-panel" id="kPollutionCard" style="border-top: 4px solid #d97706; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="dashboard-panel" id="kPollutionCard" style="border-top: 4px solid #d97706; display: flex; flex-direction: column; justify-content: space-between; opacity: 0.6;">
             <div>
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
                   <span class="dept-badge" style="background: #fef3c7; color: #b45309;">Pollution Control Board</span>
                   <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">3. MPCB Consent (CTE) Portal</h3>
                 </div>
-                <span class="status-badge status-pending" id="kPollutionBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Port 4002</span>
+                <span class="status-badge status-pending" id="kPollutionBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Locked</span>
               </div>
               <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
                 Apply for statutory Consent to Establish (CTE) under the Water (1974) and Air (1981) Pollution Control Acts.
@@ -785,8 +785,8 @@
               </div>
             </div>
             <div>
-              <button type="button" id="kPollutionBtn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" onclick="openKrishnaPollutionService()">
-                Proceed to Official MPCB Portal ➔
+              <button type="button" id="kPollutionBtn" class="btn btn-outline" style="width: 100%; padding: 10px 16px; font-size: 0.88rem;" disabled>
+                Locked (Complete Electricity First)
               </button>
             </div>
           </div>
@@ -1518,10 +1518,10 @@
       document.getElementById('fcElecDemandDisplay').innerText = `${loadKw} kW (${isHt ? 'HT 11kV Feeder' : 'LT 415V Three-Phase'})`;
       document.getElementById('fcPollDemandDisplay').innerText = `Consent to Establish (CTE) — ${pollCat} Category`;
 
-      // Pre-fill department cards
-      document.getElementById('appLandArea').value = `${landArea} Hectares`;
-      document.getElementById('appElecLoad').value = `${loadKw} kW (${isHt ? 'High Tension HT' : 'Low Tension LT'})`;
-      document.getElementById('appPollCat').value = `${pollCat} Category (CTE)`;
+      // Pre-fill department cards safely
+      if (document.getElementById('appLandArea')) document.getElementById('appLandArea').value = `${landArea} Hectares`;
+      if (document.getElementById('appElecLoad')) document.getElementById('appElecLoad').value = `${loadKw} kW (${isHt ? 'High Tension HT' : 'Low Tension LT'})`;
+      if (document.getElementById('appPollCat')) document.getElementById('appPollCat').value = `${pollCat} Category (CTE)`;
 
       // Pre-fill Land PAN from citizen session
       if (citizen && citizen.pan) {
@@ -1800,7 +1800,9 @@
 
     function openKrishnaElectricityService() {
       const currentUrl = window.location.origin + window.location.pathname;
-      const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=LAND-${Date.now().toString().slice(-4)}`;
+      const urlParams = new URLSearchParams(window.location.search);
+      const landRef = urlParams.get('land_ref') || `LAND-${Date.now().toString().slice(-4)}`;
+      const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=${landRef}`;
       const applicantName = citizen?.fullName || 'Demo Enterprise';
       const electricityPortalUrl = `http://localhost:8000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&req_load=300`;
       window.open(electricityPortalUrl, '_blank');
@@ -1808,7 +1810,10 @@
 
     function openKrishnaPollutionService() {
       const currentUrl = window.location.origin + window.location.pathname;
-      const callbackUrl = `${currentUrl}?pollution_status=COMPLETED`;
+      const urlParams = new URLSearchParams(window.location.search);
+      const landRef = urlParams.get('land_ref') || 'LAND-PREV';
+      const elecRef = urlParams.get('electricity_ref') || 'ELEC-PREV';
+      const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=${landRef}&electricity_status=COMPLETED&electricity_ref=${elecRef}&pollution_status=COMPLETED`;
       const applicantName = citizen?.fullName || 'Demo Enterprise';
       const pollutionPortalUrl = `http://localhost:4002/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&industry=Manufacturing`;
       window.open(pollutionPortalUrl, '_blank');
@@ -1884,6 +1889,16 @@
           kEBtn.className = 'btn btn-outline';
           kEBtn.textContent = 'Sanction Issued ✓';
           kEBtn.disabled = true;
+        }
+
+        const kPollCard = document.getElementById('kPollutionCard');
+        if (kPollCard) kPollCard.style.opacity = '1';
+        const kPollBtn = document.getElementById('kPollutionBtn');
+        if (kPollBtn) {
+          kPollBtn.className = 'btn btn-primary';
+          kPollBtn.textContent = 'Proceed to Official MPCB Portal ➔';
+          kPollBtn.disabled = false;
+          kPollBtn.onclick = openKrishnaPollutionService;
         }
       }
 
