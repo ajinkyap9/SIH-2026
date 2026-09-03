@@ -22,7 +22,7 @@ Project initialized on branch `sarv` with Government Interoperability Platform b
   ```bash
   cd server && npm start
   ```
-  Access website at `http://localhost:5000`.
+  Access website at `http://localhost:5000` (or `http://localhost:5001` if port 5000 is in use by macOS AirPlay Receiver).
 
 ## Git Branches
 
