@@ -255,127 +255,322 @@
         </div>
       </div>
 
-      <!-- ======================================================== -->
-      <!-- SECTION 2: FIND PERMISSIONS (10-QUESTION RAG WIZARD) -->
-      <!-- ======================================================== -->
+      <!-- ================================================================ -->
+      <!-- SECTION 2: FIND PERMISSIONS — STATIC 10-QUESTION FORM           -->
+      <!-- ================================================================ -->
       <div id="section-process" class="content-section" style="display: none;">
+
+        <!-- Page Header -->
         <div class="dash-title-section">
-          <h2>Find Permissions — 10-Question Regulatory Clearance Wizard</h2>
-          <p>Powered by the RAG Decision Engine. Answer 10 progressive questions to identify required departmental microservices, prerequisite gates, and clearance pathways.</p>
+          <h2>Find Permissions</h2>
+          <p>Fill in all 10 fields below to instantly identify required clearances — Land, Electricity &amp; Pollution — for your project in Maharashtra.</p>
         </div>
 
-        <!-- Wizard Card -->
-        <div id="quizContainer">
-          <!-- Stepper Header -->
-          <div class="quiz-stepper-header">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <span style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">
-                  Question <span id="quizCurrStep">1</span> of <span id="quizTotalSteps">10</span>
-                </span>
-                <span id="quizTopicBadge" class="status-tag status-approved" style="margin-left: 10px;">
-                  Project Profile
-                </span>
+        <!-- Main Form Card -->
+        <form id="permissionForm" onsubmit="submitPermissionForm(event)">
+          <div class="dashboard-panel" style="padding: 0; overflow: hidden;">
+
+            <!-- ── BLOCK A: PROJECT PROFILE ── -->
+            <div style="background: #1e3a8a; padding: 14px 24px;">
+              <span style="color: #93c5fd; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block A</span>
+              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Project Profile</h3>
+            </div>
+
+            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+
+              <!-- Q1 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">1</span>
+                  Type of Project <span class="req-star">*</span>
+                </label>
+                <select id="q1_project_type" class="form-input" required onchange="updatePermissionUI()">
+                  <option value="">— Select Project Type —</option>
+                  <option value="MANUFACTURING">Manufacturing Unit (Factory / Plant)</option>
+                  <option value="WAREHOUSE">Logistics / Warehouse / Cold Storage</option>
+                  <option value="IT_OFFICE">IT Park / Commercial Office</option>
+                  <option value="OTHER">Other Enterprise Project</option>
+                </select>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Determines core statutory jurisdiction under Maharashtra Industrial Policy.</p>
               </div>
-              <div style="font-size: 0.78rem; color: #64748b; font-weight: 600;">
-                <span id="quizProgressPercent">10%</span> Completed
+
+              <!-- Q2 -->
+              <div class="form-group" id="q2_block">
+                <label class="form-label">
+                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">2</span>
+                  Industry / Sector <span class="req-star">*</span>
+                </label>
+                <select id="q2_industry_type" class="form-input" required>
+                  <option value="">— Select Industry Sector —</option>
+                  <option value="CHEMICAL">Chemical / Agro-Chemical</option>
+                  <option value="PHARMACEUTICAL">Pharmaceutical &amp; Formulations</option>
+                  <option value="FOOD_PROCESSING">Food &amp; Agro Processing</option>
+                  <option value="TEXTILE">Textile &amp; Garmenting</option>
+                  <option value="ELECTRONICS">Electronics &amp; Hardware</option>
+                  <option value="GENERAL">General Engineering / Auto-Components</option>
+                  <option value="LOGISTICS">Logistics / Warehousing</option>
+                  <option value="IT">IT / Software / Data Centre</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Defines environmental discharge tier (Red / Orange / Green) and DISH inspection scope.</p>
               </div>
-            </div>
-            <div class="quiz-progress-track">
-              <div id="quizProgressBar" class="quiz-progress-bar" style="width: 10%;"></div>
-            </div>
-          </div>
 
-          <!-- Active Question Card -->
-          <div id="quizActiveBox" class="quiz-question-box">
-            <div id="quizQuestionText" class="quiz-question-title">
-              1. What type of project are you establishing?
-            </div>
-            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">
-              Select one option below to continue.
-            </p>
+              <!-- Q3 -->
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">
+                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">3</span>
+                  Project Location — District <span class="req-star">*</span>
+                </label>
+                <select id="q3_location_district" class="form-input" required>
+                  <option value="">— Select Maharashtra District —</option>
+                  <option value="Pune">Pune (Haveli / Chakan / Talegaon)</option>
+                  <option value="Mumbai">Mumbai Metropolitan Region (MMR / Thane / Raigad)</option>
+                  <option value="Nashik">Nashik (Sinnar / Ambad Industrial Estate)</option>
+                  <option value="Nagpur">Nagpur (MIHAN / Butibori)</option>
+                  <option value="Aurangabad">Chhatrapati Sambhajinagar (Aurangabad / Shendra DMIC)</option>
+                  <option value="Other">Other Maharashtra District</option>
+                </select>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Sets Collectorate jurisdiction, MSEDCL Circle Office, and MPCB Regional Office.</p>
+              </div>
 
-            <div id="quizOptionsContainer" class="quiz-options-grid">
-              <!-- Dynamically populated options -->
             </div>
 
-            <!-- Context / Justification -->
-            <div id="quizWhyBox" class="quiz-why-callout">
-              <div style="font-size: 1.1rem; line-height: 1;">ℹ️</div>
-              <div>
-                <strong>Regulatory Rationale:</strong>
-                <div id="quizWhyText" style="margin-top: 2px;">
-                  Different project types require different departmental verifications under Maharashtra state policies.
+            <!-- ── BLOCK B: LAND & SITE ── -->
+            <div style="background: #166534; padding: 14px 24px;">
+              <span style="color: #86efac; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block B</span>
+              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Land &amp; Site Requirements</h3>
+            </div>
+
+            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+
+              <!-- Q4 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">4</span>
+                  Does the project need a physical land / site? <span class="req-star">*</span>
+                </label>
+                <div style="display:flex; gap:16px; margin-top:8px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;" id="q4_yes_label">
+                    <input type="radio" name="q4_land_required" value="true" required onclick="updatePermissionUI()"> Yes — Physical Land / Factory Plot
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;" id="q4_no_label">
+                    <input type="radio" name="q4_land_required" value="false" onclick="updatePermissionUI()"> No — Virtual / Leased Co-working
+                  </label>
                 </div>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Physical land triggers 7/12 Jamabandi, Title Deed &amp; Mutation verification.</p>
+              </div>
+
+              <!-- Q5 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">5</span>
+                  Land Ownership Status <span class="req-star">*</span>
+                </label>
+                <select id="q5_land_owned" class="form-input" required>
+                  <option value="">— Select Ownership Status —</option>
+                  <option value="Yes">Privately Owned — Have 7/12 Extract</option>
+                  <option value="No">Not Owned — Need MIDC Plot Allotment</option>
+                  <option value="Under acquisition">Under Acquisition / Pending Sub-Registrar</option>
+                </select>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Owned land uses Land Records API; non-owned routes to MIDC Allotment service.</p>
+              </div>
+
+              <!-- Q6 -->
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">
+                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">6</span>
+                  Approximate Land Area Required <span class="req-star">*</span>
+                </label>
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:8px;">
+                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                    <input type="radio" name="q6_land_area" value="0.5" required style="display:none;" class="area-radio">
+                    <span style="font-size:1.4rem;">🏘️</span>
+                    <strong>&lt; 1 Ha</strong>
+                    <span style="color:#94a3b8; font-size:0.68rem;">Up to 2.5 Acres</span>
+                  </label>
+                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                    <input type="radio" name="q6_land_area" value="3.0" style="display:none;" class="area-radio">
+                    <span style="font-size:1.4rem;">🏭</span>
+                    <strong>1 – 5 Ha</strong>
+                    <span style="color:#94a3b8; font-size:0.68rem;">2.5 – 12.3 Acres</span>
+                  </label>
+                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                    <input type="radio" name="q6_land_area" value="7.5" style="display:none;" class="area-radio">
+                    <span style="font-size:1.4rem;">🏗️</span>
+                    <strong>5 – 10 Ha</strong>
+                    <span style="color:#94a3b8; font-size:0.68rem;">12.3 – 24.7 Acres</span>
+                  </label>
+                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                    <input type="radio" name="q6_land_area" value="15.0" style="display:none;" class="area-radio">
+                    <span style="font-size:1.4rem;">🌏</span>
+                    <strong>&gt; 10 Ha</strong>
+                    <span style="color:#94a3b8; font-size:0.68rem;">Mega / SEZ Scale</span>
+                  </label>
+                </div>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:8px;">Determines Town Planning scrutiny, road access clearances, and MIDC plot category.</p>
+              </div>
+
+            </div>
+
+            <!-- ── BLOCK C: ELECTRICITY ── -->
+            <div style="background: #0369a1; padding: 14px 24px;">
+              <span style="color: #bae6fd; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block C</span>
+              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Electricity &amp; Power Requirements</h3>
+            </div>
+
+            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+
+              <!-- Q7 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#0369a1; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">7</span>
+                  Requires dedicated electricity connection? <span class="req-star">*</span>
+                </label>
+                <div style="display:flex; gap:16px; margin-top:8px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;">
+                    <input type="radio" name="q7_electricity_required" value="true" required onclick="updatePermissionUI()"> Yes — MSEDCL Grid Supply
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;">
+                    <input type="radio" name="q7_electricity_required" value="false" onclick="updatePermissionUI()"> No — Off-grid / Solar Only
+                  </label>
+                </div>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Grid power triggers MSEDCL technical capacity check and feeder feasibility study.</p>
+              </div>
+
+              <!-- Q8 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#0369a1; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">8</span>
+                  Expected Sanctioned Load Demand <span class="req-star">*</span>
+                </label>
+                <select id="q8_electricity_load" class="form-input" required>
+                  <option value="">— Select Power Demand —</option>
+                  <option value="50">Low Tension (LT) — Under 100 kW (Small Commercial)</option>
+                  <option value="300">High Tension (HT) Medium — 100 kW to 500 kW</option>
+                  <option value="750">High Tension (HT) Heavy — 500 kW to 1 MW</option>
+                  <option value="1500">Extra High Tension (EHT) — Above 1 MW (Bulk)</option>
+                </select>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">≥ 100 kW requires HT transformer bay &amp; MSEDCL Chief Engineer sanction.</p>
+              </div>
+
+            </div>
+
+            <!-- ── BLOCK D: ENVIRONMENT ── -->
+            <div style="background: #b45309; padding: 14px 24px;">
+              <span style="color: #fde68a; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block D</span>
+              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Environmental &amp; Safety Compliance</h3>
+            </div>
+
+            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+
+              <!-- Q9 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#b45309; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">9</span>
+                  Will the project generate industrial effluent or stack emissions? <span class="req-star">*</span>
+                </label>
+                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q9_emissions" value="true" required> Yes — Industrial wastewater / process emissions
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q9_emissions" value="false"> No — Domestic sewage / zero discharge only
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q9_emissions" value="not_sure"> Not sure — Needs environmental audit
+                  </label>
+                </div>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Trade effluent requires ETP scrutiny &amp; Consent to Establish (CTE) under Water Act 1974.</p>
+              </div>
+
+              <!-- Q10 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span style="background:#b45309; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">10</span>
+                  Will the project handle or generate hazardous chemicals / waste? <span class="req-star">*</span>
+                </label>
+                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q10_hazwaste" value="true" required> Yes — Hazardous chemicals / scheduled waste
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q10_hazwaste" value="false"> No — Non-hazardous solid waste only
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                    <input type="radio" name="q10_hazwaste" value="not_sure"> Not sure — Under threshold assessment
+                  </label>
+                </div>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Hazardous waste mandates RED category, HWMR authorization, and TSDF membership.</p>
+              </div>
+
+            </div>
+
+            <!-- ── SUBMIT FOOTER ── -->
+            <div style="padding: 24px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <p style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">All 10 fields are mandatory.</p>
+                <p style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">Responses are evaluated by the Maharashtra RAG Decision Engine under Industrial Policy, MSEDCL Grid Code, and MPCB Regulations.</p>
+              </div>
+              <div style="display:flex; gap:12px; align-items:center;">
+                <button type="button" onclick="resetPermissionForm()" class="btn btn-outline" style="font-size: 0.82rem;">
+                  ↺ Reset All
+                </button>
+                <button type="submit" id="btnPermSubmit" class="btn btn-primary" style="padding: 12px 32px; font-size: 0.92rem; font-weight: 700;">
+                  Analyse Permissions ➔
+                </button>
               </div>
             </div>
 
-            <!-- Navigation Controls -->
-            <div class="quiz-nav-row">
-              <button type="button" id="btnQuizPrev" onclick="quizPrev()" class="btn btn-outline" style="padding: 8px 18px;" disabled>
-                ⏴ Previous Question
-              </button>
-              <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="resetQuiz()" class="btn btn-outline" style="font-size: 0.8rem; padding: 8px 14px; color: #64748b;">
-                  Restart Interview
-                </button>
-                <button type="button" id="btnQuizNext" onclick="quizNext()" class="btn btn-primary" style="padding: 9px 24px; font-weight: 600;">
-                  Next Question ➔
-                </button>
+          </div><!-- end panel -->
+        </form>
+
+        <!-- ── RESULTS PANEL (shown after analysis) ── -->
+        <div id="permResultsPanel" style="display:none; margin-top: 24px;">
+
+          <!-- Results Header -->
+          <div class="dashboard-panel" style="border-left: 5px solid #10b981; padding: 20px 24px; margin-bottom: 0; border-radius: 10px 10px 0 0;">
+            <div class="panel-title" style="margin-bottom:0;">
+              <div>
+                <span style="color:#166534; font-size:1.05rem; font-weight:800;">✓ Regulatory Analysis Complete</span>
+                <p style="font-size:0.78rem; color:#475569; font-weight:normal; margin-top:3px;">Identified mandatory clearances based on your project profile. Clearances must be obtained in the sequence below.</p>
               </div>
+              <span id="permBadgeCount" class="status-tag status-approved" style="font-size:0.8rem;">4 Clearances</span>
             </div>
           </div>
 
-          <!-- 10-Question Analysis & Completion Assessment -->
-          <div id="quizResultsContainer" class="dashboard-panel" style="display: none; border-top: 4px solid #10b981;">
-            <div class="panel-title" style="margin-bottom: 14px;">
-              <div>
-                <span style="color: #166534; font-size: 1.15rem; font-weight: 800;">✓ 10-Question Regulatory Analysis Completed</span>
-                <p style="font-size: 0.8rem; color: #475569; font-weight: normal; margin-top: 4px;">
-                  The decision engine has synthesized your 10 responses and identified statutory clearances across Land, Electricity, and Pollution departments.
-                </p>
-              </div>
-              <span id="quizBadgeCount" class="status-tag status-approved">4 Clearances Identified</span>
-            </div>
+          <!-- Analysis Summary Grid -->
+          <div style="background:white; border: 1px solid var(--gov-border); border-top: none; padding: 20px 24px;">
+            <h3 style="font-size:0.9rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Your Project Profile Summary</h3>
+            <div id="permSummaryGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:24px;"></div>
 
-            <!-- 10 Analysis Findings Grid -->
-            <h3 style="font-size: 0.95rem; color: #1e3a8a; margin: 18px 0 10px 0;">Comprehensive 10-Point Analysis</h3>
-            <div id="quizAnalysisGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 24px;">
-              <!-- Dynamically populated from analysisBreakdown -->
-            </div>
-
-            <!-- Recommended Microservices Table -->
-            <h3 style="font-size: 0.95rem; color: #1e3a8a; margin: 18px 0 10px 0;">Mandatory Department Microservices</h3>
-            <table class="gov-table" style="margin-bottom: 24px;">
+            <!-- Required Clearances Table -->
+            <h3 style="font-size:0.9rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Required Departmental Clearances</h3>
+            <table class="gov-table" style="margin-bottom:24px;">
               <thead>
                 <tr>
+                  <th>Wave</th>
                   <th>Department</th>
-                  <th>Service Code</th>
-                  <th>Required Microservice</th>
+                  <th>Service / Clearance</th>
                   <th>Statutory Authority</th>
                   <th>TAT (Days)</th>
-                  <th>Execution Wave</th>
                 </tr>
               </thead>
-              <tbody id="quizServicesTableBody">
-                <!-- Dynamically populated -->
-              </tbody>
+              <tbody id="permServicesBody"></tbody>
             </table>
 
-            <!-- Ready to Apply CTA -->
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 2px solid #93c5fd; padding: 20px 24px; border-radius: 12px; flex-wrap: wrap; gap: 16px;">
+            <!-- CTA -->
+            <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb); border-radius:12px; padding:24px 28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
               <div>
-                <h3 style="color: #1e3a8a; margin-bottom: 4px; font-size: 1.05rem;">Ready to Apply for Department Clearances?</h3>
-                <p style="font-size: 0.82rem; color: #1e40af;">
-                  All 10 analyses recorded. Proceed to the Interactive Multi-Department Flowchart to apply for Land, Electricity, and Pollution clearances with zero document resubmission.
-                </p>
+                <h3 style="color:white; font-size:1.05rem; font-weight:800; margin-bottom:4px;">Ready to Apply for All Clearances?</h3>
+                <p style="color:#bfdbfe; font-size:0.82rem;">Proceed to the interactive multi-department flowchart. Submit applications for Land, Electricity, and Pollution — with zero document resubmission.</p>
               </div>
-              <button type="button" onclick="goToFlowchart()" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-                Ready to Apply — Follow Steps ➔
+              <button type="button" onclick="goToFlowchart()" class="btn" style="background:white; color:#1e3a8a; padding:13px 32px; font-size:0.95rem; font-weight:800; border-radius:8px; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,0.2);">
+                Start Multi-Dept. Flow ➔
               </button>
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- ======================================================== -->
@@ -1313,390 +1508,197 @@
     }
 
     // ========================================================
-    // 1. 10-QUESTION RAG PERMISSION WIZARD (interview/questions.py)
+    // 1. STATIC 10-QUESTION PERMISSION FORM
     // ========================================================
-    const QUESTION_BANK = [
-      {
-        id: 'project_type',
-        number: 1,
-        topic: 'Project Profile',
-        text: 'What type of project are you establishing?',
-        options: [
-          { label: 'Manufacturing Unit', value: 'MANUFACTURING' },
-          { label: 'Logistics / Warehouse', value: 'WAREHOUSE' },
-          { label: 'IT / Commercial Office', value: 'IT_OFFICE' },
-          { label: 'Other Enterprise Project', value: 'OTHER' }
-        ],
-        why: 'Different project types require distinct departmental verifications (e.g. Manufacturing triggers Factory Act, MPCB & HT Power; IT/Office qualifies for White/Green fast-track).',
-        skip: () => false
-      },
-      {
-        id: 'industry_type',
-        number: 2,
-        topic: 'Industry Profile',
-        text: 'What industry does your manufacturing project belong to?',
-        options: [
-          { label: 'Chemical / Agro-Chemicals', value: 'CHEMICAL' },
-          { label: 'Pharmaceutical & Formulations', value: 'PHARMACEUTICAL' },
-          { label: 'Food & Agro Processing', value: 'FOOD_PROCESSING' },
-          { label: 'Textile & Garmenting', value: 'TEXTILE' },
-          { label: 'Electronics & Hardware', value: 'ELECTRONICS' },
-          { label: 'General Engineering', value: 'GENERAL' },
-          { label: 'Other Manufacturing', value: 'OTHER' }
-        ],
-        why: 'Industry classification determines environmental discharge tiers (Red, Orange, Green) and Directorate of Industrial Safety (DISH) inspection requirements.',
-        skip: (ans) => ans.project_type && ans.project_type !== 'MANUFACTURING'
-      },
-      {
-        id: 'location_district',
-        number: 3,
-        topic: 'Jurisdiction & Location',
-        text: 'Where is the proposed project located in Maharashtra?',
-        options: [
-          { label: 'Pune District (Haveli / Chakan / Talegaon)', value: 'Pune' },
-          { label: 'Mumbai Metropolitan Region (MMR / Thane)', value: 'Mumbai' },
-          { label: 'Nashik Industrial Region (Sinnar / Ambad)', value: 'Nashik' },
-          { label: 'Nagpur Industrial Hub (MIHAN / Butibori)', value: 'Nagpur' },
-          { label: 'Other Maharashtra District', value: 'Other' }
-        ],
-        why: 'Location determines jurisdictional District Collectorate for Revenue 7/12, MSEDCL Circle Office, and MPCB Regional Office.',
-        skip: () => false
-      },
-      {
-        id: 'land_required',
-        number: 4,
-        topic: 'Site & Land Need',
-        text: 'Does your project require a specific physical land or industrial site?',
-        options: [
-          { label: 'Yes (Physical Land / Factory Plot)', value: 'true' },
-          { label: 'No (Virtual / Leased Co-working Space)', value: 'false' }
-        ],
-        why: 'Physical land triggers statutory Revenue 7/12 Jamabandi verification, Title Deed check, and Land Mutation clearance.',
-        skip: () => false
-      },
-      {
-        id: 'land_owned',
-        number: 5,
-        topic: 'Land Ownership Status',
-        text: 'Do you already own the proposed land or hold a 7/12 extract?',
-        options: [
-          { label: 'Yes (Privately Owned with 7/12 Extract)', value: 'Yes' },
-          { label: 'No (Require MIDC Industrial Plot Allotment)', value: 'No' },
-          { label: 'Under Acquisition / Pending Sub-Registrar', value: 'Under acquisition' }
-        ],
-        why: 'Owned land is validated via Land Records API; non-owned land routes to MIDC Industrial Plot Allotment & Land Leasing service.',
-        skip: (ans) => ans.land_required === 'false'
-      },
-      {
-        id: 'land_area',
-        number: 6,
-        topic: 'Land Parcel Scale',
-        text: 'What is the approximate land requirement for the establishment?',
-        options: [
-          { label: 'Less than 1 hectare (< 2.47 Acres)', value: '0.5' },
-          { label: '1 to 5 hectares (2.5 – 12.3 Acres)', value: '3.0' },
-          { label: '5 to 10 hectares (12.3 – 24.7 Acres)', value: '7.5' },
-          { label: 'Large Mega Parcel (> 10 hectares)', value: '15.0' }
-        ],
-        why: 'Land area scale determines Town Planning Directorate scrutiny, layout approval, and external approach road clearances.',
-        skip: (ans) => ans.land_required === 'false'
-      },
-      {
-        id: 'electricity_required',
-        number: 7,
-        topic: 'Power Connectivity',
-        text: 'Will your project require a dedicated utility electricity connection?',
-        options: [
-          { label: 'Yes (Requires MSEDCL Grid Supply)', value: 'true' },
-          { label: 'No (Self-Generated / Off-grid / Solar Only)', value: 'false' }
-        ],
-        why: 'Grid power triggers MSEDCL / Mahavitaran technical capacity check and feeder feasibility evaluation.',
-        skip: () => false
-      },
-      {
-        id: 'electricity_load',
-        number: 8,
-        topic: 'Power Demand Scale',
-        text: 'What is your expected electricity sanctioned demand?',
-        options: [
-          { label: 'Low Tension (LT) Commercial (< 100 kW)', value: '50' },
-          { label: 'High Tension (HT) Medium (100 – 500 kW)', value: '300' },
-          { label: 'High Tension (HT) Heavy (500 kW – 1 MW)', value: '750' },
-          { label: 'Extra High Tension (EHT) Bulk (> 1 MW)', value: '1500' }
-        ],
-        why: 'Demand >= 100 kW mandates High Tension (HT 11kV/22kV) dedicated transformer bay and substation sanction from MSEDCL Chief Engineer.',
-        skip: (ans) => ans.electricity_required === 'false'
-      },
-      {
-        id: 'industrial_emissions',
-        number: 9,
-        topic: 'Environmental Discharge',
-        text: 'Will the project generate industrial trade effluent, wastewater, or stack emissions?',
-        options: [
-          { label: 'Yes (Industrial Wastewater / Process Emissions)', value: 'true' },
-          { label: 'No (Domestic Sewage Only / Zero Discharge)', value: 'false' },
-          { label: 'Not Sure (To be verified by Environmental Audit)', value: 'not_sure' }
-        ],
-        why: 'Trade effluent mandates Effluent Treatment Plant (ETP) scrutiny and Consent to Establish (CTE) under Section 25 of the Water Act 1974.',
-        skip: () => false
-      },
-      {
-        id: 'hazardous_waste',
-        number: 10,
-        topic: 'Hazardous Waste',
-        text: 'Will the project handle, generate, or store hazardous chemicals or scheduled waste?',
-        options: [
-          { label: 'Yes (Hazardous Waste / Toxic Chemicals)', value: 'true' },
-          { label: 'No (Non-hazardous Solid Waste Only)', value: 'false' },
-          { label: 'Not Sure (Under Threshold Assessment)', value: 'not_sure' }
-        ],
-        why: 'Hazardous chemicals mandate Red Category classification, hazardous waste authorization (HWMR rules), and Common Hazardous Waste TSDF membership.',
-        skip: () => false
-      }
-    ];
 
-    let quizCurrentIdx = 0;
-    let quizAnswers = {
-      project_type: 'MANUFACTURING',
-      industry_type: 'CHEMICAL',
-      location_district: 'Pune',
-      land_required: 'true',
-      land_owned: 'Yes',
-      land_area: '3.0',
-      electricity_required: 'true',
-      electricity_load: '300',
-      industrial_emissions: 'true',
-      hazardous_waste: 'true'
-    };
-    let evaluatedClearanceData = null;
-
-    function initQuiz() {
-      // Find first non-skipped question
-      quizCurrentIdx = 0;
-      renderCurrentQuestion();
-    }
-
-    function getApplicableQuestions() {
-      return QUESTION_BANK.filter(q => !q.skip(quizAnswers));
-    }
-
-    function renderCurrentQuestion() {
-      const q = QUESTION_BANK[quizCurrentIdx];
-      if (!q) return;
-
-      // Check if current question should be skipped; if so, advance
-      if (q.skip(quizAnswers)) {
-        quizNext();
-        return;
+    // Land area tile click visual feedback
+    document.addEventListener('change', function(e) {
+      if (e.target.classList.contains('area-radio')) {
+        document.querySelectorAll('.land-area-opt').forEach(el => {
+          el.style.border = '2px solid #e2e8f0';
+          el.style.background = 'white';
+          el.style.color = '#0f172a';
+        });
+        e.target.closest('.land-area-opt').style.border = '2px solid #2563eb';
+        e.target.closest('.land-area-opt').style.background = '#eff6ff';
       }
 
-      const applicable = getApplicableQuestions();
-      const currentPosInApplicable = applicable.findIndex(x => x.id === q.id) + 1;
-      const totalApplicable = applicable.length;
+      // Radio button highlight for paired options
+      if (e.target.type === 'radio' && !e.target.classList.contains('area-radio')) {
+        const name = e.target.name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+          const lbl = r.closest('label');
+          if (lbl && lbl.style.border !== undefined && lbl.style.padding !== undefined) {
+            lbl.style.border = '2px solid #e2e8f0';
+            lbl.style.background = 'white';
+          }
+        });
+        const activeLbl = e.target.closest('label');
+        if (activeLbl && activeLbl.style.border !== undefined) {
+          activeLbl.style.border = '2px solid #2563eb';
+          activeLbl.style.background = '#eff6ff';
+        }
+      }
+    });
 
-      // Update Stepper Header
-      document.getElementById('quizCurrStep').innerText = currentPosInApplicable;
-      document.getElementById('quizTotalSteps').innerText = totalApplicable;
-      document.getElementById('quizTopicBadge').innerText = q.topic;
+    function updatePermissionUI() {
+      // No dynamic hide/show — all 10 questions are always visible and required
+    }
 
-      const pct = Math.round((currentPosInApplicable / totalApplicable) * 100);
-      document.getElementById('quizProgressPercent').innerText = `${pct}%`;
-      document.getElementById('quizProgressBar').style.width = `${pct}%`;
+    function resetPermissionForm() {
+      document.getElementById('permissionForm').reset();
 
-      // Update Question Title
-      document.getElementById('quizQuestionText').innerText = `${currentPosInApplicable}. ${q.text}`;
-
-      // Update Context / Why box
-      document.getElementById('quizWhyText').innerText = q.why;
-
-      // Render Options
-      const container = document.getElementById('quizOptionsContainer');
-      container.innerHTML = '';
-
-      const currentVal = quizAnswers[q.id];
-
-      q.options.forEach(opt => {
-        const card = document.createElement('div');
-        const isSelected = String(currentVal) === String(opt.value);
-        card.className = `quiz-option-card ${isSelected ? 'selected' : ''}`;
-        card.innerHTML = `
-          <div class="quiz-radio-indicator"></div>
-          <div class="quiz-option-text">${opt.label}</div>
-        `;
-        card.onclick = () => selectQuizOption(q.id, opt.value, card);
-        container.appendChild(card);
+      // Reset tile styles
+      document.querySelectorAll('.land-area-opt').forEach(el => {
+        el.style.border = '2px solid #e2e8f0';
+        el.style.background = 'white';
+        el.style.color = '#0f172a';
       });
 
-      // Navigation button states
-      document.getElementById('btnQuizPrev').disabled = (currentPosInApplicable === 1);
-      document.getElementById('btnQuizNext').innerText = (currentPosInApplicable === totalApplicable) ? 'Complete Assessment ➔' : 'Next Question ➔';
+      // Reset radio label styles
+      document.querySelectorAll('label[style]').forEach(lbl => {
+        if (lbl.style.border) lbl.style.border = '2px solid #e2e8f0';
+        if (lbl.style.background) lbl.style.background = 'white';
+      });
 
-      document.getElementById('quizActiveBox').style.display = 'block';
-      document.getElementById('quizResultsContainer').style.display = 'none';
+      // Hide results
+      document.getElementById('permResultsPanel').style.display = 'none';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function selectQuizOption(questionId, value, cardElement) {
-      quizAnswers[questionId] = value;
+    let permFormAnswers = {};
 
-      // Highlight card visually
-      const parent = cardElement.parentElement;
-      parent.querySelectorAll('.quiz-option-card').forEach(c => c.classList.remove('selected'));
-      cardElement.classList.add('selected');
+    async function submitPermissionForm(event) {
+      event.preventDefault();
 
-      // Auto-advance smoothly after 300ms
-      setTimeout(() => {
-        quizNext();
-      }, 300);
-    }
+      const btn = document.getElementById('btnPermSubmit');
+      btn.disabled = true;
+      btn.innerText = 'Analysing...';
 
-    function quizNext() {
-      // Find next question that is not skipped
-      let nextIdx = quizCurrentIdx + 1;
-      while (nextIdx < QUESTION_BANK.length && QUESTION_BANK[nextIdx].skip(quizAnswers)) {
-        nextIdx++;
-      }
-
-      if (nextIdx < QUESTION_BANK.length) {
-        quizCurrentIdx = nextIdx;
-        renderCurrentQuestion();
-      } else {
-        // Finished all questions!
-        completeQuizAssessment();
-      }
-    }
-
-    function quizPrev() {
-      let prevIdx = quizCurrentIdx - 1;
-      while (prevIdx >= 0 && QUESTION_BANK[prevIdx].skip(quizAnswers)) {
-        prevIdx--;
-      }
-
-      if (prevIdx >= 0) {
-        quizCurrentIdx = prevIdx;
-        renderCurrentQuestion();
-      }
-    }
-
-    function resetQuiz() {
-      quizAnswers = {
-        project_type: 'MANUFACTURING',
-        industry_type: 'CHEMICAL',
-        location_district: 'Pune',
-        land_required: 'true',
-        land_owned: 'Yes',
-        land_area: '3.0',
-        electricity_required: 'true',
-        electricity_load: '300',
-        industrial_emissions: 'true',
-        hazardous_waste: 'true'
+      // Collect all form values
+      permFormAnswers = {
+        project_type:       document.getElementById('q1_project_type').value,
+        industry_type:      document.getElementById('q2_industry_type').value,
+        location_district:  document.getElementById('q3_location_district').value,
+        land_required:      document.querySelector('input[name="q4_land_required"]:checked')?.value || 'true',
+        land_owned:         document.getElementById('q5_land_owned').value,
+        land_area:          document.querySelector('input[name="q6_land_area"]:checked')?.value || '3.0',
+        electricity_required: document.querySelector('input[name="q7_electricity_required"]:checked')?.value || 'true',
+        electricity_load:   document.getElementById('q8_electricity_load').value,
+        industrial_emissions: document.querySelector('input[name="q9_emissions"]:checked')?.value || 'true',
+        hazardous_waste:    document.querySelector('input[name="q10_hazwaste"]:checked')?.value || 'true'
       };
-      quizCurrentIdx = 0;
-      renderCurrentQuestion();
-    }
-
-    async function completeQuizAssessment() {
-      const activeBox = document.getElementById('quizActiveBox');
-      activeBox.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-          <div class="spinner" style="margin: 0 auto 16px auto;"></div>
-          <h3 style="color: #1e3a8a;">Synthesizing 10-Question Regulatory Analysis...</h3>
-          <p style="font-size: 0.85rem; color: #64748b; margin-top: 6px;">Evaluating Maharashtra Industrial Policy, MSEDCL Grid Code, and MPCB Regulations.</p>
-        </div>
-      `;
 
       try {
         let res = await fetch('/api/portal/process-wizard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(quizAnswers)
+          body: JSON.stringify(permFormAnswers)
         }).catch(() => null);
 
         let data = res ? await res.json() : null;
 
         if (!data || !data.success) {
-          // Fallback deterministic response
+          // Deterministic fallback
           data = {
             success: true,
             totalServicesIdentified: 4,
             pollutionTier: 'RED',
             analysisBreakdown: [
-              { questionNumber: 1, title: 'Project Nature & Sector', userSelection: quizAnswers.project_type, implication: 'Classified under Maharashtra Industrial Policy.' },
-              { questionNumber: 2, title: 'Industry Classification', userSelection: quizAnswers.industry_type || 'General', implication: 'Environmental and DISH worker safety regulations apply.' },
-              { questionNumber: 3, title: 'Jurisdiction & Location', userSelection: quizAnswers.location_district || 'Pune', implication: 'District Collectorate and MSEDCL Circle Office authority.' },
-              { questionNumber: 4, title: 'Land Prerequisite (Wave 1 Gate)', userSelection: `${quizAnswers.land_owned} (${quizAnswers.land_area || 3} Ha)`, implication: 'Mandatory prerequisite gate before downstream sanctions.' },
-              { questionNumber: 7, title: 'Power Grid Sanction Demand', userSelection: `${quizAnswers.electricity_load || 300} kW (HT)`, implication: 'Requires dedicated transformer site and MSEDCL feasibility.' },
-              { questionNumber: 9, title: 'Environmental Consent Tier', userSelection: 'Red Category (Water/Air Acts CTE)', implication: 'Mandatory CTE clearance prior to site construction.' }
+              { questionNumber: 1,  title: 'Project Nature',       userSelection: permFormAnswers.project_type,       implication: 'Classified under Maharashtra Industrial Policy.' },
+              { questionNumber: 2,  title: 'Industry Sector',      userSelection: permFormAnswers.industry_type,      implication: 'Environmental tier and DISH inspection scope determined.' },
+              { questionNumber: 3,  title: 'Location District',    userSelection: permFormAnswers.location_district,  implication: 'Jurisdiction: Collectorate, MSEDCL Circle, MPCB Regional Office.' },
+              { questionNumber: 4,  title: 'Land Requirement',     userSelection: permFormAnswers.land_required === 'true' ? 'Yes — Physical Land' : 'No — Virtual', implication: 'Land 7/12 verification gate triggered.' },
+              { questionNumber: 5,  title: 'Land Ownership',       userSelection: permFormAnswers.land_owned,         implication: 'Determines Land Records API vs MIDC Allotment path.' },
+              { questionNumber: 6,  title: 'Land Area',            userSelection: `${permFormAnswers.land_area} Ha`,  implication: 'Sets Town Planning scrutiny level and MIDC plot category.' },
+              { questionNumber: 7,  title: 'Electricity Need',     userSelection: permFormAnswers.electricity_required === 'true' ? 'Yes — Grid' : 'No', implication: 'MSEDCL feeder feasibility required.' },
+              { questionNumber: 8,  title: 'Power Demand',         userSelection: `${permFormAnswers.electricity_load} kW`, implication: 'HT transformer bay and MSEDCL Chief Engineer sanction needed.' },
+              { questionNumber: 9,  title: 'Industrial Emissions', userSelection: permFormAnswers.industrial_emissions, implication: 'CTE under Water Act 1974 and Air Act 1981 mandatory.' },
+              { questionNumber: 10, title: 'Hazardous Waste',      userSelection: permFormAnswers.hazardous_waste,    implication: 'RED category, HWMR rules and TSDF membership required.' }
             ],
             services: [
-              { departmentCode: 'LAND', code: 'LAND-VERIFY', title: '7/12 Land Mutation & Title Deed Verification', department: 'Revenue & Land Settlement', authority: 'District Collectorate', turnaroundDays: 7, priority: 'PREREQUISITE_STAGE_1', wave: 1 },
-              { departmentCode: 'ELECTRICITY', code: 'MSEDCL-HT', title: 'High Tension (HT) Power Sanction (300 kW)', department: 'MSEDCL / Mahavitaran', authority: 'Chief Engineer', turnaroundDays: 10, priority: 'STAGE_2_PARALLEL', wave: 2 },
-              { departmentCode: 'POLLUTION', code: 'MPCB-CTE-RED', title: 'Consent to Establish (CTE) — Red Category', department: 'MPCB Pollution Board', authority: 'Regional Officer', turnaroundDays: 21, priority: 'STAGE_2_PARALLEL', wave: 2 },
-              { departmentCode: 'DISH', code: 'FACTORY-ACT', title: 'Directorate of Industrial Safety & Health (DISH) Plan Approval', department: 'Labour & DISH Department', authority: 'Director of Industrial Safety', turnaroundDays: 12, priority: 'STAGE_3', wave: 2 }
+              { departmentCode: 'LAND',        code: 'LAND-VERIFY',  title: '7/12 Land Mutation & Title Deed Verification',   department: 'Revenue & Land Settlement', authority: `Collectorate (${permFormAnswers.location_district})`, turnaroundDays: 7,  wave: 1 },
+              { departmentCode: 'ELECTRICITY', code: 'MSEDCL-HT',    title: `HT Power Sanction (${permFormAnswers.electricity_load} kW)`, department: 'MSEDCL / Mahavitaran', authority: 'MSEDCL Chief Engineer', turnaroundDays: 10, wave: 2 },
+              { departmentCode: 'POLLUTION',   code: 'MPCB-CTE-RED', title: 'Consent to Establish (CTE) — RED Category',      department: 'MPCB Pollution Board',      authority: `MPCB Regional Officer (${permFormAnswers.location_district})`, turnaroundDays: 21, wave: 2 },
+              { departmentCode: 'DISH',        code: 'FACTORY-ACT',  title: 'Industrial Safety & Health (DISH) Plan Approval', department: 'Labour & DISH Dept.',       authority: 'Director of Industrial Safety', turnaroundDays: 12, wave: 2 }
             ]
           };
         }
 
         evaluatedClearanceData = data;
-        renderQuizResults(data);
+        renderPermissionResults(data);
+
       } catch (err) {
-        console.error('Quiz assessment error:', err);
+        console.error('Permission form error:', err);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Analyse Permissions ➔';
       }
     }
 
-    function renderQuizResults(data) {
-      document.getElementById('quizActiveBox').style.display = 'none';
-      const resultsContainer = document.getElementById('quizResultsContainer');
-      resultsContainer.style.display = 'block';
+    function renderPermissionResults(data) {
+      document.getElementById('permBadgeCount').innerText = `${data.totalServicesIdentified || data.services?.length || 4} Clearances`;
 
-      document.getElementById('quizBadgeCount').innerText = `${data.totalServicesIdentified || 4} Clearances Identified`;
-
-      // 1. Populate 10-Point Analysis Grid
-      const analysisGrid = document.getElementById('quizAnalysisGrid');
-      analysisGrid.innerHTML = '';
-      (data.analysisBreakdown || []).forEach(item => {
-        const card = document.createElement('div');
-        card.style.background = '#f8fafc';
-        card.style.border = '1px solid #e2e8f0';
-        card.style.borderRadius = '8px';
-        card.style.padding = '12px 14px';
-        card.innerHTML = `
-          <div style="font-size: 0.72rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">Analysis #${item.questionNumber} • ${item.title}</div>
-          <div style="font-size: 0.88rem; font-weight: 700; color: #0f172a; margin: 4px 0;">Selected: ${item.userSelection}</div>
-          <div style="font-size: 0.76rem; color: #475569; line-height: 1.4;">${item.implication}</div>
-        `;
-        analysisGrid.appendChild(card);
+      // Summary profile grid
+      const grid = document.getElementById('permSummaryGrid');
+      grid.innerHTML = '';
+      const profileItems = [
+        { label: 'Project Type',      value: permFormAnswers.project_type },
+        { label: 'Industry',          value: permFormAnswers.industry_type },
+        { label: 'District',          value: permFormAnswers.location_district },
+        { label: 'Land Area',         value: `${permFormAnswers.land_area} Ha` },
+        { label: 'Power Demand',      value: `${permFormAnswers.electricity_load} kW` },
+        { label: 'Pollution Tier',    value: data.pollutionTier || 'RED' }
+      ];
+      profileItems.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px;';
+        div.innerHTML = `<div style="font-size:0.7rem; color:#64748b; font-weight:600; text-transform:uppercase;">${item.label}</div>
+                         <div style="font-size:0.95rem; font-weight:700; color:#1e3a8a; margin-top:2px;">${item.value}</div>`;
+        grid.appendChild(div);
       });
 
-      // 2. Populate Services Table
-      const tbody = document.getElementById('quizServicesTableBody');
+      // Services table
+      const tbody = document.getElementById('permServicesBody');
       tbody.innerHTML = '';
       (data.services || []).forEach(s => {
         const tr = document.createElement('tr');
+        const waveColor = s.wave === 1 ? '#166534' : '#0369a1';
         tr.innerHTML = `
-          <td><strong style="color: #1e3a8a;">${s.departmentCode || s.department}</strong></td>
-          <td><code>${s.code}</code></td>
-          <td><strong>${s.title}</strong><div style="font-size: 0.72rem; color: #64748b;">${s.details || ''}</div></td>
-          <td>${s.authority || s.department}</td>
-          <td>${s.turnaroundDays} Days</td>
-          <td><span class="status-tag status-approved">Wave ${s.wave || 1}</span></td>
+          <td><span class="status-tag" style="background:${s.wave === 1 ? '#dcfce7' : '#e0f2fe'}; color:${waveColor};">Wave ${s.wave}</span></td>
+          <td><strong>${s.departmentCode}</strong></td>
+          <td><strong>${s.title}</strong><div style="font-size:0.72rem;color:#64748b;">${s.code}</div></td>
+          <td style="font-size:0.82rem;">${s.authority || s.department}</td>
+          <td><strong>${s.turnaroundDays}</strong> Days</td>
         `;
         tbody.appendChild(tr);
       });
 
-      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+      const panel = document.getElementById('permResultsPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Keep backward compatibility for old quiz references (noop stubs)
+    function initQuiz() {}
+    function quizNext() {}
+    function quizPrev() {}
+    function resetQuiz() {}
+    let quizAnswers = {};
+    let evaluatedClearanceData = null;
     // ========================================================
     // 2. REDIRECT TO FLOWCHART & DEPARTMENT APPLICATIONS
     // ========================================================
     function goToFlowchart() {
       // 1. Pre-fill flowchart nodes with interview answers
-      const pType = quizAnswers.project_type || 'MANUFACTURING';
-      const indType = quizAnswers.industry_type || 'Chemical';
-      const dist = quizAnswers.location_district || 'Pune';
-      const isHt = parseFloat(quizAnswers.electricity_load || 300) >= 100;
-      const loadKw = quizAnswers.electricity_load || 300;
-      const pollCat = evaluatedClearanceData ? evaluatedClearanceData.pollutionTier : 'ORANGE';
+      const pType = permFormAnswers.project_type || document.getElementById('q1_project_type')?.value || 'MANUFACTURING';
+      const indType = permFormAnswers.industry_type || document.getElementById('q2_industry_type')?.value || 'Chemical';
+      const dist = permFormAnswers.location_district || document.getElementById('q3_location_district')?.value || 'Pune';
+      const loadKw = permFormAnswers.electricity_load || document.getElementById('q8_electricity_load')?.value || 300;
+      const isHt = parseFloat(loadKw) >= 100;
+      const pollCat = (evaluatedClearanceData && evaluatedClearanceData.pollutionTier) ? evaluatedClearanceData.pollutionTier : 'RED';
+      const landArea = permFormAnswers.land_area || document.querySelector('input[name="q6_land_area"]:checked')?.value || '3.0';
 
       document.getElementById('fcProfileProject').innerText = `${indType} ${pType.toLowerCase()}`;
       document.getElementById('fcProfileLoc').innerText = dist;
@@ -1705,7 +1707,7 @@
       document.getElementById('fcPollDemandDisplay').innerText = `Consent to Establish (CTE) — ${pollCat} Category`;
 
       // Pre-fill department cards
-      document.getElementById('appLandArea').value = `${quizAnswers.land_area || 3.0} Hectares`;
+      document.getElementById('appLandArea').value = `${landArea} Hectares`;
       document.getElementById('appElecLoad').value = `${loadKw} kW (${isHt ? 'High Tension HT' : 'Low Tension LT'})`;
       document.getElementById('appPollCat').value = `${pollCat} Category (CTE)`;
 
