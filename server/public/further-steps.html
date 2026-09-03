@@ -93,17 +93,24 @@
     </div>
 
     <!-- Pollution Department Step -->
-    <div class="step-card" style="opacity: 0.6;">
+    <div class="step-card" id="pollutionCard" style="opacity: 0.6;">
       <div class="step-info">
         <h3>3. Consent to Establish (CTE)</h3>
         <p>Maharashtra Pollution Control Board (MPCB)</p>
-        <div style="margin-top: 12px;">
-          <span class="status-badge status-pending">Pending</span>
+        <div style="margin-top: 12px;" id="pollutionStatusContainer">
+          <span class="status-badge status-pending" id="pollutionBadge">Pending</span>
         </div>
       </div>
       <div>
-        <button class="btn btn-outline" disabled>Locked (Complete Land First)</button>
+        <button id="pollutionBtn" class="btn btn-outline" disabled>Locked (Complete Electricity First)</button>
       </div>
+    </div>
+
+    <!-- Back to Home Button -->
+    <div style="margin-top: 32px; text-align: center; padding-bottom: 40px;">
+      <button onclick="window.location.href='/dashboard.html'" class="btn btn-secondary" style="padding: 12px 24px; font-weight: 600;">
+        ← Back to MAITRI Dashboard
+      </button>
     </div>
 
   </div>
@@ -117,6 +124,8 @@
     const landRef = urlParams.get('land_ref');
     const electricityStatus = urlParams.get('electricity_status');
     const electricityRef = urlParams.get('electricity_ref');
+    const pollutionStatus = urlParams.get('pollution_status');
+    const pollutionRef = urlParams.get('pollution_ref');
 
     if (landStatus === 'COMPLETED') {
       // Update UI to show Land is completed
@@ -164,6 +173,35 @@
       eBtn.className = 'btn btn-outline';
       eBtn.textContent = 'View Application';
       eBtn.disabled = true;
+
+      // Unlock Pollution Step
+      const polCard = document.getElementById('pollutionCard');
+      polCard.style.opacity = '1';
+      const polBtn = document.getElementById('pollutionBtn');
+      polBtn.className = 'btn btn-primary';
+      polBtn.textContent = 'Apply';
+      polBtn.disabled = false;
+      polBtn.onclick = openPollutionService;
+    }
+
+    if (pollutionStatus === 'COMPLETED') {
+      // Update UI to show Pollution is completed
+      document.getElementById('pollutionCard').style.borderLeft = '4px solid #10b981';
+      document.getElementById('pollutionCard').style.opacity = '1';
+      
+      const pBadge = document.getElementById('pollutionBadge');
+      pBadge.className = 'status-badge status-completed';
+      pBadge.textContent = 'Application Submitted ✓';
+      
+      if (pollutionRef) {
+        document.getElementById('pollutionStatusContainer').innerHTML += 
+          `<span style="margin-left: 12px; font-size: 0.8rem; color: #166534; font-weight: 600;">Ref: ${pollutionRef}</span>`;
+      }
+      
+      const pBtn = document.getElementById('pollutionBtn');
+      pBtn.className = 'btn btn-outline';
+      pBtn.textContent = 'View Application';
+      pBtn.disabled = true;
     }
 
     function openLandService() {
@@ -186,6 +224,17 @@
       const electricityPortalUrl = `http://localhost:8000/?app_id=${APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=Demo%20Company%20Ltd&project=Mega%20Factory&req_load=5000`;
       
       window.open(electricityPortalUrl, '_blank');
+    }
+
+    function openPollutionService() {
+      const currentUrl = window.location.origin + window.location.pathname;
+      // Target the Pollution API's public frontend running on port 4002
+      // Preserve land and electricity completion status in callback
+      const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=${landRef || 'LAND-REF'}&electricity_status=COMPLETED&electricity_ref=${electricityRef || 'ELEC-REF'}`;
+      
+      const pollutionPortalUrl = `http://localhost:4002/?app_id=${APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=Demo%20Company%20Ltd&project=Mega%20Factory&industry=Green%20Category`;
+      
+      window.open(pollutionPortalUrl, '_blank');
     }
   </script>
 
