@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAITRI Single Window Dashboard — Government of Maharashtra</title>
+  <title>Samanvay — Interoperability Dashboard</title>
   <link rel="stylesheet" href="/css/gov-style.css">
 </head>
 <body>
@@ -19,12 +19,12 @@
     })();
   </script>
 
-  <div class="tricolor-stripe"></div>
+  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
 
   <!-- Top Bar -->
   <div class="gov-top-bar">
     <div>
-      <strong>GOVERNMENT OF MAHARASHTRA</strong> • MAITRI Single Window System (SIH26129 Gateway)
+      <strong>Samanvay</strong> • Interoperability Platform
     </div>
     <div>
       <span id="headerCitizenName" style="color: #e2e8f0;">Welcome, Citizen</span>
@@ -47,7 +47,7 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1 style="font-size: 1.15rem;">MAITRI Single Window Interoperability Portal</h1>
+        <h1 style="font-size: 1.15rem;">Samanvay Interoperability Platform</h1>
         <p>Citizen & Enterprise Dashboard • Canonical Model Gateway & Multi-Department Orchestration</p>
       </div>
     </div>
@@ -133,8 +133,7 @@
         <button class="top-tab active" onclick="setTopTab(this); switchSection('dashboard');">Overview</button>
         <button class="top-tab" onclick="setTopTab(this); switchSection('process');">1. Find Permissions</button>
         <button class="top-tab" onclick="setTopTab(this); switchSection('flowchart');">2. Multi-Department Flow</button>
-        <button class="top-tab" onclick="setTopTab(this); switchSection('portal');">3. Government Portals</button>
-        <button class="top-tab" onclick="setTopTab(this); switchSection('status');">4. Track Application</button>
+        <button class="top-tab" onclick="setTopTab(this); switchSection('status');">3. Track Application</button>
       </div>
 
       <!-- ======================================================== -->
@@ -526,7 +525,7 @@
                 <h3 style="color: #1e3a8a; font-size: 1rem; font-weight: 700; margin-bottom: 4px;">Coordinate Multi-Department Dependencies</h3>
                 <p style="color: #1e40af; font-size: 0.8rem;">Start the multi-department workflow to verify Land, Electricity, and Pollution requirements before proceeding to the official government portal.</p>
               </div>
-              <button type="button" id="btnStartMultiWorkflow" onclick="goToFlowchart()" class="btn btn-primary" style="padding: 11px 26px; font-size: 0.9rem; font-weight: 700; white-space: nowrap;">
+              <button type="button" id="btnStartMultiWorkflow" onclick="document.querySelectorAll('.top-tab')[2].click();" class="btn btn-primary" style="padding: 11px 26px; font-size: 0.9rem; font-weight: 700; white-space: nowrap;">
                 Start Multiple Department Workflow ➔
               </button>
             </div>
@@ -689,25 +688,9 @@
             </div>
           </div>
 
-          <!-- Primary CTA: Proceed to the Separate Next Page -->
-          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-            <div>
-              <div style="font-weight: 700; color: #1e3a8a; font-size: 0.95rem;">Dependencies Ready — Next Step: Official Portals</div>
-              <div style="font-size: 0.8rem; color: #1e40af;">Proceed to the official government portals to complete your statutory filings with pre-verified data.</div>
-            </div>
-            <button type="button" onclick="switchSection('portal')" class="btn btn-primary" style="padding: 11px 26px; font-size: 0.9rem; font-weight: 700;">
-              Proceed to Government Portals ➔
-            </button>
-          </div>
         </div>
 
-      </div>
-
-      <!-- ======================================================== -->
-      <!-- SECTION 3: GOVERNMENT APPLICATIONS & OFFICIAL PORTALS (SEPARATE NEXT PAGE) -->
-      <!-- ======================================================== -->
-      <div id="section-portal" class="content-section" style="display: none;">
-        <div class="dash-title-section">
+        <div class="dash-title-section" style="margin-top: 40px; border-top: 2px dashed #cbd5e1; padding-top: 32px;">
           <h2>Official Government Department Portals</h2>
           <p>All cross-department dependencies and prerequisite data have been verified by the Interoperability Layer. You may now proceed to the official department portals to complete statutory submission, document signing, and fee payment.</p>
         </div>
@@ -808,7 +791,7 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION 4: TRACK APPLICATION (Application Selector & Government Status) -->
+      <!-- SECTION 3: TRACK APPLICATION (Application Selector & Government Status) -->
       <!-- ======================================================== -->
       <div id="section-status" class="content-section" style="display: none;">
         <div class="dash-title-section">
@@ -1927,7 +1910,7 @@
       const kPollRef = urlParams.get('pollution_ref');
 
       if (kLandStatus === 'COMPLETED') {
-        switchSection('portal');
+        document.querySelectorAll('.top-tab')[2].click();
         const kLandCard = document.getElementById('kLandCard');
         if (kLandCard) kLandCard.style.borderLeft = '4px solid #10b981';
         const kBadge = document.getElementById('kLandBadge');
@@ -1962,7 +1945,7 @@
       }
 
       if (kElecStatus === 'COMPLETED') {
-        switchSection('portal');
+        document.querySelectorAll('.top-tab')[2].click();
         const kElecCard = document.getElementById('kElectricityCard');
         if (kElecCard) {
           kElecCard.style.borderLeft = '4px solid #10b981';
@@ -2001,7 +1984,7 @@
       }
 
       if (kPollStatus === 'COMPLETED') {
-        switchSection('portal');
+        document.querySelectorAll('.top-tab')[2].click();
         const kPollCard = document.getElementById('kPollutionCard');
         if (kPollCard) kPollCard.style.borderLeft = '4px solid #10b981';
         const kPBadge = document.getElementById('kPollutionBadge');
