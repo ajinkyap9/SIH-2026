@@ -79,7 +79,7 @@
         Application Flowchart
       </button>
       <button type="button" class="sidebar-item" id="menu-pipeline" onclick="switchSection('pipeline')">
-        Apply for Plant
+        Plant Verification
       </button>
       <button type="button" class="sidebar-item" id="menu-status" onclick="switchSection('status')">
         Track Application
@@ -270,18 +270,18 @@
         <form id="permissionForm" onsubmit="submitPermissionForm(event)">
           <div class="dashboard-panel" style="padding: 0; overflow: hidden;">
 
-            <!-- ── BLOCK A: PROJECT PROFILE ── -->
-            <div style="background: #1e3a8a; padding: 14px 24px;">
-              <span style="color: #93c5fd; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block A</span>
-              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Project Profile</h3>
+            <!-- ── PART 1: PROJECT PROFILE ── -->
+            <div style="background: #f8fafc; border-bottom: 1px solid var(--gov-border); padding: 12px 24px;">
+              <span style="color: #64748b; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Part 1</span>
+              <h3 style="color: #1e3a8a; font-size: 0.95rem; font-weight: 700; margin-top: 2px;">Project Profile</h3>
             </div>
 
-            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+            <div style="padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; border-bottom: 1px solid var(--gov-border);">
 
               <!-- Q1 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">1</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">1.</span>
                   Type of Project <span class="req-star">*</span>
                 </label>
                 <select id="q1_project_type" class="form-input" required onchange="updatePermissionUI()">
@@ -297,7 +297,7 @@
               <!-- Q2 -->
               <div class="form-group" id="q2_block">
                 <label class="form-label">
-                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">2</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">2.</span>
                   Industry / Sector <span class="req-star">*</span>
                 </label>
                 <select id="q2_industry_type" class="form-input" required>
@@ -318,7 +318,7 @@
               <!-- Q3 -->
               <div class="form-group" style="grid-column: 1 / -1;">
                 <label class="form-label">
-                  <span style="background:#1e3a8a; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">3</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">3.</span>
                   Project Location — District <span class="req-star">*</span>
                 </label>
                 <select id="q3_location_district" class="form-input" required>
@@ -335,35 +335,35 @@
 
             </div>
 
-            <!-- ── BLOCK B: LAND & SITE ── -->
-            <div style="background: #166534; padding: 14px 24px;">
-              <span style="color: #86efac; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block B</span>
-              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Land &amp; Site Requirements</h3>
+            <!-- ── PART 2: LAND & SITE ── -->
+            <div style="background: #f8fafc; border-bottom: 1px solid var(--gov-border); padding: 12px 24px;">
+              <span style="color: #64748b; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Part 2</span>
+              <h3 style="color: #1e3a8a; font-size: 0.95rem; font-weight: 700; margin-top: 2px;">Land &amp; Site Requirements</h3>
             </div>
 
-            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+            <div style="padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; border-bottom: 1px solid var(--gov-border);">
 
               <!-- Q4 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">4</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">4.</span>
                   Does the project need a physical land / site? <span class="req-star">*</span>
                 </label>
-                <div style="display:flex; gap:16px; margin-top:8px;">
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;" id="q4_yes_label">
-                    <input type="radio" name="q4_land_required" value="true" required onclick="updatePermissionUI()"> Yes — Physical Land / Factory Plot
+                <div style="display:flex; gap:14px; margin-top:6px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:1px solid #cbd5e1; border-radius:6px; flex:1; font-size:0.82rem; font-weight:600; transition:0.15s;" id="q4_yes_label">
+                    <input type="radio" name="q4_land_required" value="true" required onclick="updatePermissionUI()"> Yes — Physical Land
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;" id="q4_no_label">
-                    <input type="radio" name="q4_land_required" value="false" onclick="updatePermissionUI()"> No — Virtual / Leased Co-working
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:1px solid #cbd5e1; border-radius:6px; flex:1; font-size:0.82rem; font-weight:600; transition:0.15s;" id="q4_no_label">
+                    <input type="radio" name="q4_land_required" value="false" onclick="updatePermissionUI()"> No — Virtual / Leased
                   </label>
                 </div>
-                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Physical land triggers 7/12 Jamabandi, Title Deed &amp; Mutation verification.</p>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Physical land triggers 7/12 Jamabandi, Title Deed &amp; Mutation verification.</p>
               </div>
 
               <!-- Q5 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">5</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">5.</span>
                   Land Ownership Status <span class="req-star">*</span>
                 </label>
                 <select id="q5_land_owned" class="form-input" required>
@@ -378,74 +378,70 @@
               <!-- Q6 -->
               <div class="form-group" style="grid-column: 1 / -1;">
                 <label class="form-label">
-                  <span style="background:#166534; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">6</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">6.</span>
                   Approximate Land Area Required <span class="req-star">*</span>
                 </label>
-                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:8px;">
-                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:6px;">
+                  <label style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; padding:10px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.8rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
                     <input type="radio" name="q6_land_area" value="0.5" required style="display:none;" class="area-radio">
-                    <span style="font-size:1.4rem;">🏘️</span>
-                    <strong>&lt; 1 Ha</strong>
-                    <span style="color:#94a3b8; font-size:0.68rem;">Up to 2.5 Acres</span>
+                    <strong style="color:#0f172a;">&lt; 1 Ha</strong>
+                    <span style="color:#64748b; font-size:0.7rem;">Up to 2.5 Acres</span>
                   </label>
-                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                  <label style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; padding:10px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.8rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
                     <input type="radio" name="q6_land_area" value="3.0" style="display:none;" class="area-radio">
-                    <span style="font-size:1.4rem;">🏭</span>
-                    <strong>1 – 5 Ha</strong>
-                    <span style="color:#94a3b8; font-size:0.68rem;">2.5 – 12.3 Acres</span>
+                    <strong style="color:#0f172a;">1 – 5 Ha</strong>
+                    <span style="color:#64748b; font-size:0.7rem;">2.5 – 12.3 Acres</span>
                   </label>
-                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                  <label style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; padding:10px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.8rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
                     <input type="radio" name="q6_land_area" value="7.5" style="display:none;" class="area-radio">
-                    <span style="font-size:1.4rem;">🏗️</span>
-                    <strong>5 – 10 Ha</strong>
-                    <span style="color:#94a3b8; font-size:0.68rem;">12.3 – 24.7 Acres</span>
+                    <strong style="color:#0f172a;">5 – 10 Ha</strong>
+                    <span style="color:#64748b; font-size:0.7rem;">12.3 – 24.7 Acres</span>
                   </label>
-                  <label style="display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:12px 8px; border:2px solid #e2e8f0; border-radius:10px; font-size:0.78rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
+                  <label style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; padding:10px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.8rem; font-weight:600; text-align:center; transition:0.15s;" class="land-area-opt">
                     <input type="radio" name="q6_land_area" value="15.0" style="display:none;" class="area-radio">
-                    <span style="font-size:1.4rem;">🌏</span>
-                    <strong>&gt; 10 Ha</strong>
-                    <span style="color:#94a3b8; font-size:0.68rem;">Mega / SEZ Scale</span>
+                    <strong style="color:#0f172a;">&gt; 10 Ha</strong>
+                    <span style="color:#64748b; font-size:0.7rem;">Mega / Large Scale</span>
                   </label>
                 </div>
-                <p style="font-size:0.72rem; color:#64748b; margin-top:8px;">Determines Town Planning scrutiny, road access clearances, and MIDC plot category.</p>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Determines Town Planning scrutiny, road access clearances, and MIDC plot category.</p>
               </div>
 
             </div>
 
-            <!-- ── BLOCK C: ELECTRICITY ── -->
-            <div style="background: #0369a1; padding: 14px 24px;">
-              <span style="color: #bae6fd; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block C</span>
-              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Electricity &amp; Power Requirements</h3>
+            <!-- ── PART 3: ELECTRICITY ── -->
+            <div style="background: #f8fafc; border-bottom: 1px solid var(--gov-border); padding: 12px 24px;">
+              <span style="color: #64748b; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Part 3</span>
+              <h3 style="color: #1e3a8a; font-size: 0.95rem; font-weight: 700; margin-top: 2px;">Electricity &amp; Power Requirements</h3>
             </div>
 
-            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+            <div style="padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; border-bottom: 1px solid var(--gov-border);">
 
               <!-- Q7 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#0369a1; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">7</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">7.</span>
                   Requires dedicated electricity connection? <span class="req-star">*</span>
                 </label>
-                <div style="display:flex; gap:16px; margin-top:8px;">
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;">
-                    <input type="radio" name="q7_electricity_required" value="true" required onclick="updatePermissionUI()"> Yes — MSEDCL Grid Supply
+                <div style="display:flex; gap:14px; margin-top:6px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:1px solid #cbd5e1; border-radius:6px; flex:1; font-size:0.82rem; font-weight:600; transition:0.15s;">
+                    <input type="radio" name="q7_electricity_required" value="true" required onclick="updatePermissionUI()"> Yes — Grid Supply
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 18px; border:2px solid #e2e8f0; border-radius:8px; flex:1; font-size:0.85rem; font-weight:600; transition:0.15s;">
-                    <input type="radio" name="q7_electricity_required" value="false" onclick="updatePermissionUI()"> No — Off-grid / Solar Only
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:1px solid #cbd5e1; border-radius:6px; flex:1; font-size:0.82rem; font-weight:600; transition:0.15s;">
+                    <input type="radio" name="q7_electricity_required" value="false" onclick="updatePermissionUI()"> No — Off-grid / Solar
                   </label>
                 </div>
-                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Grid power triggers MSEDCL technical capacity check and feeder feasibility study.</p>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Grid power triggers MSEDCL technical capacity check and feeder feasibility study.</p>
               </div>
 
               <!-- Q8 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#0369a1; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">8</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">8.</span>
                   Expected Sanctioned Load Demand <span class="req-star">*</span>
                 </label>
                 <select id="q8_electricity_load" class="form-input" required>
                   <option value="">— Select Power Demand —</option>
-                  <option value="50">Low Tension (LT) — Under 100 kW (Small Commercial)</option>
+                  <option value="50">Low Tension (LT) — Under 100 kW (Commercial / Small)</option>
                   <option value="300">High Tension (HT) Medium — 100 kW to 500 kW</option>
                   <option value="750">High Tension (HT) Heavy — 500 kW to 1 MW</option>
                   <option value="1500">Extra High Tension (EHT) — Above 1 MW (Bulk)</option>
@@ -455,68 +451,68 @@
 
             </div>
 
-            <!-- ── BLOCK D: ENVIRONMENT ── -->
-            <div style="background: #b45309; padding: 14px 24px;">
-              <span style="color: #fde68a; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Block D</span>
-              <h3 style="color: white; font-size: 1rem; font-weight: 700; margin-top: 2px;">Environmental &amp; Safety Compliance</h3>
+            <!-- ── PART 4: ENVIRONMENT & SAFETY ── -->
+            <div style="background: #f8fafc; border-bottom: 1px solid var(--gov-border); padding: 12px 24px;">
+              <span style="color: #64748b; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Part 4</span>
+              <h3 style="color: #1e3a8a; font-size: 0.95rem; font-weight: 700; margin-top: 2px;">Environmental &amp; Safety Compliance</h3>
             </div>
 
-            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; border-bottom: 1px solid var(--gov-border);">
+            <div style="padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; border-bottom: 1px solid var(--gov-border);">
 
               <!-- Q9 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#b45309; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">9</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">9.</span>
                   Will the project generate industrial effluent or stack emissions? <span class="req-star">*</span>
                 </label>
-                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q9_emissions" value="true" required> Yes — Industrial wastewater / process emissions
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q9_emissions" value="false"> No — Domestic sewage / zero discharge only
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q9_emissions" value="not_sure"> Not sure — Needs environmental audit
                   </label>
                 </div>
-                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Trade effluent requires ETP scrutiny &amp; Consent to Establish (CTE) under Water Act 1974.</p>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Trade effluent requires ETP scrutiny &amp; Consent to Establish (CTE) under Water Act 1974.</p>
               </div>
 
               <!-- Q10 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span style="background:#b45309; color:white; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; margin-right:6px;">10</span>
+                  <span style="color: #1d4ed8; font-weight: 700; margin-right: 4px;">10.</span>
                   Will the project handle or generate hazardous chemicals / waste? <span class="req-star">*</span>
                 </label>
-                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q10_hazwaste" value="true" required> Yes — Hazardous chemicals / scheduled waste
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q10_hazwaste" value="false"> No — Non-hazardous solid waste only
                   </label>
-                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border:2px solid #e2e8f0; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                  <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.82rem; font-weight:600;">
                     <input type="radio" name="q10_hazwaste" value="not_sure"> Not sure — Under threshold assessment
                   </label>
                 </div>
-                <p style="font-size:0.72rem; color:#64748b; margin-top:6px;">Hazardous waste mandates RED category, HWMR authorization, and TSDF membership.</p>
+                <p style="font-size:0.72rem; color:#64748b; margin-top:4px;">Hazardous waste mandates RED category, HWMR authorization, and TSDF membership.</p>
               </div>
 
             </div>
 
             <!-- ── SUBMIT FOOTER ── -->
-            <div style="padding: 24px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="padding: 20px 24px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
               <div>
-                <p style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">All 10 fields are mandatory.</p>
-                <p style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">Responses are evaluated by the Maharashtra RAG Decision Engine under Industrial Policy, MSEDCL Grid Code, and MPCB Regulations.</p>
+                <p style="font-size: 0.82rem; font-weight: 700; color: #1e3a8a;">All 10 fields are compulsory for statutory evaluation.</p>
+                <p style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">Evaluated under Maharashtra Industrial Policy, MSEDCL Grid Code, and MPCB Environmental Rules.</p>
               </div>
               <div style="display:flex; gap:12px; align-items:center;">
                 <button type="button" onclick="resetPermissionForm()" class="btn btn-outline" style="font-size: 0.82rem;">
-                  ↺ Reset All
+                  ↺ Reset
                 </button>
-                <button type="submit" id="btnPermSubmit" class="btn btn-primary" style="padding: 12px 32px; font-size: 0.92rem; font-weight: 700;">
-                  Analyse Permissions ➔
+                <button type="submit" id="btnPermSubmit" class="btn btn-primary" style="padding: 10px 26px; font-size: 0.88rem; font-weight: 700;">
+                  Find Required Clearances ➔
                 </button>
               </div>
             </div>
@@ -528,11 +524,11 @@
         <div id="permResultsPanel" style="display:none; margin-top: 24px;">
 
           <!-- Results Header -->
-          <div class="dashboard-panel" style="border-left: 5px solid #10b981; padding: 20px 24px; margin-bottom: 0; border-radius: 10px 10px 0 0;">
+          <div class="dashboard-panel" style="border-left: 4px solid #16a34a; padding: 18px 24px; margin-bottom: 0; border-radius: 8px 8px 0 0;">
             <div class="panel-title" style="margin-bottom:0;">
               <div>
-                <span style="color:#166534; font-size:1.05rem; font-weight:800;">✓ Regulatory Analysis Complete</span>
-                <p style="font-size:0.78rem; color:#475569; font-weight:normal; margin-top:3px;">Identified mandatory clearances based on your project profile. Clearances must be obtained in the sequence below.</p>
+                <span style="color:#166534; font-size:1.02rem; font-weight:800;">✓ Regulatory Analysis Complete</span>
+                <p style="font-size:0.78rem; color:#475569; font-weight:normal; margin-top:3px;">Identified statutory department clearances and prerequisite waves based on your project parameters.</p>
               </div>
               <span id="permBadgeCount" class="status-tag status-approved" style="font-size:0.8rem;">4 Clearances</span>
             </div>
@@ -540,12 +536,12 @@
 
           <!-- Analysis Summary Grid -->
           <div style="background:white; border: 1px solid var(--gov-border); border-top: none; padding: 20px 24px;">
-            <h3 style="font-size:0.9rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Your Project Profile Summary</h3>
-            <div id="permSummaryGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:24px;"></div>
+            <h3 style="font-size:0.88rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Project Profile Parameters</h3>
+            <div id="permSummaryGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:10px; margin-bottom:20px;"></div>
 
             <!-- Required Clearances Table -->
-            <h3 style="font-size:0.9rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Required Departmental Clearances</h3>
-            <table class="gov-table" style="margin-bottom:24px;">
+            <h3 style="font-size:0.88rem; color:#1e3a8a; font-weight:700; margin-bottom:12px;">Mandatory Departmental Clearances &amp; Waves</h3>
+            <table class="gov-table" style="margin-bottom:20px;">
               <thead>
                 <tr>
                   <th>Wave</th>
@@ -558,14 +554,14 @@
               <tbody id="permServicesBody"></tbody>
             </table>
 
-            <!-- CTA -->
-            <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb); border-radius:12px; padding:24px 28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <!-- CTA: Start Multiple Department Workflow -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
               <div>
-                <h3 style="color:white; font-size:1.05rem; font-weight:800; margin-bottom:4px;">Ready to Apply for All Clearances?</h3>
-                <p style="color:#bfdbfe; font-size:0.82rem;">Proceed to the interactive multi-department flowchart. Submit applications for Land, Electricity, and Pollution — with zero document resubmission.</p>
+                <h3 style="color: #1e3a8a; font-size: 1rem; font-weight: 700; margin-bottom: 4px;">Coordinate Multi-Department Dependencies</h3>
+                <p style="color: #1e40af; font-size: 0.8rem;">Start the multi-department workflow to verify Land, Electricity, and Pollution requirements before proceeding to the official government portal.</p>
               </div>
-              <button type="button" onclick="goToFlowchart()" class="btn" style="background:white; color:#1e3a8a; padding:13px 32px; font-size:0.95rem; font-weight:800; border-radius:8px; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,0.2);">
-                Start Multi-Dept. Flow ➔
+              <button type="button" id="btnStartMultiWorkflow" onclick="goToFlowchart()" class="btn btn-primary" style="padding: 11px 26px; font-size: 0.9rem; font-weight: 700; white-space: nowrap;">
+                Start Multiple Department Workflow ➔
               </button>
             </div>
           </div>
@@ -574,258 +570,267 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- SECTION: MULTI-DEPARTMENT FLOWCHART & APPLICATION -->
+      <!-- SECTION: MULTI-DEPARTMENT WORKFLOW & DEPENDENCY PIPELINE -->
       <!-- ======================================================== -->
       <div id="section-flowchart" class="content-section" style="display: none;">
         <div class="dash-title-section">
           <h2>Multi-Department Interoperability Flowchart</h2>
-          <p>End-to-end dependency pipeline connecting Land Revenue, MSEDCL Electricity, and MPCB Pollution departments into a single deterministic gateway.</p>
+          <p>Verify information and coordinate dependencies across Land Revenue, MSEDCL Electricity, and MPCB Pollution departments.</p>
         </div>
 
-        <!-- Interactive Visual Flowchart Card -->
-        <div class="flowchart-diagram-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="font-size: 0.95rem; font-weight: 700; color: #1e3a8a;">
-              Clearance Execution Architecture & Dependency Waves
-            </div>
-            <button onclick="resetFlowchart()" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">
-              Reset Pipeline Status
-            </button>
-          </div>
+        <!-- Workflow Component Container (Structured for side-by-side integration) -->
+        <div class="workflow-container-layout" id="workflowContainerLayout">
+          <!-- Primary Workflow Column: Current Implementation -->
+          <div class="workflow-column primary-workflow" id="workflowPrimaryCol">
 
-          <div class="flowchart-nodes-wrapper">
-            <!-- Tier 1: Project Profile Start Node -->
-            <div class="flowchart-tier-row">
-              <div class="fc-node wave-3 active-stage" style="max-width: 460px; text-align: center;">
-                <div class="fc-node-header">
-                  <span class="fc-node-title">🏢 Enterprise Project Profile</span>
-                  <span class="status-tag status-approved">INITIALIZED</span>
+            <!-- Interactive Visual Flowchart Card -->
+            <div class="flowchart-diagram-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="font-size: 0.95rem; font-weight: 700; color: #1e3a8a;">
+                  Clearance Execution Architecture &amp; Dependency Waves
                 </div>
-                <div class="fc-node-desc">
-                  Project: <strong id="fcProfileProject">Manufacturing Unit</strong> | Location: <strong id="fcProfileLoc">Pune</strong><br>
-                  PAN Key: <strong id="fcProfilePan">ABCDE1234F</strong> (Strict Single Identity Join)
-                </div>
+                <button onclick="resetFlowchart()" class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px;">
+                  Reset Pipeline Status
+                </button>
               </div>
-            </div>
 
-            <!-- Connector to Wave 1 -->
-            <div class="fc-connector-arrow">
-              <div class="fc-connector-line"></div>
-              <span>▼ Prerequisite Dependency (Gate 1)</span>
-            </div>
-
-            <!-- Tier 2: Wave 1 Gate - Land Department -->
-            <div class="flowchart-tier-row">
-              <div id="fcNodeLand" class="fc-node wave-1 active-stage" style="max-width: 500px;">
-                <div class="fc-node-header">
-                  <div>
-                    <span class="dept-badge" style="background: #dcfce7; color: #15803d;">WAVE 1 GATE</span>
-                    <span class="fc-node-title" style="margin-left: 8px;">Land Revenue & Settlement Department</span>
+              <div class="flowchart-nodes-wrapper">
+                <!-- Tier 1: Project Profile Start Node -->
+                <div class="flowchart-tier-row">
+                  <div class="fc-node wave-3 active-stage" style="max-width: 460px; text-align: center;">
+                    <div class="fc-node-header">
+                      <span class="fc-node-title">🏢 Enterprise Project Profile</span>
+                      <span class="status-tag status-approved">INITIALIZED</span>
+                    </div>
+                    <div class="fc-node-desc">
+                      Project: <strong id="fcProfileProject">Manufacturing Unit</strong> | Location: <strong id="fcProfileLoc">Pune</strong><br>
+                      PAN Key: <strong id="fcProfilePan">ABCDE1234F</strong> (Strict Single Identity Join)
+                    </div>
                   </div>
-                  <span id="fcLandStatusBadge" class="status-tag status-pending">PENDING APPLICATION</span>
                 </div>
-                <div class="fc-node-desc">
-                  <strong>Service:</strong> 7/12 Jamabandi & Mutation Entry Verification (Survey #<span id="fcLandSurveyDisplay">101</span>)<br>
-                  <strong>Rule:</strong> <span style="color: #b45309;">Prerequisite Gate.</span> Must be RESOLVED first. Both Electricity and Pollution clearances automatically check and inherit this verified land record.
+
+                <!-- Connector to Wave 1 -->
+                <div class="fc-connector-arrow">
+                  <div class="fc-connector-line"></div>
+                  <span>▼ Prerequisite Dependency (Gate 1)</span>
                 </div>
-              </div>
-            </div>
 
-            <!-- Connector to Parallel Wave 2 -->
-            <div class="fc-connector-arrow">
-              <div class="fc-connector-line"></div>
-              <span>▼ Land Verified ➔ Unlocks Parallel Execution (Wave 2)</span>
-            </div>
-
-            <!-- Tier 3: Wave 2 Parallel Clearances -->
-            <div class="flowchart-tier-row">
-              <!-- Electricity Node -->
-              <div id="fcNodeElec" class="fc-node wave-2">
-                <div class="fc-node-header">
-                  <div>
-                    <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">WAVE 2 PARALLEL</span>
-                    <span class="fc-node-title" style="margin-left: 6px;">Electricity (MSEDCL)</span>
+                <!-- Tier 2: Wave 1 Gate - Land Department -->
+                <div class="flowchart-tier-row">
+                  <div id="fcNodeLand" class="fc-node wave-1 active-stage" style="max-width: 500px;">
+                    <div class="fc-node-header">
+                      <div>
+                        <span class="dept-badge" style="background: #dcfce7; color: #15803d;">WAVE 1 GATE</span>
+                        <span class="fc-node-title" style="margin-left: 8px;">Land Revenue &amp; Settlement Department</span>
+                      </div>
+                      <span id="fcLandStatusBadge" class="status-tag status-pending">PENDING VERIFICATION</span>
+                    </div>
+                    <div class="fc-node-desc">
+                      <strong>Service:</strong> 7/12 Jamabandi &amp; Mutation Entry Verification (Survey #<span id="fcLandSurveyDisplay">101</span>)<br>
+                      <strong>Rule:</strong> <span style="color: #b45309;">Prerequisite Gate.</span> Must be RESOLVED first. Both Electricity and Pollution clearances automatically check and inherit this verified land record.
+                    </div>
                   </div>
-                  <span id="fcElecStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
                 </div>
-                <div class="fc-node-desc">
-                  <strong>Demand:</strong> <span id="fcElecDemandDisplay">300 kW (HT 11kV Feeder)</span><br>
-                  <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
-                </div>
-              </div>
 
-              <!-- Pollution Node -->
-              <div id="fcNodePoll" class="fc-node wave-2">
-                <div class="fc-node-header">
-                  <div>
-                    <span class="dept-badge" style="background: #fef3c7; color: #b45309;">WAVE 2 PARALLEL</span>
-                    <span class="fc-node-title" style="margin-left: 6px;">Pollution Board (MPCB)</span>
+                <!-- Connector to Parallel Wave 2 -->
+                <div class="fc-connector-arrow">
+                  <div class="fc-connector-line"></div>
+                  <span>▼ Land Verified ➔ Unlocks Parallel Execution (Wave 2)</span>
+                </div>
+
+                <!-- Tier 3: Wave 2 Parallel Clearances -->
+                <div class="flowchart-tier-row">
+                  <!-- Electricity Node -->
+                  <div id="fcNodeElec" class="fc-node wave-2">
+                    <div class="fc-node-header">
+                      <div>
+                        <span class="dept-badge" style="background: #e0f2fe; color: #0369a1;">WAVE 2 PARALLEL</span>
+                        <span class="fc-node-title" style="margin-left: 6px;">Electricity (MSEDCL)</span>
+                      </div>
+                      <span id="fcElecStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
+                    </div>
+                    <div class="fc-node-desc">
+                      <strong>Demand:</strong> <span id="fcElecDemandDisplay">300 kW (HT 11kV Feeder)</span><br>
+                      <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
+                    </div>
                   </div>
-                  <span id="fcPollStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
+
+                  <!-- Pollution Node -->
+                  <div id="fcNodePoll" class="fc-node wave-2">
+                    <div class="fc-node-header">
+                      <div>
+                        <span class="dept-badge" style="background: #fef3c7; color: #b45309;">WAVE 2 PARALLEL</span>
+                        <span class="fc-node-title" style="margin-left: 6px;">Pollution Board (MPCB)</span>
+                      </div>
+                      <span id="fcPollStatusBadge" class="status-tag status-waiting">WAITING ON LAND</span>
+                    </div>
+                    <div class="fc-node-desc">
+                      <strong>Clearance:</strong> <span id="fcPollDemandDisplay">Consent to Establish (CTE)</span><br>
+                      <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
+                    </div>
+                  </div>
                 </div>
-                <div class="fc-node-desc">
-                  <strong>Clearance:</strong> <span id="fcPollDemandDisplay">Consent to Establish (CTE)</span><br>
-                  <strong>Prerequisite:</strong> Requires Land Verified = RESOLVED.
+
+                <!-- Connector to Certificate -->
+                <div class="fc-connector-arrow">
+                  <div class="fc-connector-line"></div>
+                  <span>▼ Multi-Department Clearances Merged into Canonical Model</span>
+                </div>
+
+                <!-- Tier 4: Unified Dependency Resolution -->
+                <div class="flowchart-tier-row">
+                  <div id="fcNodeCert" class="fc-node wave-1" style="max-width: 520px; text-align: center;">
+                    <div class="fc-node-header" style="justify-content: center; gap: 12px;">
+                      <span class="fc-node-title">📜 Multi-Department Dependencies Resolution</span>
+                      <span id="fcCertStatusBadge" class="status-tag status-waiting">GATEWAY LOCKED</span>
+                    </div>
+                    <div class="fc-node-desc" id="fcCertDesc">
+                      Dependencies locked. Verify departmental records below to coordinate clearances and proceed to the official portal.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Connector to Certificate -->
-            <div class="fc-connector-arrow">
-              <div class="fc-connector-line"></div>
-              <span>▼ Multi-Department Clearances Merged into Canonical Model</span>
+            <!-- ======================================================== -->
+            <!-- 3 DEPARTMENT VERIFICATION CARDS -->
+            <!-- ======================================================== -->
+            <div class="dash-title-section" style="margin-top: 24px;">
+              <h3>Departmental Verification Hub — Dependency Coordination</h3>
+              <p>Verify information and coordinate dependencies across Land, Electricity, and Pollution departments before continuing to the official portal.</p>
             </div>
 
-            <!-- Tier 4: Unified Sanction -->
-            <div class="flowchart-tier-row">
-              <div id="fcNodeCert" class="fc-node wave-1" style="max-width: 480px; text-align: center;">
-                <div class="fc-node-header" style="justify-content: center; gap: 12px;">
-                  <span class="fc-node-title">📜 Unified Maharashtra Industrial Clearance</span>
-                  <span id="fcCertStatusBadge" class="status-tag status-waiting">GATEWAY LOCKED</span>
-                </div>
-                <div class="fc-node-desc" id="fcCertDesc">
-                  Sanction locked. Complete departmental applications below to unlock the unified single window certificate.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ======================================================== -->
-        <!-- 3 DEPARTMENT APPLICATION CARDS -->
-        <!-- ======================================================== -->
-        <div class="dash-title-section" style="margin-top: 24px;">
-          <h3>Direct Departmental Application Hub</h3>
-          <p>Submit applications or trigger verification for each department below. Notice how the prerequisite rules govern each stage.</p>
-        </div>
-
-        <div class="dept-action-grid">
-          <!-- CARD 1: LAND DEPARTMENT -->
-          <div class="dept-action-card" id="cardDeptLand" style="border-top: 4px solid #16a34a;">
-            <div>
-              <div class="dept-card-header">
+            <div class="dept-action-grid">
+              <!-- CARD 1: LAND DEPARTMENT -->
+              <div class="dept-action-card" id="cardDeptLand" style="border-top: 4px solid #16a34a;">
                 <div>
-                  <span class="dept-badge" style="background: #dcfce7; color: #166534;">1. Prerequisite Gate</span>
-                  <h4 style="margin-top: 4px; color: #0f172a;">Land Revenue Department</h4>
+                  <div class="dept-card-header">
+                    <div>
+                      <span class="dept-badge" style="background: #dcfce7; color: #166534;">1. Prerequisite Gate</span>
+                      <h4 style="margin-top: 4px; color: #0f172a;">Land Revenue Department</h4>
+                    </div>
+                    <span id="landCardPill" class="status-tag status-pending">Stage 1</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                    Verifies 7/12 Land Mutation, ownership title deed, and encumbrance flags via Land Department API.
+                  </p>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Survey / Gat Number:</label>
+                    <input type="text" id="appLandSurvey" class="form-input" value="101" placeholder="e.g. 101, 102, 103">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Enterprise / Owner PAN:</label>
+                    <input type="text" id="appLandPan" class="form-input" value="ABCDE1234F" style="text-transform: uppercase;">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Land Area:</label>
+                    <input type="text" id="appLandArea" class="form-input" value="3.0 Hectares" readonly style="background: #f1f5f9;">
+                  </div>
                 </div>
-                <span id="landCardPill" class="status-tag status-pending">Stage 1</span>
-              </div>
-              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                Verifies 7/12 Land Mutation, ownership title deed, and encumbrance flags via Land Department API.
-              </p>
 
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">Survey / Gat Number:</label>
-                <input type="text" id="appLandSurvey" class="form-input" value="101" placeholder="e.g. 101, 102, 103">
+                <div>
+                  <div id="landCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+                  <button type="button" id="btnApplyLandAction" onclick="submitLandApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                    Verify Land Record ➔
+                  </button>
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">Enterprise / Owner PAN:</label>
-                <input type="text" id="appLandPan" class="form-input" value="ABCDE1234F" style="text-transform: uppercase;">
+              <!-- CARD 2: ELECTRICITY DEPARTMENT -->
+              <div class="dept-action-card" id="cardDeptElec" style="border-top: 4px solid #0284c7;">
+                <div>
+                  <div class="dept-card-header">
+                    <div>
+                      <span class="dept-badge" style="background: #e0f2fe; color: #0284c7;">2. Parallel Clearance</span>
+                      <h4 style="margin-top: 4px; color: #0f172a;">Electricity (MSEDCL)</h4>
+                    </div>
+                    <span id="elecCardPill" class="status-tag status-waiting">Stage 2</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                    Processes High Tension (HT) / Low Tension (LT) grid load sanction and feeder feasibility.
+                  </p>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">MSEDCL Application No:</label>
+                    <input type="text" id="appElecId" class="form-input" value="ELEC-2026-00101">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Sanction Load Demand:</label>
+                    <input type="text" id="appElecLoad" class="form-input" value="300 kW (High Tension HT)" readonly style="background: #f1f5f9;">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
+                    <input type="text" id="appElecLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
+                  </div>
+                </div>
+
+                <div>
+                  <div id="elecCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+                  <button type="button" id="btnApplyElecAction" onclick="submitElecApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                    Verify Power Sanction ➔
+                  </button>
+                </div>
               </div>
 
-              <div class="form-group" style="margin-bottom: 14px;">
-                <label class="form-label" style="font-size: 0.76rem;">Land Area:</label>
-                <input type="text" id="appLandArea" class="form-input" value="3.0 Hectares" readonly style="background: #f1f5f9;">
+              <!-- CARD 3: POLLUTION DEPARTMENT -->
+              <div class="dept-action-card" id="cardDeptPoll" style="border-top: 4px solid #d97706;">
+                <div>
+                  <div class="dept-card-header">
+                    <div>
+                      <span class="dept-badge" style="background: #fef3c7; color: #b45309;">3. Parallel Clearance</span>
+                      <h4 style="margin-top: 4px; color: #0f172a;">Pollution Board (MPCB)</h4>
+                    </div>
+                    <span id="pollCardPill" class="status-tag status-waiting">Stage 2</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
+                    Issues Consent to Establish (CTE) under Water (1974) and Air (1981) Prevention of Pollution Acts.
+                  </p>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">MPCB Application ID:</label>
+                    <input type="text" id="appPollId" class="form-input" value="MPCB-8821">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Evaluated Category:</label>
+                    <input type="text" id="appPollCat" class="form-input" value="Orange Category (ETP Required)" readonly style="background: #f1f5f9;">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
+                    <input type="text" id="appPollLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
+                  </div>
+                </div>
+
+                <div>
+                  <div id="pollCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
+                  <button type="button" id="btnApplyPollAction" onclick="submitPollApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
+                    Verify Pollution Consent (CTE) ➔
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div>
-              <div id="landCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-              <button type="button" id="btnApplyLandAction" onclick="submitLandApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                Apply for Land Verification ➔
+            <!-- Interop Gateway Summary Card -->
+            <div style="background: white; border: 1px solid var(--gov-border); border-radius: 10px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 20px;">
+              <div>
+                <strong style="color: #0f172a; font-size: 0.9rem;">Execute via Full Interoperability Pipeline?</strong>
+                <p style="font-size: 0.78rem; color: #64748b;">Runs the end-to-end 3-department pipeline with schema drift normalization and circuit breakers.</p>
+              </div>
+              <button type="button" onclick="transferToPipeline()" class="btn btn-outline" style="padding: 9px 18px; font-size: 0.82rem;">
+                Open Plant Pipeline ➔
               </button>
             </div>
-          </div>
 
-          <!-- CARD 2: ELECTRICITY DEPARTMENT -->
-          <div class="dept-action-card" id="cardDeptElec" style="border-top: 4px solid #0284c7;">
-            <div>
-              <div class="dept-card-header">
-                <div>
-                  <span class="dept-badge" style="background: #e0f2fe; color: #0284c7;">2. Parallel Clearance</span>
-                  <h4 style="margin-top: 4px; color: #0f172a;">Electricity (MSEDCL)</h4>
-                </div>
-                <span id="elecCardPill" class="status-tag status-waiting">Stage 2</span>
-              </div>
-              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                Processes High Tension (HT) / Low Tension (LT) grid load sanction and feeder feasibility.
-              </p>
-
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">MSEDCL Application No:</label>
-                <input type="text" id="appElecId" class="form-input" value="ELEC-2026-00101">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">Sanction Load Demand:</label>
-                <input type="text" id="appElecLoad" class="form-input" value="300 kW (High Tension HT)" readonly style="background: #f1f5f9;">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 14px;">
-                <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
-                <input type="text" id="appElecLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
-              </div>
-            </div>
-
-            <div>
-              <div id="elecCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-              <button type="button" id="btnApplyElecAction" onclick="submitElecApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                Apply for Electricity Sanction ➔
-              </button>
-            </div>
-          </div>
-
-          <!-- CARD 3: POLLUTION DEPARTMENT -->
-          <div class="dept-action-card" id="cardDeptPoll" style="border-top: 4px solid #d97706;">
-            <div>
-              <div class="dept-card-header">
-                <div>
-                  <span class="dept-badge" style="background: #fef3c7; color: #b45309;">3. Parallel Clearance</span>
-                  <h4 style="margin-top: 4px; color: #0f172a;">Pollution Board (MPCB)</h4>
-                </div>
-                <span id="pollCardPill" class="status-tag status-waiting">Stage 2</span>
-              </div>
-              <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 14px;">
-                Issues Consent to Establish (CTE) under Water (1974) and Air (1981) Prevention of Pollution Acts.
-              </p>
-
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">MPCB Application ID:</label>
-                <input type="text" id="appPollId" class="form-input" value="MPCB-8821">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 10px;">
-                <label class="form-label" style="font-size: 0.76rem;">Evaluated Category:</label>
-                <input type="text" id="appPollCat" class="form-input" value="Orange Category (ETP Required)" readonly style="background: #f1f5f9;">
-              </div>
-
-              <div class="form-group" style="margin-bottom: 14px;">
-                <label class="form-label" style="font-size: 0.76rem;">Inherited Land Reference:</label>
-                <input type="text" id="appPollLandRef" class="form-input" value="Waiting on Land Gate..." readonly style="background: #f1f5f9; color: #94a3b8;">
-              </div>
-            </div>
-
-            <div>
-              <div id="pollCardResult" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.78rem; margin-bottom: 12px;"></div>
-              <button type="button" id="btnApplyPollAction" onclick="submitPollApp()" class="btn btn-primary" style="width: 100%; padding: 10px;">
-                Apply for MPCB CTE ➔
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Interop Gateway Summary Card -->
-        <div style="background: white; border: 1px solid var(--gov-border); border-radius: 10px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-          <div>
-            <strong style="color: #0f172a; font-size: 0.9rem;">Execute via Full Interoperability Pipeline?</strong>
-            <p style="font-size: 0.78rem; color: #64748b;">Runs the end-to-end 3-department pipeline with schema drift normalization and circuit breakers.</p>
-          </div>
-          <button type="button" onclick="transferToPipeline()" class="btn btn-outline" style="padding: 9px 18px; font-size: 0.82rem;">
-            Open Plant Pipeline ➔
-          </button>
-        </div>
-      </div>
+          </div><!-- end .workflow-column.primary-workflow -->
+          <!-- Note: Future Krishna Workflow UI will be integrated as a second .workflow-column side-by-side here when merged from origin/krishna -->
+        </div><!-- end .workflow-container-layout -->
+      </div><!-- end #section-flowchart -->
 
       <!-- ======================================================== -->
       <!-- SECTION 3: INTEROPERABILITY PIPELINE (VERIFY PLANT) -->
@@ -996,6 +1001,15 @@
               <div>
                 <span style="color: var(--gov-text-muted); font-size: 0.78rem;">Policy Composite:</span>
                 <div style="color: #166534; font-weight: 800; font-size: 1.05rem;">CLEARANCE_GRANTED</div>
+              </div>
+              <div style="grid-column: 1 / -1; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--gov-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <span style="font-size: 0.8rem; font-weight: 600; color: #166534;">✓ Interoperability Layer verified all 3 departmental schemas.</span>
+                  <div style="font-size: 0.74rem; color: #64748b;">Dependencies coordinated. Ready for official portal submission.</div>
+                </div>
+                <a href="https://maitri.mahaonline.gov.in" target="_blank" class="btn btn-primary" style="text-decoration: none; padding: 9px 20px; font-size: 0.84rem; font-weight: 700;">
+                  Proceed to Official Portal ➔
+                </a>
               </div>
             </div>
           </div>
@@ -1738,12 +1752,12 @@
 
       document.getElementById('fcNodeLand').className = 'fc-node wave-1 active-stage';
       document.getElementById('fcLandStatusBadge').className = 'status-tag status-pending';
-      document.getElementById('fcLandStatusBadge').innerText = 'PENDING APPLICATION';
+      document.getElementById('fcLandStatusBadge').innerText = 'PENDING VERIFICATION';
       document.getElementById('landCardPill').className = 'status-tag status-pending';
       document.getElementById('landCardPill').innerText = 'Stage 1';
       document.getElementById('landCardResult').style.display = 'none';
       document.getElementById('btnApplyLandAction').disabled = false;
-      document.getElementById('btnApplyLandAction').innerText = 'Apply for Land Verification ➔';
+      document.getElementById('btnApplyLandAction').innerText = 'Verify Land Record ➔';
 
       document.getElementById('fcNodeElec').className = 'fc-node wave-2';
       document.getElementById('fcElecStatusBadge').className = 'status-tag status-waiting';
@@ -1753,7 +1767,7 @@
       document.getElementById('appElecLandRef').value = 'Waiting on Land Gate...';
       document.getElementById('elecCardResult').style.display = 'none';
       document.getElementById('btnApplyElecAction').disabled = false;
-      document.getElementById('btnApplyElecAction').innerText = 'Apply for Electricity Sanction ➔';
+      document.getElementById('btnApplyElecAction').innerText = 'Verify Power Sanction ➔';
 
       document.getElementById('fcNodePoll').className = 'fc-node wave-2';
       document.getElementById('fcPollStatusBadge').className = 'status-tag status-waiting';
@@ -1763,12 +1777,12 @@
       document.getElementById('appPollLandRef').value = 'Waiting on Land Gate...';
       document.getElementById('pollCardResult').style.display = 'none';
       document.getElementById('btnApplyPollAction').disabled = false;
-      document.getElementById('btnApplyPollAction').innerText = 'Apply for MPCB CTE ➔';
+      document.getElementById('btnApplyPollAction').innerText = 'Verify Pollution Consent (CTE) ➔';
 
       document.getElementById('fcNodeCert').className = 'fc-node wave-1';
       document.getElementById('fcCertStatusBadge').className = 'status-tag status-waiting';
       document.getElementById('fcCertStatusBadge').innerText = 'GATEWAY LOCKED';
-      document.getElementById('fcCertDesc').innerText = 'Sanction locked. Complete departmental applications below to unlock the unified single window certificate.';
+      document.getElementById('fcCertDesc').innerText = 'Dependencies locked. Verify departmental records below to coordinate clearances and proceed to the official portal.';
     }
 
     // Apply 1: Land Department
@@ -1833,26 +1847,26 @@
         resultBox.innerHTML = `
           <strong>✓ Land Prerequisite Gate Resolved!</strong>
           <div>Survey #${surveyNo}: 7/12 Jamabandi Approved. Title clear.</div>
-          <div style="font-size: 0.72rem; color: #15803d; margin-top: 4px;">Unlocked downstream Wave 2: Electricity & Pollution departments are now ready to apply!</div>
+          <div style="font-size: 0.72rem; color: #15803d; margin-top: 4px;">Unlocked downstream Wave 2: Electricity &amp; Pollution departments are now ready to verify!</div>
         `;
 
         // Unlock Wave 2: Electricity & Pollution nodes!
         document.getElementById('fcNodeElec').className = 'fc-node wave-2 active-stage';
         document.getElementById('fcElecStatusBadge').className = 'status-tag status-pending';
-        document.getElementById('fcElecStatusBadge').innerText = 'READY TO APPLY';
+        document.getElementById('fcElecStatusBadge').innerText = 'READY TO VERIFY';
         document.getElementById('appElecLandRef').value = `✓ Inherited: Survey #${surveyNo} Verified`;
         document.getElementById('appElecLandRef').style.color = '#15803d';
 
         document.getElementById('fcNodePoll').className = 'fc-node wave-2 active-stage';
         document.getElementById('fcPollStatusBadge').className = 'status-tag status-pending';
-        document.getElementById('fcPollStatusBadge').innerText = 'READY TO APPLY';
+        document.getElementById('fcPollStatusBadge').innerText = 'READY TO VERIFY';
         document.getElementById('appPollLandRef').value = `✓ Inherited: Survey #${surveyNo} Verified`;
         document.getElementById('appPollLandRef').style.color = '#15803d';
 
         checkUnifiedCertificateReady();
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Apply for Land Verification ➔';
+        btn.innerText = 'Verify Land Record ➔';
       }
     }
 
@@ -1869,14 +1883,14 @@
         resultBox.innerHTML = `
           <strong>⚠️ Prerequisite Gate Blocked!</strong>
           <div>MSEDCL grid sanction requires verified Land title and substation transformer earmarking.</div>
-          <div style="margin-top: 4px; font-weight: 700;">Please click "Apply for Land Verification" in Card 1 first.</div>
+          <div style="margin-top: 4px; font-weight: 700;">Please click "Verify Land Record" in Card 1 first.</div>
         `;
         return;
       }
 
       const btn = document.getElementById('btnApplyElecAction');
       btn.disabled = true;
-      btn.innerText = 'Processing Power Sanction...';
+      btn.innerText = 'Checking Power Sanction...';
 
       setTimeout(() => {
         flowchartState.elec = 'APPROVED';
@@ -1891,7 +1905,7 @@
         document.getElementById('elecCardPill').className = 'status-tag status-approved';
         document.getElementById('elecCardPill').innerText = 'SANCTIONED ✓';
         btn.disabled = true;
-        btn.innerText = '✓ Power Sanction Issued';
+        btn.innerText = '✓ Power Sanction Verified';
 
         resultBox.style.display = 'block';
         resultBox.style.background = '#f0fdf4';
@@ -1919,7 +1933,7 @@
         resultBox.innerHTML = `
           <strong>⚠️ Prerequisite Gate Blocked!</strong>
           <div>MPCB Consent to Establish (CTE) strictly requires verified site coordinates from Land Department.</div>
-          <div style="margin-top: 4px; font-weight: 700;">Please click "Apply for Land Verification" in Card 1 first.</div>
+          <div style="margin-top: 4px; font-weight: 700;">Please click "Verify Land Record" in Card 1 first.</div>
         `;
         return;
       }
@@ -1941,7 +1955,7 @@
         document.getElementById('pollCardPill').className = 'status-tag status-approved';
         document.getElementById('pollCardPill').innerText = 'CTE ISSUED ✓';
         btn.disabled = true;
-        btn.innerText = '✓ MPCB CTE Approved';
+        btn.innerText = '✓ MPCB CTE Verified';
 
         resultBox.style.display = 'block';
         resultBox.style.background = '#f0fdf4';
@@ -1962,10 +1976,13 @@
         const nodeCert = document.getElementById('fcNodeCert');
         nodeCert.className = 'fc-node wave-1 approved-stage';
         document.getElementById('fcCertStatusBadge').className = 'status-tag status-approved';
-        document.getElementById('fcCertStatusBadge').innerText = 'ISSUED & READY ✓';
+        document.getElementById('fcCertStatusBadge').innerText = 'DEPENDENCIES RESOLVED ✓';
         document.getElementById('fcCertDesc').innerHTML = `
-          <div style="color: #166534; font-weight: 700; margin-bottom: 4px;">🎉 All 3 Departmental Clearances Satisfied!</div>
-          <div style="color: #15803d; font-size: 0.8rem;">Single Window Interoperable Certificate <strong>#MAITRI-CLEARANCE-2026-MH</strong> has been cryptographically signed and issued.</div>
+          <div style="color: #166534; font-weight: 700; margin-bottom: 4px;">✓ All 3 Department Dependencies Verified &amp; Coordinated!</div>
+          <div style="color: #15803d; font-size: 0.8rem; margin-bottom: 12px;">Interoperable clearance checks across Land (7/12), Power (MSEDCL), and Environment (MPCB) are satisfied. Proceed to the official portal to complete your statutory filing.</div>
+          <a href="https://maitri.mahaonline.gov.in" target="_blank" class="btn btn-primary" style="padding: 9px 22px; font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            Proceed to Official Portal ➔
+          </a>
         `;
       }
     }
