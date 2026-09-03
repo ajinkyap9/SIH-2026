@@ -154,15 +154,26 @@
       <!-- Step 1: Applicant Info -->
       <div id="applyStep1">
         <div class="land-card">
-          <div class="land-card-header"><span>Part A: Applicant Information</span></div>
+          <div class="land-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Part A: Applicant Information</span>
+            <span id="autoFillBadge" style="display:none; font-size: 0.72rem; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700;">✓ Auto-filled from Database</span>
+          </div>
           <div class="land-card-body">
+            <!-- Auto-fill alert bar -->
+            <div id="autoFillBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:10px 14px; margin-bottom:16px; font-size:0.83rem; color:#1e40af;">
+              <span id="autoFillMsg">Fetching profile from database...</span>
+            </div>
+
             <div class="land-grid-2">
               <div class="land-form-group">
                 <label class="land-form-label">Applicant Name <span class="req">*</span></label>
                 <input type="text" id="applyName" class="land-form-input" placeholder="e.g. Rajesh Sharma" required>
               </div>
               <div class="land-form-group">
-                <label class="land-form-label">PAN Number <span class="req">*</span></label>
+                <label class="land-form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span>PAN Number <span class="req">*</span></span>
+                  <button type="button" onclick="fetchAndFillProfile()" style="font-size:0.7rem; background:#166534; color:white; border:none; border-radius:4px; padding:2px 8px; cursor:pointer;">↻ Fetch from DB</button>
+                </label>
                 <input type="text" id="applyPan" class="land-form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
               </div>
             </div>
@@ -174,6 +185,16 @@
               <div class="land-form-group">
                 <label class="land-form-label">Contact Number <span class="req">*</span></label>
                 <input type="tel" id="applyPhone" class="land-form-input" placeholder="e.g. 9876543210" required>
+              </div>
+            </div>
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Email Address</label>
+                <input type="email" id="applyEmail" class="land-form-input" placeholder="e.g. applicant@company.com">
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Aadhaar Number (masked)</label>
+                <input type="text" id="applyAadhaar" class="land-form-input" placeholder="********5544">
               </div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 12px;">

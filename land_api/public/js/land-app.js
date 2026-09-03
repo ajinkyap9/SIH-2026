@@ -9,6 +9,7 @@
 
 const LAND_API = 'http://localhost:4000/api/land';
 const API_KEY = 'interop-demo-key-001';
+const MAITRI_API = 'http://localhost:5000/api/portal';
 
 // Read URL params for MAITRI integration (callback mechanism)
 const urlParams = new URLSearchParams(window.location.search);
@@ -37,11 +38,76 @@ window.addEventListener('DOMContentLoaded', () => {
     if (maitriPhone && document.getElementById('applyPhone')) {
       document.getElementById('applyPhone').value = maitriPhone;
     }
+
+    // Auto-fetch verified profile from backend database
+    if (maitriPan) {
+      fetchAndFillProfile();
+    }
   }
 
   // Load all records for the "All Records" tab
   loadAllRecords();
 });
+
+// =============================================
+// AUTO-FILL PROFILE FROM MAITRI DATABASE
+// =============================================
+async function fetchAndFillProfile() {
+  const panInput = document.getElementById('applyPan');
+  const pan = (maitriPan || panInput?.value || '').trim().toUpperCase();
+  if (!pan || pan.length < 10) {
+    alert('Please enter a valid 10-character PAN number first.');
+    return;
+  }
+
+  const bar = document.getElementById('autoFillBar');
+  const msg = document.getElementById('autoFillMsg');
+  const badge = document.getElementById('autoFillBadge');
+
+  if (bar) bar.style.display = 'block';
+  if (msg) msg.textContent = '🔄 Fetching your profile from database...';
+
+  try {
+    const res = await fetch(`${MAITRI_API}/user-profile?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+
+    if (data.success && data.found) {
+      const p = data.profile;
+
+      // Auto-fill all fields — fully editable by user
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+      setVal('applyPan', p.pan);
+      setVal('applyName', p.full_name || p.organization_name);
+      setVal('applyOrg', p.organization_name);
+      setVal('applyPhone', p.mobile);
+      setVal('applyEmail', p.email);
+      setVal('applyAadhaar', p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '*') : '');
+
+      if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. You may edit any field before proceeding.`;
+      if (bar) {
+        bar.style.background = '#f0fdf4';
+        bar.style.borderColor = '#86efac';
+        bar.style.color = '#15803d';
+      }
+      if (badge) badge.style.display = 'inline-block';
+    } else {
+      if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found for this PAN. Please fill in manually.'}`;
+      if (bar) {
+        bar.style.background = '#fef9c3';
+        bar.style.borderColor = '#fde047';
+        bar.style.color = '#854d0e';
+      }
+    }
+  } catch (err) {
+    if (msg) msg.textContent = '❌ Could not connect to database. Please fill manually.';
+    if (bar) {
+      bar.style.background = '#fef2f2';
+      bar.style.borderColor = '#fca5a5';
+      bar.style.color = '#991b1b';
+    }
+  }
+}
+
 
 // =============================================
 // TAB SWITCHING

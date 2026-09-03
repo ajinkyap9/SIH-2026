@@ -1,3 +1,58 @@
+const MAITRI_API = 'http://localhost:5000/api/portal';
+
+async function fetchElecProfile() {
+    const panEl = document.getElementById('pan');
+    const urlParams = new URLSearchParams(window.location.search);
+    const panFromUrl = urlParams.get('pan') || '';
+    const pan = (panEl?.value || panFromUrl || '').trim().toUpperCase();
+
+    if (!pan || pan.length < 10) {
+        alert('Please enter a valid 10-character PAN number first.');
+        return;
+    }
+
+    const bar = document.getElementById('elecAutoFillBar');
+    const msg = document.getElementById('elecAutoFillMsg');
+    if (bar) bar.style.display = 'block';
+    if (msg) msg.textContent = '🔄 Fetching your profile from database...';
+
+    try {
+        const res = await fetch(`${MAITRI_API}/user-profile?pan=${encodeURIComponent(pan)}`);
+        const data = await res.json();
+
+        if (data.success && data.found) {
+            const p = data.profile;
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+            setVal('pan', p.pan);
+            setVal('companyName', p.organization_name || p.full_name);
+            setVal('authPerson', p.full_name);
+            setVal('email', p.email);
+            setVal('phone', p.mobile);
+
+            if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. All fields are editable.`;
+            if (bar) {
+                bar.style.background = '#f0fdf4';
+                bar.style.borderColor = '#86efac';
+                bar.style.color = '#15803d';
+            }
+        } else {
+            if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found. Please fill manually.'}`;
+            if (bar) {
+                bar.style.background = '#fef9c3';
+                bar.style.borderColor = '#fde047';
+                bar.style.color = '#854d0e';
+            }
+        }
+    } catch (err) {
+        if (msg) msg.textContent = '❌ Could not connect to database. Please fill manually.';
+        if (bar) {
+            bar.style.background = '#fef2f2';
+            bar.style.borderColor = '#fca5a5';
+            bar.style.color = '#991b1b';
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Read URL Parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -14,6 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (project) document.getElementById('projectName').value = project;
     if (reqLoad) document.getElementById('reqLoad').value = reqLoad;
     if (pan && document.getElementById('pan')) document.getElementById('pan').value = pan.toUpperCase();
+
+    // Auto-fetch profile from database if PAN is available
+    if (pan) {
+        fetchElecProfile();
+    }
+
 
     // 3. Handle Submission
     document.getElementById('submitBtn').addEventListener('click', async () => {
