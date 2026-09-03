@@ -142,116 +142,84 @@
       <!-- ======================================================== -->
       <div id="section-dashboard" class="content-section">
 
-        <!-- Two Donut Charts Side by Side -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-
-          <!-- Queries Status Donut -->
-          <div class="dashboard-panel">
-            <div class="panel-title">
-              <span>Queries Status</span>
-              <a href="#" onclick="switchSection('query')" style="color: var(--gov-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">(View)</a>
-            </div>
-            <div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
-              <div class="donut-chart-wrapper">
-                <svg viewBox="0 0 120 120" class="donut-chart">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="16"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="16"
-                    stroke-dasharray="141.3 314.16" stroke-dashoffset="0" class="donut-segment"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#14b8a6" stroke-width="16"
-                    stroke-dasharray="62.8 314.16" stroke-dashoffset="-141.3" class="donut-segment"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3a8a" stroke-width="16"
-                    stroke-dasharray="78.5 314.16" stroke-dashoffset="-204.1" class="donut-segment"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#eab308" stroke-width="16"
-                    stroke-dasharray="31.4 314.16" stroke-dashoffset="-282.6" class="donut-segment"></circle>
-                </svg>
-                <div class="donut-center-text">
-                  <span style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">4,648</span>
-                  <span style="font-size: 0.7rem; color: #64748b;">Total</span>
-                </div>
+        <div class="dashboard-panel" style="margin-bottom: 24px; padding: 32px 24px; border-top: 4px solid #1e3a8a;">
+          <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 12px; font-weight: 700;">Welcome to the Interoperability Portal</h2>
+          <p style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 28px;">
+            This government portal facilitates cross-departmental clearances for citizens and enterprises. The system automatically discovers dependencies and routes your verified information to the official government department portals, saving time and preventing duplicate data entry.
+          </p>
+          
+          <h3 style="font-size: 1.05rem; color: #1e3a8a; margin-bottom: 16px; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+            Application Workflow
+          </h3>
+          
+          <div style="display: flex; flex-direction: column; margin-bottom: 32px;">
+            <!-- Step 1 -->
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
+                <div style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">1</div>
+                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
+              </div>
+              <div style="padding-top: 2px;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Project Selection &amp; Dependency Discovery</strong>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;">Enter your project details to automatically discover required departmental clearances.</p>
               </div>
             </div>
-            <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot" style="background: #f97316;"></span> Total</div>
-              <div class="legend-item"><span class="legend-dot" style="background: #14b8a6;"></span> Pending</div>
-              <div class="legend-item"><span class="legend-dot" style="background: #1e3a8a;"></span> Closed</div>
-              <div class="legend-item"><span class="legend-dot" style="background: #eab308;"></span> Replied</div>
-            </div>
-          </div>
-
-          <!-- Feedback Overview Donut -->
-          <div class="dashboard-panel">
-            <div class="panel-title">
-              <span>Feedback Overview</span>
-              <a href="#" onclick="switchSection('feedback')" style="color: var(--gov-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">(View)</a>
-            </div>
-            <div style="display: flex; justify-content: center; align-items: center; padding: 20px 0;">
-              <div class="donut-chart-wrapper">
-                <svg viewBox="0 0 120 120" class="donut-chart">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="16"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="16"
-                    stroke-dasharray="226.2 314.16" stroke-dashoffset="0" class="donut-segment"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#14b8a6" stroke-width="16"
-                    stroke-dasharray="56.5 314.16" stroke-dashoffset="-226.2" class="donut-segment"></circle>
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3a8a" stroke-width="16"
-                    stroke-dasharray="31.4 314.16" stroke-dashoffset="-282.7" class="donut-segment"></circle>
-                </svg>
-                <div class="donut-center-text">
-                  <span style="font-size: 1.3rem; font-weight: 800; color: #0f172a;">5,237</span>
-                  <span style="font-size: 0.7rem; color: #64748b;">Total</span>
-                </div>
+            
+            <!-- Step 2 -->
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
+                <div style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">2</div>
+                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
+              </div>
+              <div style="padding-top: 2px;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Multiple Department Verification</strong>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;">The system verifies prerequisites across Land, Electricity, and Pollution departments.</p>
               </div>
             </div>
-            <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot" style="background: #1e3a8a;"></span> Negative</div>
-              <div class="legend-item"><span class="legend-dot" style="background: #14b8a6;"></span> Neutral</div>
-              <div class="legend-item"><span class="legend-dot" style="background: #f97316;"></span> Positive</div>
+
+            <!-- Step 3 -->
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
+                <div style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">3</div>
+                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
+              </div>
+              <div style="padding-top: 2px;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Dependencies Resolved</strong>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;">Once cross-department rules are verified, your interoperability profile is ready.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
+                <div style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">4</div>
+                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
+              </div>
+              <div style="padding-top: 2px;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Proceed to Official Government Portals</strong>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;">Submit final applications on the respective department portals with pre-filled data.</p>
+              </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
+                <div style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">5</div>
+              </div>
+              <div style="padding-top: 2px;">
+                <strong style="color: #0f172a; font-size: 0.95rem;">Track Application</strong>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;">Monitor the real-time status of your submitted applications.</p>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Quick Statistics Bar -->
-        <div class="dashboard-panel">
-          <div class="panel-title">Quick Statistics</div>
-          <div class="quick-stats-bar">
-            <div class="quick-stat-item">
-              <div class="quick-stat-value" style="color: #16a34a;">91.50%</div>
-              <div class="quick-stat-label">Customer Satisfaction</div>
-            </div>
-            <div class="quick-stat-item">
-              <div class="quick-stat-value" style="color: #2563eb;">88.95%</div>
-              <div class="quick-stat-label">Resolution Rate</div>
-            </div>
-            <div class="quick-stat-item">
-              <div class="quick-stat-value" style="color: #ea580c;" id="statTotalUsers">5</div>
-              <div class="quick-stat-label">Registered Citizens</div>
-            </div>
-            <div class="quick-stat-item">
-              <div class="quick-stat-value" style="color: #7c3aed;">179</div>
-              <div class="quick-stat-label">Live Microservices</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions Panel -->
-        <div class="dashboard-panel">
-          <div class="panel-title">Quick Actions & Interoperability Gateways</div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 18px 16px; text-align: center; cursor: pointer;" onclick="switchSection('status')">
-              <div style="font-weight: 700; color: #1e3a8a; font-size: 0.9rem;">Check Application Status</div>
-              <div style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">Track multi-department clearance milestones</div>
-            </div>
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 18px 16px; text-align: center; cursor: pointer;" onclick="switchSection('process')">
-              <div style="font-weight: 700; color: #166534; font-size: 0.9rem;">Clearance Decision Wizard</div>
-              <div style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">Regulatory intake & dependency waves</div>
-            </div>
-            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 18px 16px; text-align: center; cursor: pointer;" onclick="switchSection('flowchart')">
-              <div style="font-weight: 700; color: #991b1b; font-size: 0.9rem;">Multi-Department Flow</div>
-              <div style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">Coordinate Land, Power &amp; Environment clearances</div>
-            </div>
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 18px 16px; text-align: center; cursor: pointer;" onclick="switchSection('schema')">
-              <div style="font-weight: 700; color: #92400e; font-size: 0.9rem;">AI Schema Drift Sandbox</div>
-              <div style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">Simulate schema change & AI resolution</div>
-            </div>
+          
+          <div style="display: flex; gap: 16px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+            <button class="btn btn-primary" onclick="switchSection('process')" style="padding: 10px 20px; font-size: 0.95rem;">
+              Start Process
+            </button>
+            <button class="btn btn-outline" onclick="switchSection('status')" style="padding: 10px 20px; font-size: 0.95rem;">
+              Track Existing Application
+            </button>
           </div>
         </div>
       </div>
@@ -823,29 +791,6 @@
             </div>
           </div>
 
-          <!-- Portal 4: MAITRI Apex Single Window -->
-          <div class="dashboard-panel" style="border-top: 4px solid #1e3a8a; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <div>
-                  <span class="dept-badge" style="background: #eff6ff; color: #1e3a8a;">Maharashtra Government</span>
-                  <h3 style="margin-top: 6px; color: #0f172a; font-size: 1.05rem;">4. MAITRI Single Window Portal</h3>
-                </div>
-                <span class="status-badge" style="padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">Apex System</span>
-              </div>
-              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px;">
-                Access the unified single-window portal for state-level composite industrial approval and tracking.
-              </p>
-              <div style="font-size: 0.78rem; color: #1e3a8a; font-weight: 600; margin-bottom: 12px;">
-                ✓ Interop Check: Combined Application Form Ready
-              </div>
-            </div>
-            <div>
-              <a href="https://maitri.mahaonline.gov.in" target="_blank" class="btn btn-primary" style="width: 100%; padding: 10px 16px; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                Proceed to Official MAITRI Portal ↗
-              </a>
-            </div>
-          </div>
 
         </div>
 
