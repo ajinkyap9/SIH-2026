@@ -7,10 +7,24 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 4002;
 
+const path = require('path');
+
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-API-Key, X-Correlation-ID');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.get('/', (req, res) => {
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/info', (req, res) => {
   res.json({
     service: 'Pollution / Environment Department API (simulated)',
     description:

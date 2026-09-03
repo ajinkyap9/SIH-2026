@@ -16,6 +16,77 @@ router = APIRouter(prefix="/api/electricity", tags=["Status"])
 
 
 @router.get(
+    "/public-list",
+    summary="Get Public List of Applications for UI",
+    description="Returns public electricity application list without demanding machine credentials."
+)
+async def get_public_applications_list(db: Session = Depends(get_db)):
+    from app.models.electricity import ElectricityApplication
+    apps = db.query(ElectricityApplication).order_by(ElectricityApplication.id.asc()).all()
+    return [
+        {
+            "application_number": a.application_number,
+            "applicant_name": a.applicant_name,
+            "applicant_pan": a.applicant_pan,
+            "requested_load": f"{a.requested_load} {a.requested_load_unit}",
+            "sanctioned_load": f"{a.sanctioned_load} {a.sanctioned_load_unit}" if a.sanctioned_load else "N/A",
+            "application_status": a.application_status,
+            "inspection_status": a.inspection_status,
+            "meter_status": a.meter_status,
+            "connection_status": a.connection_status,
+            "district": a.district
+        }
+        for a in apps
+    ]
+
+
+@router.post(
+    "/public-apply",
+    summary="Submit Electricity Sanction Application",
+    description="Inserts a new electricity application into PostgreSQL"
+)
+async def public_apply_electricity(payload: dict, db: Session = Depends(get_db)):
+    from app.models.electricity import ElectricityApplication
+    import datetime
+    
+    app_no = payload.get("application_number") or f"ELEC-2026-{int(time.time()) % 100000:05d}"
+    pan = str(payload.get("applicant_pan", "")).strip().upper() if payload.get("applicant_pan") else "UNKNOWN"
+    
+    existing = db.query(ElectricityApplication).filter(ElectricityApplication.application_number == app_no).first()
+    if existing:
+        return {"success": True, "application_number": existing.application_number, "status": existing.application_status}
+
+    new_app = ElectricityApplication(
+        application_number=app_no,
+        applicant_name=payload.get("applicant_name") or "Industrial Applicant",
+        applicant_pan=pan,
+        premises_address=payload.get("address", "MIDC Industrial Estate"),
+        district=payload.get("district", "Pune"),
+        taluka=payload.get("taluka", "Haveli"),
+        village=payload.get("village", "Wagholi"),
+        supply_category="HT-IND",
+        connection_type="INDUSTRIAL",
+        requested_load=str(payload.get("requested_load", "300")),
+        requested_load_unit="KW",
+        sanctioned_load=str(payload.get("requested_load", "300")),
+        sanctioned_load_unit="KW",
+        application_status="APPROVED",
+        inspection_status="COMPLETED",
+        meter_status="INSTALLED",
+        connection_status="ENERGIZED",
+        outstanding_dues=False,
+        security_deposit_status="PAID",
+        application_date=datetime.datetime.utcnow(),
+        last_updated=datetime.datetime.utcnow()
+    )
+    db.add(new_app)
+    db.commit()
+    db.refresh(new_app)
+    return {"success": True, "application_number": new_app.application_number, "status": new_app.application_status}
+
+
+
+@router.get(
     "/status/{application_number}",
     response_model=StatusResponse,
     summary="Lightweight Status Polling",

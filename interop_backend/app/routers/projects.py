@@ -91,8 +91,8 @@ def get_transaction_detail(
             detail={"status": "NOT_FOUND", "message": "Transaction not found"}
         )
 
-    # If applicant, ensure PAN matches
-    if current_user.role == "APPLICANT" and txn.organization_pan != current_user.organization_pan:
+    # Ensure PAN matches user's PAN
+    if txn.organization_pan != current_user.organization_pan:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"status": "FORBIDDEN", "message": "Not authorized to view this transaction"}

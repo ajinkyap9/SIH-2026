@@ -57,27 +57,8 @@
       <div class="land-section-title">Verify Land Record & Mutation Status</div>
       <div class="land-section-subtitle">Enter a survey number (Gat No.) to retrieve the authoritative land record from the department database.</div>
 
-      <!-- Quick Presets -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px;">
-        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('101', 'ABCDE1234F')">
-          <div class="land-card-body" style="padding: 14px 16px;">
-            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #101</strong>
-            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">ABC Industries · Approved · Pune</div>
-          </div>
-        </div>
-        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('103', 'ABCDE1234F')">
-          <div class="land-card-body" style="padding: 14px 16px;">
-            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #103</strong>
-            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">ABC Industries · Pending Mutation</div>
-          </div>
-        </div>
-        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('105', 'KONVL9012M')">
-          <div class="land-card-body" style="padding: 14px 16px;">
-            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #105</strong>
-            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">Konkan Ventures · Encumbered</div>
-          </div>
-        </div>
-      </div>
+      <!-- Quick Presets (Loaded dynamically from PostgreSQL) -->
+      <div id="landPresetContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px;"></div>
 
       <!-- Lookup Form -->
       <div class="land-card">
@@ -154,16 +135,25 @@
       <!-- Step 1: Applicant Info -->
       <div id="applyStep1">
         <div class="land-card">
-          <div class="land-card-header"><span>Part A: Applicant Information</span></div>
+          <div class="land-card-header">
+            <span>Part A: Applicant Information</span>
+            <span id="autoFillBadge" style="display:none; font-size:0.75rem; background:#d1fae5; color:#065f46; padding:3px 10px; border-radius:999px; font-weight:700;">&#10003; Auto-filled from Database</span>
+          </div>
           <div class="land-card-body">
+            <!-- Auto-fill info bar -->
+            <div id="autoFillBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:0.84rem; color:#1e40af;">
+              <span id="autoFillMsg">Fetching your profile from database...</span>
+            </div>
             <div class="land-grid-2">
               <div class="land-form-group">
                 <label class="land-form-label">Applicant Name <span class="req">*</span></label>
                 <input type="text" id="applyName" class="land-form-input" placeholder="e.g. Rajesh Sharma" required>
               </div>
               <div class="land-form-group">
-                <label class="land-form-label">PAN Number <span class="req">*</span></label>
-                <input type="text" id="applyPan" class="land-form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
+                <label class="land-form-label">PAN Number <span class="req">*</span>
+                  <button type="button" onclick="fetchAndFillProfile()" style="margin-left:8px; font-size:0.72rem; padding:2px 8px; background:#166534; color:white; border:none; border-radius:4px; cursor:pointer;">&#8635; Fetch from DB</button>
+                </label>
+                <input type="text" id="applyPan" class="land-form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required oninput="this.value=this.value.toUpperCase()">
               </div>
             </div>
             <div class="land-grid-2">
@@ -176,12 +166,23 @@
                 <input type="tel" id="applyPhone" class="land-form-input" placeholder="e.g. 9876543210" required>
               </div>
             </div>
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Email Address</label>
+                <input type="email" id="applyEmail" class="land-form-input" placeholder="e.g. contact@company.com">
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Aadhaar Number (masked)</label>
+                <input type="text" id="applyAadhaar" class="land-form-input" placeholder="Auto-filled from KYC" maxlength="12">
+              </div>
+            </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
-              <button type="button" class="land-btn land-btn-primary" onclick="goToStep(2)">Next: Land Details →</button>
+              <button type="button" class="land-btn land-btn-primary" onclick="goToStep(2)">Next: Land Details &#8594;</button>
             </div>
           </div>
         </div>
       </div>
+
 
       <!-- Step 2: Land Details -->
       <div id="applyStep2" style="display: none;">

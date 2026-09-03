@@ -222,13 +222,17 @@
         btn.innerText = 'Verify & Login ➔';
 
         if (data.success) {
-          // Store session securely (only non-sensitive data for display)
+          // Store session with full citizen & enterprise context for cross-department SSO
           sessionStorage.setItem('gov_citizen', JSON.stringify({
             id: data.citizen.id,
             firstName: data.citizen.firstName,
             lastName: data.citizen.lastName,
             fullName: data.citizen.fullName,
-            email: data.citizen.email
+            email: data.citizen.email,
+            pan: data.citizen.pan,
+            mobile: data.citizen.mobile,
+            organizationName: data.citizen.organizationName,
+            organizationPan: data.citizen.organizationPan
           }));
           sessionStorage.setItem('gov_token', data.token);
 

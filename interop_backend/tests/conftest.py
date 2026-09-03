@@ -220,27 +220,11 @@ def client():
 def abc_token():
     return create_access_token({
         "sub": "applicant@abcindustries.com",
-        "role": "APPLICANT",
         "pan": "ABCDE1234F",
         "org": "ABC Industries Pvt Ltd"
     })
 
 
 @pytest.fixture
-def admin_token():
-    return create_access_token({
-        "sub": "admin@interop.gov.in",
-        "role": "GOVT_ADMIN",
-        "pan": "GOVAA0000A",
-        "org": "Government Interoperability Directorate"
-    })
-
-
-@pytest.fixture
 def abc_headers(abc_token):
     return {"Authorization": f"Bearer {abc_token}"}
-
-
-@pytest.fixture
-def admin_headers(admin_token):
-    return {"Authorization": f"Bearer {admin_token}"}

@@ -1,43 +1,93 @@
 import express from 'express';
-import { getApplicationById, createFeedback } from '../db/database.js';
+import { getApplicationDetails, getAllProjectApplications, createFeedback, poolInterop } from '../db/database.js';
 
 const router = express.Router();
 
-// POST /api/portal/status-check - Check status by Application ID or Survey Number
-router.post('/status-check', (req, res) => {
+// GET /api/portal/user-profile?pan=ABCDE1234F  — fetch full citizen+user profile from PostgreSQL
+router.get('/user-profile', async (req, res) => {
+  const { pan } = req.query;
+  if (!pan) return res.status(400).json({ success: false, message: 'PAN is required' });
+
+  try {
+    // 1. Look up enterprise user
+    const userRes = await poolInterop.query(
+      `SELECT id, email, organization_name, organization_pan, role, is_active FROM users WHERE UPPER(organization_pan) = UPPER($1) LIMIT 1`,
+      [pan.trim()]
+    );
+    // 2. Look up citizen KYC
+    const citizenRes = await poolInterop.query(
+      `SELECT id, first_name, last_name, mobile, email, aadhaar, pan FROM citizens WHERE UPPER(pan) = UPPER($1) LIMIT 1`,
+      [pan.trim()]
+    );
+
+    const user = userRes.rows[0] || null;
+    const citizen = citizenRes.rows[0] || null;
+
+    if (!user && !citizen) {
+      return res.json({ success: false, found: false, message: 'No user found for this PAN in the database.' });
+    }
+
+    // Merge into single profile
+    const profile = {
+      pan: pan.trim().toUpperCase(),
+      organization_name: user?.organization_name || '',
+      organization_pan: user?.organization_pan || pan.trim().toUpperCase(),
+      email: user?.email || citizen?.email || '',
+      role: user?.role || 'APPLICANT',
+      // Citizen fields
+      first_name: citizen?.first_name || '',
+      last_name: citizen?.last_name || '',
+      full_name: citizen ? `${citizen.first_name} ${citizen.last_name}` : (user?.organization_name || ''),
+      mobile: citizen?.mobile || '',
+      aadhaar: citizen?.aadhaar || ''
+    };
+
+    res.json({ success: true, found: true, profile });
+  } catch (err) {
+    console.error('[user-profile] DB error:', err.message);
+    res.status(500).json({ success: false, message: 'Database error fetching profile.' });
+  }
+});
+
+// GET /api/portal/applications-list - Return live list of departmental projects from PostgreSQL
+router.get('/applications-list', async (req, res) => {
+  try {
+    const list = await getAllProjectApplications();
+    res.json({ success: true, applications: list });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Failed to fetch application list' });
+  }
+});
+
+// POST /api/portal/status-check - Check live status from PostgreSQL & Department databases
+router.post('/status-check', async (req, res) => {
   const { appId } = req.body;
   if (!appId) {
     return res.status(400).json({ success: false, message: 'Application ID or Survey Number is required.' });
   }
 
   const cleanId = appId.trim();
-  const app = getApplicationById(cleanId);
 
-  if (!app) {
-    // Generate a structured fallback record if demo ID format entered
-    return res.json({
-      success: true,
-      found: false,
-      message: `No active record found for '${cleanId}'. Please check your Application Reference Number or try demo IDs: APP-MH-2026-101, APP-MH-2026-102, APP-MH-2026-103.`,
-      demoIds: ['APP-MH-2026-101', 'APP-MH-2026-102', 'APP-MH-2026-103', 'APP-MH-2026-104', 'APP-MH-2026-105']
-    });
-  }
+  try {
+    const app = await getApplicationDetails(cleanId);
 
-  res.json({
-    success: true,
-    found: true,
-    application: {
-      appId: app.app_id,
-      citizenName: app.citizen_name,
-      serviceType: app.service_type,
-      surveyNumber: app.survey_number,
-      status: app.status,
-      department: app.department,
-      remarks: app.remarks,
-      createdAt: app.created_at,
-      updatedAt: app.updated_at
+    if (!app || !app.found) {
+      return res.json({
+        success: true,
+        found: false,
+        message: `No active record found for '${cleanId}'. Please check your Application Reference Number.`,
+        demoIds: ['APP-MH-2026-101', 'APP-MH-2026-102', 'APP-MH-2026-103', 'ELEC-2026-00101', 'MPCB-8821']
+      });
     }
-  });
+
+    res.json({
+      success: true,
+      found: true,
+      application: app
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error retrieving application details from database.' });
+  }
 });
 
 // POST /api/portal/feedback - Submit feedback or grievance

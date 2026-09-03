@@ -10,7 +10,7 @@ from app.schemas.schema_drift import (
     DriftApprovalRequest,
 )
 from app.engine.ai_drift_resolver import AIDriftResolver
-from app.auth.dependencies import require_admin
+from app.auth.dependencies import get_current_user
 
 router = APIRouter(prefix="/api/schema", tags=["AI-Assisted Schema Drift"])
 
@@ -49,7 +49,7 @@ def detect_schema_drift(body: DriftDetectionRequest, db: Session = Depends(get_d
 )
 def approve_drift_mapping(
     body: DriftApprovalRequest,
-    admin_user: User = Depends(require_admin),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     # Update drift log
@@ -74,5 +74,5 @@ def approve_drift_mapping(
     return {
         "status": "SUCCESS",
         "message": f"Successfully mapped '{body.source_field}' -> '{body.target_canonical_field}' for department {body.department_code.upper()}",
-        "approved_by": admin_user.email
+        "approved_by": current_user.email or current_user.organization_pan
     }
