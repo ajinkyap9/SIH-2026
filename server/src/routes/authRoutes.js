@@ -196,7 +196,8 @@ router.post('/verify-otp', (req, res) => {
       firstName: c.first_name,
       lastName: c.last_name,
       fullName: `${c.first_name} ${c.last_name}`,
-      email: c.email
+      email: c.email,
+      pan: c.pan
     }
   });
 });

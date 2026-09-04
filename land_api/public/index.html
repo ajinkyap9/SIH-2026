@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Records Portal | Revenue & Land Settlement Department | Government of Maharashtra</title>
+  <meta name="description" content="Official Land Records Portal for the Revenue & Land Settlement Department, Government of Maharashtra. Verify 7/12 extracts, track mutation status, and apply for land certificates.">
+  <link rel="stylesheet" href="/css/land-style.css">
+</head>
+<body>
+
+  <!-- Tricolor Stripe -->
+  <div class="land-tricolor"></div>
+
+  <!-- Top Bar -->
+  <div class="land-topbar">
+    <div>
+      <strong>GOVERNMENT OF MAHARASHTRA</strong> • Revenue & Land Settlement Department
+    </div>
+    <div>
+      <a href="#">Skip to main content</a> |
+      <a href="#">A-</a> <a href="#">A</a> <a href="#">A+</a> |
+      <a href="#">English</a> | <a href="#">मराठी</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="land-header">
+    <div class="land-header-brand">
+      <div class="land-header-emblem">🏛️</div>
+      <div>
+        <h1>Land Records Portal</h1>
+        <p>Revenue & Land Settlement Department · Authoritative 7/12 Extract & Mutation Tracking</p>
+      </div>
+    </div>
+    <div class="land-header-actions">
+      <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 8px;">
+        <input type="text" placeholder="Search records..." style="background: none; border: none; color: #fff; font-size: 0.82rem; outline: none; width: 140px;">
+        <span>🔍</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="land-nav">
+    <a href="#" class="active">Home</a>
+    <a href="#" onclick="switchTab('track'); return false;">Track Record</a>
+    <a href="#" onclick="switchTab('apply'); return false;">Apply for Certificate</a>
+    <a href="#" onclick="switchTab('records'); return false;">All Records</a>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="land-container">
+
+    <!-- ============== TAB: TRACK RECORD ============== -->
+    <div id="trackSection">
+      <div class="land-section-title">Verify Land Record & Mutation Status</div>
+      <div class="land-section-subtitle">Enter a survey number (Gat No.) to retrieve the authoritative land record from the department database.</div>
+
+      <!-- Quick Presets -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px;">
+        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('101', 'ABCDE1234F')">
+          <div class="land-card-body" style="padding: 14px 16px;">
+            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #101</strong>
+            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">ABC Industries · Approved · Pune</div>
+          </div>
+        </div>
+        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('103', 'ABCDE1234F')">
+          <div class="land-card-body" style="padding: 14px 16px;">
+            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #103</strong>
+            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">ABC Industries · Pending Mutation</div>
+          </div>
+        </div>
+        <div class="land-card" style="cursor: pointer; margin-bottom: 0;" onclick="presetTrack('105', 'KONVL9012M')">
+          <div class="land-card-body" style="padding: 14px 16px;">
+            <strong style="color: var(--land-primary-dark); font-size: 0.9rem;">Survey #105</strong>
+            <div style="font-size: 0.78rem; color: var(--land-text-muted); margin-top: 4px;">Konkan Ventures · Encumbered</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lookup Form -->
+      <div class="land-card">
+        <div class="land-card-header">
+          <span>Land Record Lookup</span>
+        </div>
+        <div class="land-card-body">
+          <form id="trackForm" onsubmit="handleTrackSubmit(event)">
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Survey Number / Gat No <span class="req">*</span></label>
+                <input type="text" id="trackSurvey" class="land-form-input" placeholder="e.g. 101" required>
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Applicant PAN (for identity verification)</label>
+                <input type="text" id="trackPan" class="land-form-input" placeholder="e.g. ABCDE1234F" style="text-transform: uppercase;">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+              <button type="submit" class="land-btn land-btn-primary" id="trackBtn">Fetch Land Record</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Error display -->
+      <div id="trackError" class="land-error-banner"></div>
+
+      <!-- Result Card -->
+      <div id="trackResult" style="display: none;">
+        <div class="land-card" style="border-left: 4px solid var(--land-primary);">
+          <div class="land-card-header">
+            <span>Land Record Details</span>
+            <span id="trackMutationBadge" class="land-badge"></span>
+          </div>
+          <div class="land-card-body">
+            <div id="trackDetails"></div>
+          </div>
+        </div>
+
+        <!-- Raw JSON viewer -->
+        <div class="land-card">
+          <div class="land-card-header" style="font-size: 0.82rem; padding: 10px 16px;">
+            <span>Raw Department Record (JSON)</span>
+          </div>
+          <div class="land-card-body" style="padding: 10px;">
+            <div id="trackJson" class="land-json-block"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== TAB: APPLY FOR CERTIFICATE ============== -->
+    <div id="applySection" style="display: none;">
+      <div class="land-section-title">Apply for New Land Certificate</div>
+      <div class="land-section-subtitle">Submit an application for a 7/12 Extract, Mutation Entry, or Land Use Certificate.</div>
+
+      <!-- Stepper -->
+      <div class="land-stepper">
+        <div class="land-stepper-step active" id="step1">
+          <div class="land-stepper-circle">1</div>
+          <div class="land-stepper-label">Applicant Info</div>
+        </div>
+        <div class="land-stepper-step" id="step2">
+          <div class="land-stepper-circle">2</div>
+          <div class="land-stepper-label">Land Details</div>
+        </div>
+        <div class="land-stepper-step" id="step3">
+          <div class="land-stepper-circle">3</div>
+          <div class="land-stepper-label">Confirmation</div>
+        </div>
+      </div>
+
+      <!-- Step 1: Applicant Info -->
+      <div id="applyStep1">
+        <div class="land-card">
+          <div class="land-card-header"><span>Part A: Applicant Information</span></div>
+          <div class="land-card-body">
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Applicant Name <span class="req">*</span></label>
+                <input type="text" id="applyName" class="land-form-input" placeholder="e.g. Rajesh Sharma" required>
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">PAN Number <span class="req">*</span></label>
+                <input type="text" id="applyPan" class="land-form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
+              </div>
+            </div>
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Organization / Company Name</label>
+                <input type="text" id="applyOrg" class="land-form-input" placeholder="e.g. ABC Industries Pvt Ltd">
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Contact Number <span class="req">*</span></label>
+                <input type="tel" id="applyPhone" class="land-form-input" placeholder="e.g. 9876543210" required>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+              <button type="button" class="land-btn land-btn-primary" onclick="goToStep(2)">Next: Land Details →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Land Details -->
+      <div id="applyStep2" style="display: none;">
+        <div class="land-card">
+          <div class="land-card-header"><span>Part B: Land & Property Details</span></div>
+          <div class="land-card-body">
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">District <span class="req">*</span></label>
+                <select id="applyDistrict" class="land-form-select" required>
+                  <option value="">Select District</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Nashik">Nashik</option>
+                  <option value="Nagpur">Nagpur</option>
+                  <option value="Raigad">Raigad</option>
+                  <option value="Aurangabad">Aurangabad</option>
+                  <option value="Kolhapur">Kolhapur</option>
+                </select>
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Taluka <span class="req">*</span></label>
+                <input type="text" id="applyTaluka" class="land-form-input" placeholder="e.g. Haveli" required>
+              </div>
+            </div>
+            <div class="land-grid-3">
+              <div class="land-form-group">
+                <label class="land-form-label">Village</label>
+                <input type="text" id="applyVillage" class="land-form-input" placeholder="e.g. Wagholi">
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Survey / Gat Number <span class="req">*</span></label>
+                <input type="text" id="applySurvey" class="land-form-input" placeholder="e.g. 101" required>
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Area (Hectares)</label>
+                <input type="number" id="applyArea" class="land-form-input" placeholder="e.g. 8.5" step="0.1">
+              </div>
+            </div>
+            <div class="land-grid-2">
+              <div class="land-form-group">
+                <label class="land-form-label">Certificate Type <span class="req">*</span></label>
+                <select id="applyCertType" class="land-form-select" required>
+                  <option value="7_12_EXTRACT">7/12 Extract</option>
+                  <option value="MUTATION_ENTRY">Mutation Entry</option>
+                  <option value="LAND_USE_CERTIFICATE">Land Use Certificate</option>
+                  <option value="NON_ENCUMBRANCE">Non-Encumbrance Certificate</option>
+                </select>
+              </div>
+              <div class="land-form-group">
+                <label class="land-form-label">Purpose <span class="req">*</span></label>
+                <select id="applyPurpose" class="land-form-select" required>
+                  <option value="INDUSTRIAL">Industrial Setup</option>
+                  <option value="COMMERCIAL">Commercial Development</option>
+                  <option value="AGRICULTURAL">Agricultural Use</option>
+                  <option value="RESIDENTIAL">Residential</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+              <button type="button" class="land-btn land-btn-back" onclick="goToStep(1)">← Back</button>
+              <button type="button" class="land-btn land-btn-primary" onclick="goToStep(3)">Review & Submit →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review & Confirm -->
+      <div id="applyStep3" style="display: none;">
+        <div class="land-card" style="border-left: 4px solid var(--land-accent);">
+          <div class="land-card-header"><span>Review Application Details</span></div>
+          <div class="land-card-body">
+            <div id="applyReviewContent"></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+              <button type="button" class="land-btn land-btn-back" onclick="goToStep(2)">← Edit Details</button>
+              <button type="button" class="land-btn land-btn-primary" id="applySubmitBtn" onclick="handleApplySubmit()">Submit Application</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Result -->
+      <div id="applySuccess" style="display: none;">
+        <div class="land-success-banner">
+          <strong style="font-size: 1.1rem;">✅ Application Submitted Successfully!</strong><br><br>
+          Your application reference number is: <strong id="applyRefNo" style="font-family: monospace; font-size: 1.15rem;"></strong><br><br>
+          <span style="font-size: 0.82rem;">You can track this application using the "Track Record" tab. The department will process your application within 7 working days.</span>
+        </div>
+
+        <div id="returnToMaitriSection" style="display: none;">
+          <div class="land-card" style="border-left: 4px solid var(--land-success);">
+            <div class="land-card-body" style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--land-primary-dark);">Return to MAITRI Portal</strong>
+                <div style="font-size: 0.82rem; color: var(--land-text-muted); margin-top: 4px;">Land verification is complete. Return to continue with Electricity & Pollution clearances.</div>
+              </div>
+              <button class="land-btn land-btn-primary" onclick="returnToMaitri()">Return to MAITRI Portal →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== TAB: ALL RECORDS ============== -->
+    <div id="recordsSection" style="display: none;">
+      <div class="land-section-title">Land Records Database</div>
+      <div class="land-section-subtitle">View all land records available in the departmental database.</div>
+
+      <div class="land-card">
+        <div class="land-card-header">
+          <span>Survey Records</span>
+          <button class="land-btn land-btn-outline" style="font-size: 0.78rem; padding: 6px 14px;" onclick="loadAllRecords()">Refresh</button>
+        </div>
+        <div class="land-card-body" style="padding: 0; overflow-x: auto;">
+          <table class="land-record-table" id="allRecordsTable">
+            <thead>
+              <tr>
+                <th>Survey No</th>
+                <th>Owner Name</th>
+                <th>PAN</th>
+                <th>Area (Ha)</th>
+                <th>District</th>
+                <th>Land Type</th>
+                <th>Mutation Status</th>
+              </tr>
+            </thead>
+            <tbody id="allRecordsBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--land-text-muted); padding: 32px;">Loading records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="land-footer">
+    <div>© 2026 Revenue & Land Settlement Department, Government of Maharashtra</div>
+    <div style="margin-top: 6px;">
+      Simulated Departmental Portal · <a href="http://localhost:5000">Back to MAITRI Interop Portal</a>
+    </div>
+  </footer>
+
+  <script src="/js/land-app.js"></script>
+</body>
+</html>

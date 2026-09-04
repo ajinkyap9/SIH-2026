@@ -7,8 +7,11 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 4002;
 
+const path = require('path');
+
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve the isolated Pollution Government Website
 
 app.get('/', (req, res) => {
   res.json({

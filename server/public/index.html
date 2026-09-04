@@ -3,114 +3,486 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAITRI — Maharashtra Industry, Trade & Investment Facilitation Cell</title>
-  <link rel="stylesheet" href="/css/gov-style.css">
+  <title>Samanvay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1e3a8a;
+      --navy-deep: #0f172a;
+      --blue: #1d4ed8;
+      --blue-light: #3b82f6;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --emerald: #059669;
+      --amber: #d97706;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--slate-50);
+      color: var(--navy-deep);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAVBAR ─── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0 clamp(20px, 4vw, 48px);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-brand-mark {
+      width: 34px; height: 34px;
+      background: var(--navy);
+      border-radius: 8px;
+      display: grid; place-items: center;
+    }
+    .nav-brand-mark svg { width: 18px; height: 18px; }
+    .nav-brand-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+    }
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
+    .nav-link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--slate-600);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--navy); background: var(--slate-100); }
+    .nav-cta {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--navy);
+      padding: 9px 20px;
+      border-radius: 7px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--blue); }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 100px clamp(20px, 5vw, 48px) 80px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid var(--slate-200);
+    }
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      margin-bottom: 28px;
+    }
+    .hero-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--emerald);
+    }
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--navy-deep);
+      max-width: 820px;
+      margin: 0 auto 24px;
+    }
+    .hero h1 span { color: var(--blue); }
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--slate-500);
+      line-height: 1.7;
+      max-width: 620px;
+      margin: 0 auto 44px;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 15px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-hero-primary:hover { background: var(--blue); transform: translateY(-1px); }
+    .btn-hero-primary svg { width: 18px; height: 18px; }
+    .btn-hero-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--slate-600);
+      font-weight: 500;
+      font-size: 1.05rem;
+      padding: 15px 28px;
+      border-radius: 8px;
+      border: 1px solid var(--slate-200);
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-hero-secondary:hover { border-color: var(--slate-400); color: var(--navy-deep); }
+
+    /* ─── FLOW DIAGRAM ─── */
+    .flow-section {
+      padding: 80px clamp(20px, 5vw, 48px);
+      text-align: center;
+    }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+    .section-heading {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--navy-deep);
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      color: var(--slate-500);
+      font-size: 1.05rem;
+      max-width: 580px;
+      margin: 0 auto 52px;
+      line-height: 1.6;
+    }
+
+    .flow-pipeline {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .flow-node {
+      position: relative;
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 20px 32px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--navy-deep);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      width: 280px;
+      text-align: center;
+    }
+    .flow-node-sub {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+    .flow-core {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+      width: 340px;
+      padding: 24px 36px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 20px rgba(30,58,138,0.18);
+    }
+    .flow-core .flow-node-sub { color: rgba(255,255,255,0.65); }
+    .flow-connector {
+      width: 2px;
+      height: 36px;
+      background: var(--slate-200);
+      position: relative;
+    }
+    .flow-connector::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: -3px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--slate-400);
+    }
+    .flow-departments {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .flow-dept {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .flow-dept:hover {
+      border-color: var(--blue-light);
+      box-shadow: 0 4px 16px rgba(59,130,246,0.1);
+    }
+    .flow-dept-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      margin: 0 auto 12px;
+      font-size: 1.25rem;
+    }
+    .flow-dept-icon.land { background: #fef3c7; color: #b45309; }
+    .flow-dept-icon.elec { background: #dbeafe; color: #1d4ed8; }
+    .flow-dept-icon.poll { background: #d1fae5; color: #047857; }
+    .flow-dept h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+      margin-bottom: 4px;
+    }
+    .flow-dept p {
+      font-size: 0.78rem;
+      color: var(--slate-500);
+      line-height: 1.4;
+    }
+    .flow-result {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #065f46;
+    }
+
+    /* ─── VALUE PROPS ─── */
+    .values-section {
+      padding: 80px clamp(20px, 5vw, 48px);
+      background: white;
+      border-top: 1px solid var(--slate-200);
+      border-bottom: 1px solid var(--slate-200);
+    }
+    .values-grid {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .value-card {
+      padding: 28px;
+      border-radius: 12px;
+      border: 1px solid var(--slate-200);
+      background: var(--slate-50);
+      transition: border-color 0.2s;
+    }
+    .value-card:hover { border-color: var(--blue-light); }
+    .value-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: var(--slate-100);
+      display: grid; place-items: center;
+      margin-bottom: 18px;
+      font-size: 1.2rem;
+    }
+    .value-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--navy-deep);
+    }
+    .value-card p {
+      font-size: 0.88rem;
+      color: var(--slate-500);
+      line-height: 1.55;
+    }
+
+    /* ─── FOOTER ─── */
+    .landing-footer {
+      text-align: center;
+      padding: 48px clamp(20px, 5vw, 48px);
+      color: var(--slate-400);
+      font-size: 0.82rem;
+    }
+
+    /* ─── RESPONSIVENESS ─── */
+    @media (max-width: 768px) {
+      .values-grid { grid-template-columns: 1fr; }
+      .flow-departments { flex-direction: column; align-items: center; }
+      .flow-dept { width: 100%; max-width: 280px; }
+      .hero { padding: 64px 20px 56px; }
+    }
+    @media (max-width: 480px) {
+      .navbar { height: 56px; }
+      .nav-brand-name { font-size: 1.15rem; }
+      .nav-link { display: none; }
+      .hero-actions { flex-direction: column; align-items: center; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Tricolor Accent Top Bar -->
-  <div class="tricolor-stripe"></div>
-
-  <!-- Official Metadata Bar -->
-  <div class="gov-top-bar">
-    <div>
-      <strong>GOVERNMENT OF MAHARASHTRA & INDIA</strong> • National Single Window & Interoperability Gateway
-    </div>
-    <div>
-      <span>Secured Official Portal</span>
-      <a href="#">English</a> | <a href="#">मराठी</a> | <a href="#">हिन्दी</a>
-    </div>
-  </div>
-
-  <!-- Main Navigation Header -->
-  <header class="main-header">
-    <div class="brand-wrapper">
-      <div class="emblem-icon">
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
-          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
-          <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="26" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808"/>
+  <!-- ═══ Navigation ═══ -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 12l10 10 10-10L12 2z"/>
         </svg>
       </div>
-      <div class="brand-title">
-        <h1>MAITRI Interoperability Gateway</h1>
-        <p>Maharashtra Industry, Trade & Investment Facilitation Cell • National Single Window</p>
+      <span class="nav-brand-name">Samanvay</span>
+    </a>
+    <div class="nav-actions">
+      <a href="/login.html" class="nav-link">Login</a>
+      <a href="/dashboard.html" class="nav-cta">Let's Get Started</a>
+    </div>
+  </nav>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <div class="hero-chip">
+      <span class="hero-chip-dot"></span>
+      Government Initiative &mdash; Interoperability Platform </div>
+
+    <h1>One Application.<br><span>Every Department.</span></h1>
+
+    <p class="hero-desc">
+      Samanvay is an interoperability layer that connects Land Revenue, Electricity, and Pollution departments into a single, coordinated approval workflow — so citizens and businesses never fill the same form twice.
+    </p>
+
+    <div class="hero-actions">
+      <a href="/dashboard.html" class="btn-hero-primary">
+        Let's Get Started
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/login.html" class="btn-hero-secondary">Login to Your Account</a>
+    </div>
+  </section>
+
+  <!-- ═══ Flow Diagram ═══ -->
+  <section class="flow-section">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-heading">From Application to Approval, Seamlessly</h2>
+    <p class="section-desc">
+      Instead of navigating three separate portals, your data flows through Samanvay's interoperability engine to every relevant department automatically.
+    </p>
+
+    <div class="flow-pipeline">
+      <div class="flow-node">
+        Citizen / Enterprise
+        <span class="flow-node-sub">Submits a single application</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node flow-core">
+        Samanvay Interoperability Layer
+        <span class="flow-node-sub">Intelligent orchestration &amp; data mapping</span>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-departments">
+        <div class="flow-dept">
+          <div class="flow-dept-icon land">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+          </div>
+          <h4>Land Revenue</h4>
+          <p>7/12 Extract, Mutation, Ownership verification</p>
+        </div>
+        <div class="flow-dept">
+          <div class="flow-dept-icon elec">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h4>Electricity</h4>
+          <p>HT Power Load Sanction &amp; feasibility</p>
+        </div>
+        <div class="flow-dept">
+          <div class="flow-dept-icon poll">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1.68-4.14A7.32 7.32 0 0014 20c3.86 0 7-3.14 7-7a7 7 0 00-4-6.33"/><path d="M11 2a5 5 0 015 5c0 2.76-2.24 5-5 5S6 9.76 6 7a5 5 0 015-5z"/></svg>
+          </div>
+          <h4>Pollution Control</h4>
+          <p>CTE, Environmental Consent &amp; Clearance</p>
+        </div>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-node flow-result">
+        Coordinated Departmental Approvals
+        <span class="flow-node-sub" style="color: #047857;">All clearances resolved through one workflow</span>
       </div>
     </div>
-    <div class="header-nav-actions">
-      <a href="/login.html" class="btn btn-primary">Citizen Login</a>
-      <a href="/register.html" class="btn btn-outline">New Registration</a>
+  </section>
+
+  <!-- ═══ Value Props ═══ -->
+  <section class="values-section">
+    <div style="text-align: center; margin-bottom: 48px;">
+      <div class="section-label">Why Samanvay</div>
+      <h2 class="section-heading">Built for Multi-Department Coordination</h2>
     </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="hero-container">
-
-    <!-- Hero Card -->
-    <div class="hero-card">
-      <div class="hero-badge">Interoperability & Process Orchestration</div>
-      <h2>Unified Single Window for Department Approvals</h2>
-      <p>
-        Eliminate redundant paper submissions. The Interoperability Layer connects authorized departmental APIs (Land Revenue, MPCB Environmental Clearance, MSEDCL Power Allocation) to resolve prerequisites automatically.
-      </p>
-      <div class="hero-actions">
-        <a href="/login.html" class="btn btn-primary" style="padding: 12px 28px; font-size: 0.95rem;">
-          Citizen / Investor Login
-        </a>
-        <a href="/register.html" class="btn btn-outline" style="padding: 12px 28px; font-size: 0.95rem;">
-          Register New Account
-        </a>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <h4>Interoperability First</h4>
+        <p>Connects siloed government systems through a canonical data model, so departments share information without custom integrations.</p>
       </div>
-    </div>
-
-    <!-- Features Overview -->
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>Land Revenue (7/12 Jamabandi)</h3>
-        <p>Automated verification of survey numbers, mutation status, encumbrances, and ownership records directly through the Land Department API.</p>
+      <div class="value-card">
+        <div class="value-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+        </div>
+        <h4>No Redundant Forms</h4>
+        <p>Fill your project details once. Samanvay pre-fills each department's application with data already provided, eliminating duplicate submissions.</p>
       </div>
-      <div class="feature-card">
-        <h3>Pollution Control (MPCB)</h3>
-        <p>Direct prerequisite resolution for Consent to Establish (CTE). MPCB automatically verifies Land ownership before clearing environmental reviews.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Electricity Discom (MSEDCL)</h3>
-        <p>High-tension and low-tension power connection feasibility checks synchronized with authorized site coordinates and land records.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Clearance Decision Engine</h3>
-        <p>Guided questionnaire evaluating your project requirements to recommend all mandatory departmental microservices and licenses.</p>
+      <div class="value-card">
+        <div class="value-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        </div>
+        <h4>Real-Time Tracking</h4>
+        <p>Track every department's status — Land, Electricity, Pollution — from a single dashboard with complete visibility into your approval pipeline.</p>
       </div>
     </div>
+  </section>
 
-    <!-- Quick Statistics Bar -->
-    <div class="quick-stats-bar" style="margin-top: 30px;">
-      <div class="quick-stat-item">
-        <div class="quick-stat-value" style="color: #16a34a;">91.50%</div>
-        <div class="quick-stat-label">Customer Satisfaction</div>
-      </div>
-      <div class="quick-stat-item">
-        <div class="quick-stat-value" style="color: #2563eb;">88.95%</div>
-        <div class="quick-stat-label">Resolution Rate</div>
-      </div>
-      <div class="quick-stat-item">
-        <div class="quick-stat-value" style="color: #ea580c;">5,22,650+</div>
-        <div class="quick-stat-label">Applications Processed</div>
-      </div>
-      <div class="quick-stat-item">
-        <div class="quick-stat-value" style="color: #7c3aed;">179</div>
-        <div class="quick-stat-label">Government Services Live</div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Official Footer -->
-  <footer class="gov-footer">
-    Government of Maharashtra • Directorate of Industries • MAITRI Single Window Cell • SIH 2026 Prototype
+  <!-- ═══ Footer ═══ -->
+  <footer class="landing-footer">
+    &copy; 2026 Samanvay &middot; Interoperability Platform  &middot; SIH 2026
   </footer>
 
 </body>

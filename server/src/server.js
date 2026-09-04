@@ -46,13 +46,28 @@ app.get('/api/health', (req, res) => {
 
 // Initialize database and start listening
 initDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
-    console.log(`📡 URL: http://localhost:${PORT}`);
-    console.log(`💾 SQLite Database initialized and ready.`);
-    console.log(`=======================================================`);
-  });
+  function listenOnPort(port) {
+    const server = app.listen(port, () => {
+      console.log(`=======================================================`);
+      console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
+      console.log(`📡 URL: http://localhost:${port}`);
+      console.log(`💾 SQLite Database initialized and ready.`);
+      console.log(`=======================================================`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`⚠️  Port ${port} is currently in use (e.g., macOS AirPlay Receiver on port 5000).`);
+        const nextPort = Number(port) + 1;
+        console.log(`🔄 Automatically retrying on port ${nextPort}...`);
+        listenOnPort(nextPort);
+      } else {
+        console.error('Server error:', err);
+      }
+    });
+  }
+
+  listenOnPort(Number(PORT));
 }).catch(err => {
   console.error('Failed to initialize database:', err);
 });

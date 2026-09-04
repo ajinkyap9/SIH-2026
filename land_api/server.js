@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const path = require('path');
 
 const landRoutes = require('./routes/land');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
@@ -10,7 +11,21 @@ const PORT = process.env.PORT || 4000;
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.get('/', (req, res) => {
+// Serve the independent Land Department website
+app.use(express.static(path.join(__dirname, 'public')));
+
+// CORS for frontend
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+// Root serves the Land Department website (index.html via static middleware)
+// API info endpoint moved to /api/land/info to avoid conflict
+app.get('/api/land/info', (req, res) => {
   res.json({
     service: 'Land Records Department API (simulated)',
     description:
