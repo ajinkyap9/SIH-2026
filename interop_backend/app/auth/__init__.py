@@ -6,8 +6,7 @@ from app.auth.jwt_handler import (
 )
 from app.auth.dependencies import (
     get_current_user,
-    require_admin,
-    require_applicant_or_admin,
+    check_consent_for_departments,
 )
 
 __all__ = [
@@ -16,6 +15,5 @@ __all__ = [
     "create_access_token",
     "decode_access_token",
     "get_current_user",
-    "require_admin",
-    "require_applicant_or_admin",
+    "check_consent_for_departments",
 ]

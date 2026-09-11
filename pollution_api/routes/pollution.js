@@ -9,23 +9,65 @@ const { shouldSimulateFailure, sendSimulatedOutage } = require('../utils/failure
 const router = express.Router();
 
 /**
+ * GET /api/pollution/all
+ * Returns all pollution applications from PostgreSQL.
+ */
+router.get('/all', async (req, res) => {
+  const all = await store.getAllApplications();
+  res.json({ success: true, count: all.length, applications: all });
+});
+
+/**
+ * POST /api/pollution/apply
+ * Submits a new MPCB consent application and persists it to PostgreSQL.
+ */
+router.post('/apply', async (req, res) => {
+  const { applicationNo, industryName, industryPan, plantLocation, region, industryType, consentType, airEmissionCategory } = req.body || {};
+  const appNo = applicationNo || `MPCB-${Date.now().toString().slice(-4)}`;
+
+  const saved = await store.saveApplication({
+    application_no: appNo,
+    application_project_id: `PROJ-${appNo}`,
+    industry_name: industryName || 'Enterprise Applicant',
+    industry_pan: String(industryPan || '').trim().toUpperCase(),
+    plant_location: plantLocation || 'MIDC Industrial Area',
+    region: region || 'Pune',
+    industry_type: industryType || 'Manufacturing',
+    consent_type: consentType || 'CTE',
+    consent_status: 'APPROVED',
+    compliance_status: 'COMPLIANT',
+    air_emission_category: airEmissionCategory || 'RED',
+    water_discharge_category: 'MEDIUM',
+    hazardous_waste: false,
+    environmental_clearance_required: false
+  });
+
+  res.json({
+    success: true,
+    message: 'MPCB Consent application recorded successfully.',
+    application_no: saved.application_no,
+    consent_status: saved.consent_status,
+    application: saved
+  });
+});
+
+/**
  * GET /api/pollution/applications/:applicationNo
- * Returns the Pollution Department's native schema. Add
- * ?schema=canonical to preview the normalized representation.
+ * Returns the Pollution Department's native schema from PostgreSQL.
  */
 router.get(
   '/applications/:applicationNo',
   requirePermission('read:applications'),
   auditMiddleware('GET /applications/:applicationNo', (req) => req.params.applicationNo),
-  (req, res) => {
-    const application = store.getApplication(req.params.applicationNo);
+  async (req, res) => {
+    const application = await store.getApplication(req.params.applicationNo);
 
     if (shouldSimulateFailure(req, application)) return sendSimulatedOutage(res);
 
     if (!application) {
       return res.status(404).json({
         error: 'Not Found',
-        message: `No pollution application found for application number ${req.params.applicationNo}.`
+        message: `No pollution application found for application number or PAN "${req.params.applicationNo}".`
       });
     }
 
@@ -40,14 +82,13 @@ router.get(
 
 /**
  * GET /api/pollution/status/:applicationNo
- * Lightweight consent/compliance status endpoint used by a polling consumer.
  */
 router.get(
   '/status/:applicationNo',
   requirePermission('read:status'),
   auditMiddleware('GET /status/:applicationNo', (req) => req.params.applicationNo),
-  (req, res) => {
-    const application = store.getApplication(req.params.applicationNo);
+  async (req, res) => {
+    const application = await store.getApplication(req.params.applicationNo);
 
     if (shouldSimulateFailure(req, application)) return sendSimulatedOutage(res);
 

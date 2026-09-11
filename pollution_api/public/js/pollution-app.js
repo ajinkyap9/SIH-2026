@@ -1,6 +1,6 @@
 const MAITRI_API = 'http://localhost:5000/api/portal';
 
-async function fetchElecProfile() {
+async function fetchPollProfile() {
     const panEl = document.getElementById('pan');
     const urlParams = new URLSearchParams(window.location.search);
     const panFromUrl = urlParams.get('pan') || '';
@@ -11,8 +11,8 @@ async function fetchElecProfile() {
         return;
     }
 
-    const bar = document.getElementById('elecAutoFillBar');
-    const msg = document.getElementById('elecAutoFillMsg');
+    const bar = document.getElementById('pollAutoFillBar');
+    const msg = document.getElementById('pollAutoFillMsg');
     if (bar) bar.style.display = 'block';
     if (msg) msg.textContent = '🔄 Fetching your profile from database...';
 
@@ -25,9 +25,7 @@ async function fetchElecProfile() {
             const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
             setVal('pan', p.pan);
             setVal('companyName', p.organization_name || p.full_name);
-            setVal('authPerson', p.full_name);
-            setVal('email', p.email);
-            setVal('phone', p.mobile);
+            setVal('projectName', (p.organization_name || 'Industrial') + ' Expansion Unit');
 
             if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. All fields are editable.`;
             if (bar) {
@@ -54,82 +52,78 @@ async function fetchElecProfile() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Read URL Parameters
+    // 1. Read URL Parameters passed from MAITRI
     const urlParams = new URLSearchParams(window.location.search);
     const appId = urlParams.get('app_id') || 'UNKNOWN-APP';
     const applicant = urlParams.get('applicant') || '';
     const project = urlParams.get('project') || '';
-    const reqLoad = urlParams.get('req_load') || '';
+    const industry = urlParams.get('industry') || '';
     const pan = urlParams.get('pan') || '';
     const callbackUrl = urlParams.get('callback');
 
-    // 2. Prefill Form
+    // 2. Prefill Form Data
     document.getElementById('appId').value = appId;
     if (applicant) document.getElementById('companyName').value = applicant;
     if (project) document.getElementById('projectName').value = project;
-    if (reqLoad) document.getElementById('reqLoad').value = reqLoad;
+    if (industry) document.getElementById('industryCategory').value = industry;
     if (pan && document.getElementById('pan')) document.getElementById('pan').value = pan.toUpperCase();
 
     // Auto-fetch profile from database if PAN is available
     if (pan) {
-        fetchElecProfile();
+        fetchPollProfile();
     }
 
 
-    // 3. Handle Submission
+    // 3. Handle Application Submission
     document.getElementById('submitBtn').addEventListener('click', async () => {
-        // Defaults for required fields
-        const authPerson = document.getElementById('authPerson').value || applicant || 'Authorized Person';
-        const district = document.getElementById('district').value || 'Pune';
-        document.getElementById('authPerson').value = authPerson;
-        document.getElementById('district').value = district;
+        // Defaults for required estimates
+        const water = document.getElementById('water').value || '5';
+        const solidWaste = document.getElementById('solidWaste').value || '10';
+        document.getElementById('water').value = water;
+        document.getElementById('solidWaste').value = solidWaste;
 
-        const currentComp = document.getElementById('companyName').value || 'Industrial Applicant';
+        const currentComp = document.getElementById('companyName').value || 'Applicant Enterprise';
         const currentPan = (document.getElementById('pan')?.value || pan || 'ABCDE1234F').toUpperCase();
-        const currentLoad = document.getElementById('reqLoad')?.value || reqLoad || '300';
 
-        // Generate Reference Number
+        // Generate Demo Reference Number
         const randomRef = Math.floor(10000 + Math.random() * 90000);
-        let refNumber = `ELEC-2026-${randomRef}`;
+        let refNumber = `MPCB-2026-${randomRef}`;
 
         // Persist to PostgreSQL backend
         try {
-            const res = await fetch('/api/electricity/public-apply', {
+            const res = await fetch('/api/pollution/apply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    application_number: refNumber,
-                    applicant_name: currentComp,
-                    applicant_pan: currentPan,
-                    requested_load: currentLoad,
-                    district: district,
-                    taluka: document.getElementById('taluka')?.value || 'Haveli',
-                    address: document.getElementById('address')?.value || 'MIDC Industrial Area'
+                    applicationNo: refNumber,
+                    industryName: currentComp,
+                    industryPan: currentPan,
+                    plantLocation: 'MIDC Industrial Area',
+                    region: 'Pune',
+                    industryType: 'Green / Manufacturing',
+                    consentType: 'CTE',
+                    airEmissionCategory: 'GREEN'
                 })
             });
             const data = await res.json();
-            if (data.success && data.application_number) {
-                refNumber = data.application_number;
+            if (data.success && data.application_no) {
+                refNumber = data.application_no;
             }
         } catch (e) {
-            console.warn('Electricity backend public-apply note:', e.message);
+            console.warn('Pollution backend apply note:', e.message);
         }
 
-        // Hide Form, Show Success
-        document.getElementById('applicationForm').style.display = 'none';
-        document.getElementById('successBox').style.display = 'block';
-
-        // Update Success Details
-        document.getElementById('refNumberDisplay').textContent = `MSEDCL Reference: ${refNumber}`;
-        document.getElementById('successAppId').textContent = appId;
-        document.getElementById('successLoad').textContent = `${reqLoad || '5000'} kVA`;
+        // Update UI (Hide form, show success)
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('successCard').style.display = 'block';
+        document.getElementById('refNumber').textContent = `MPCB Reference: ${refNumber}`;
 
         // Configure Return Button
         document.getElementById('returnBtn').addEventListener('click', () => {
             if (callbackUrl) {
                 // Determine separator for appending query parameters
                 const separator = callbackUrl.includes('?') ? '&' : '?';
-                const finalUrl = `${callbackUrl}${separator}electricity_status=COMPLETED&electricity_ref=${refNumber}`;
+                const finalUrl = `${callbackUrl}${separator}pollution_status=COMPLETED&pollution_ref=${refNumber}`;
                 
                 // Redirect back to MAITRI in this tab
                 window.location.href = finalUrl;

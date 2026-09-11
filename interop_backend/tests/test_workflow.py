@@ -22,7 +22,6 @@ def test_plant_verification_waiting(client, abc_token):
     from app.auth.jwt_handler import create_access_token
     xyz_token = create_access_token({
         "sub": "applicant@xyzmfg.com",
-        "role": "APPLICANT",
         "pan": "FGHIJ5678K",
         "org": "XYZ Manufacturing Pvt Ltd"
     })

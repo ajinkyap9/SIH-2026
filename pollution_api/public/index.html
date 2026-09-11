@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Environmental Consent - MPCB</title>
+  <link rel="stylesheet" href="/css/pollution-style.css">
+</head>
+<body>
+
+  <header class="mpcb-header">
+    <h2>GOVERNMENT OF MAHARASHTRA</h2>
+    <h1>MAHARASHTRA POLLUTION CONTROL BOARD</h1>
+    <p>Environmental Consent & Intimation (Green Category)</p>
+  </header>
+
+  <div class="mpcb-container">
+    
+    <div class="mpcb-card" id="formCard">
+      <!-- Auto-fill alert bar -->
+      <div id="pollAutoFillBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 16px; margin-bottom:16px; font-size:0.84rem; color:#1e40af;">
+          <span id="pollAutoFillMsg">Fetching profile from database...</span>
+      </div>
+
+      <h3 class="mpcb-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>A. Application Information</span>
+          <button type="button" onclick="fetchPollProfile()" style="font-size:0.75rem; padding:4px 12px; background:#166534; color:white; border:none; border-radius:4px; cursor:pointer;">&#8635; Auto-fill from DB</button>
+      </h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">MAITRI Application ID</label>
+          <input type="text" id="appId" class="mpcb-input" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Industry Category</label>
+          <input type="text" id="industryCategory" class="mpcb-input" value="Green Category" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Applicant / Company Name</label>
+          <input type="text" id="companyName" class="mpcb-input" placeholder="e.g. ABC Industries Pvt Ltd">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Enterprise PAN</label>
+          <input type="text" id="pan" class="mpcb-input" placeholder="e.g. ABCDE1234F" style="text-transform:uppercase;">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Project Name</label>
+          <input type="text" id="projectName" class="mpcb-input" placeholder="e.g. Green Industrial Expansion">
+        </div>
+      </div>
+
+      <h3 class="mpcb-section-title">B. Environmental Profile</h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Expected Emission Level</label>
+          <input type="text" class="mpcb-input" value="Low Emissions / Green" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Effluent Discharge</label>
+          <input type="text" class="mpcb-input" value="Zero Trade Effluent" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Water Consumption (KLD)</label>
+          <input type="number" id="water" class="mpcb-input" placeholder="e.g. 5">
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Solid Waste Generation (Kg/day)</label>
+          <input type="number" id="solidWaste" class="mpcb-input" placeholder="e.g. 10">
+        </div>
+      </div>
+
+      <h3 class="mpcb-section-title">C. Consent Details</h3>
+      <div class="mpcb-grid">
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Consent Type</label>
+          <input type="text" class="mpcb-input" value="Consent to Establish (CTE)" readonly>
+        </div>
+        <div class="mpcb-form-group">
+          <label class="mpcb-label">Project Status</label>
+          <input type="text" class="mpcb-input" value="New Industrial Project" readonly>
+        </div>
+      </div>
+
+      <button id="submitBtn" class="mpcb-btn mpcb-btn-primary">Submit Pollution Application</button>
+    </div>
+
+    <div class="mpcb-card mpcb-success" id="successCard">
+      <div class="mpcb-success-icon">✓</div>
+      <h2>Pollution Application Submitted Successfully</h2>
+      <p>Your Fast-Track Green Category Consent application is under processing.</p>
+      
+      <div class="mpcb-ref" id="refNumber">
+        MPCB-2026-XXXXX
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button id="returnBtn" class="mpcb-btn mpcb-btn-secondary">Return to MAITRI Portal ➔</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/pollution-app.js"></script>
+</body>
+</html>

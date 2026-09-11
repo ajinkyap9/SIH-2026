@@ -24,9 +24,9 @@ def get_audit_trail(
     db: Session = Depends(get_db)
 ):
     query = db.query(PlatformAuditLog)
-    # If applicant, only show logs for their actions
-    if current_user.role == "APPLICANT":
-        query = query.filter(PlatformAuditLog.actor_email == current_user.email)
+    # Filter logs to only the current authenticated user's actions
+    user_identifier = current_user.email or current_user.organization_pan
+    query = query.filter(PlatformAuditLog.actor_email == user_identifier)
     if transaction_id:
         query = query.filter(PlatformAuditLog.transaction_id == transaction_id)
 

@@ -9,6 +9,7 @@
 
 const LAND_API = 'http://localhost:4000/api/land';
 const API_KEY = 'interop-demo-key-001';
+const MAITRI_API = 'http://localhost:5000/api/portal';
 
 // Read URL params for MAITRI integration (callback mechanism)
 const urlParams = new URLSearchParams(window.location.search);
@@ -22,17 +23,91 @@ window.addEventListener('DOMContentLoaded', () => {
   if (maitriAppId && maitriSurvey) {
     // Pre-fill the apply form with MAITRI context
     switchTab('apply');
-    if (maitriPan) {
+    if (maitriPan && document.getElementById('applyPan')) {
       document.getElementById('applyPan').value = maitriPan;
     }
-    if (maitriSurvey) {
+    if (maitriSurvey && document.getElementById('applySurvey')) {
       document.getElementById('applySurvey').value = maitriSurvey;
+    }
+    const maitriApplicant = urlParams.get('applicant');
+    if (maitriApplicant) {
+      if (document.getElementById('applyName')) document.getElementById('applyName').value = maitriApplicant;
+      if (document.getElementById('applyOrg')) document.getElementById('applyOrg').value = maitriApplicant;
+    }
+    const maitriPhone = urlParams.get('mobile');
+    if (maitriPhone && document.getElementById('applyPhone')) {
+      document.getElementById('applyPhone').value = maitriPhone;
+    }
+
+    // Auto-fetch verified profile from backend database
+    if (maitriPan) {
+      fetchAndFillProfile();
     }
   }
 
   // Load all records for the "All Records" tab
   loadAllRecords();
 });
+
+// =============================================
+// AUTO-FILL PROFILE FROM MAITRI DATABASE
+// =============================================
+async function fetchAndFillProfile() {
+  const panInput = document.getElementById('applyPan');
+  const pan = (maitriPan || panInput?.value || '').trim().toUpperCase();
+  if (!pan || pan.length < 10) {
+    alert('Please enter a valid 10-character PAN number first.');
+    return;
+  }
+
+  const bar = document.getElementById('autoFillBar');
+  const msg = document.getElementById('autoFillMsg');
+  const badge = document.getElementById('autoFillBadge');
+
+  if (bar) bar.style.display = 'block';
+  if (msg) msg.textContent = '🔄 Fetching your profile from database...';
+
+  try {
+    const res = await fetch(`${MAITRI_API}/user-profile?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+
+    if (data.success && data.found) {
+      const p = data.profile;
+
+      // Auto-fill all fields — fully editable by user
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+      setVal('applyPan', p.pan);
+      setVal('applyName', p.full_name || p.organization_name);
+      setVal('applyOrg', p.organization_name);
+      setVal('applyPhone', p.mobile);
+      setVal('applyEmail', p.email);
+      setVal('applyAadhaar', p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '*') : '');
+
+      if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. You may edit any field before proceeding.`;
+      if (bar) {
+        bar.style.background = '#f0fdf4';
+        bar.style.borderColor = '#86efac';
+        bar.style.color = '#15803d';
+      }
+      if (badge) badge.style.display = 'inline-block';
+    } else {
+      if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found for this PAN. Please fill in manually.'}`;
+      if (bar) {
+        bar.style.background = '#fef9c3';
+        bar.style.borderColor = '#fde047';
+        bar.style.color = '#854d0e';
+      }
+    }
+  } catch (err) {
+    if (msg) msg.textContent = '❌ Could not connect to database. Please fill manually.';
+    if (bar) {
+      bar.style.background = '#fef2f2';
+      bar.style.borderColor = '#fca5a5';
+      bar.style.color = '#991b1b';
+    }
+  }
+}
+
 
 // =============================================
 // TAB SWITCHING
@@ -76,7 +151,9 @@ function presetTrack(survey, pan) {
 async function handleTrackSubmit(e) {
   e.preventDefault();
   const survey = document.getElementById('trackSurvey').value.trim();
-  if (!survey) return;
+  const pan = document.getElementById('trackPan')?.value.trim();
+  const query = survey || pan;
+  if (!query) return;
 
   const btn = document.getElementById('trackBtn');
   btn.disabled = true;
@@ -86,13 +163,13 @@ async function handleTrackSubmit(e) {
   document.getElementById('trackResult').style.display = 'none';
 
   try {
-    const res = await fetch(`${LAND_API}/records/${survey}`, {
+    const res = await fetch(`${LAND_API}/records/${encodeURIComponent(query)}`, {
       headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY }
     });
     const data = await res.json();
 
     if (!res.ok) {
-      showError(data.message || data.error || 'Record not found');
+      showError(data.message || data.error || 'Record not found in database');
       btn.disabled = false;
       btn.textContent = 'Fetch Land Record';
       return;
@@ -247,11 +324,33 @@ async function handleApplySubmit() {
   btn.disabled = true;
   btn.innerHTML = '<span class="land-spinner"></span> Submitting...';
 
-  // Simulate a brief processing delay
-  await new Promise(r => setTimeout(r, 1200));
+  const pan = document.getElementById('applyPan').value.trim().toUpperCase();
+  const survey = document.getElementById('applySurvey').value.trim();
+  let refNo = 'LND-' + Date.now().toString().slice(-8);
 
-  // Generate application reference
-  const refNo = 'LND-' + Date.now().toString().slice(-8);
+  try {
+    const res = await fetch(`${LAND_API}/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        surveyNumber: survey,
+        pan: pan,
+        applicantName: document.getElementById('applyName')?.value.trim(),
+        district: document.getElementById('applyDistrict')?.value,
+        taluka: document.getElementById('applyTaluka')?.value,
+        village: document.getElementById('applyVillage')?.value,
+        area: document.getElementById('applyArea')?.value,
+        certificateType: document.getElementById('applyCertType')?.value
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.application_ref) {
+      refNo = data.application_ref;
+    }
+  } catch (err) {
+    console.warn('Backend apply call note:', err.message);
+  }
+
   document.getElementById('applyRefNo').textContent = refNo;
 
   // Hide stepper and show success
@@ -271,6 +370,8 @@ async function handleApplySubmit() {
 
   btn.disabled = false;
   btn.textContent = 'Submit Application';
+
+  loadAllRecords();
 }
 
 // =============================================
@@ -298,19 +399,21 @@ function returnToMaitri() {
 // =============================================
 async function loadAllRecords() {
   const body = document.getElementById('allRecordsBody');
-  const knownSurveys = ['101', '102', '103', '104', '105'];
 
   try {
-    const rows = [];
-    for (const survey of knownSurveys) {
-      const res = await fetch(`${LAND_API}/records/${survey}`, {
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY }
-      });
-      if (res.ok) {
-        const record = await res.json();
+    const res = await fetch(`${LAND_API}/all`);
+    const data = await res.json();
+    const records = data.records || [];
+
+    if (body) {
+      if (records.length === 0) {
+        body.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px;">No records found in database.</td></tr>';
+        return;
+      }
+      body.innerHTML = records.map(record => {
         const badgeClass = record.jamabandi === 'APPROVED' ? 'land-badge-approved' :
                            record.jamabandi === 'PENDING' ? 'land-badge-pending' : 'land-badge-rejected';
-        rows.push(`
+        return `
           <tr style="cursor: pointer;" onclick="presetTrack('${record.gtn}', '${record.malak_pan}'); switchTab('track');">
             <td><strong>${record.gtn}</strong></td>
             <td>${record.malak_name}</td>
@@ -320,12 +423,11 @@ async function loadAllRecords() {
             <td>${record.jamin_prakar}</td>
             <td><span class="land-badge ${badgeClass}">${record.jamabandi}</span></td>
           </tr>
-        `);
-      }
+        `;
+      }).join('');
     }
-    body.innerHTML = rows.join('');
   } catch (err) {
-    body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--land-danger); padding: 32px;">Failed to load records. Is the Land API running?</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--land-danger); padding: 32px;">Failed to load records. Is the Land API running?</td></tr>';
   }
 }
 

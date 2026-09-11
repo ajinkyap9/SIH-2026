@@ -18,13 +18,13 @@ def test_schema_drift_detection(client):
     assert sug["confidence_score"] >= 0.70
 
 
-def test_schema_drift_approval_by_admin(client, admin_headers):
+def test_schema_drift_approval(client, abc_headers):
     payload = {
         "department_code": "ELECTRICITY",
         "source_field": "approved_load",
         "target_canonical_field": "sanctioned_load_kw"
     }
-    response = client.post("/api/schema/approve-drift", json=payload, headers=admin_headers)
+    response = client.post("/api/schema/approve-drift", json=payload, headers=abc_headers)
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "SUCCESS"

@@ -10,7 +10,6 @@ class AuditLogResponse(BaseModel):
     timestamp: datetime.datetime
     transaction_id: Optional[str]
     actor_email: Optional[str]
-    actor_role: Optional[str]
     masked_pan: Optional[str]
     endpoint: str
     action: str

@@ -23,7 +23,15 @@
         
         <!-- Application Form -->
         <div id="applicationForm" class="card">
-            <h2 class="section-title">A. Application Information</h2>
+            <!-- Auto-fill alert bar -->
+            <div id="elecAutoFillBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 16px; margin-bottom:16px; font-size:0.84rem; color:#1e40af;">
+                <span id="elecAutoFillMsg">Fetching your profile from database...</span>
+            </div>
+
+            <h2 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>A. Application Information</span>
+                <button type="button" onclick="fetchElecProfile()" style="font-size:0.75rem; padding:4px 12px; background:#0284c7; color:white; border:none; border-radius:4px; cursor:pointer;">&#8635; Auto-fill from DB</button>
+            </h2>
             <div class="form-grid">
                 <div class="form-group">
                     <label for="appId">MAITRI Application ID</label>
@@ -31,11 +39,15 @@
                 </div>
                 <div class="form-group">
                     <label for="companyName">Applicant / Company Name</label>
-                    <input type="text" id="companyName" class="form-control" readonly>
+                    <input type="text" id="companyName" class="form-control" placeholder="e.g. ABC Industries Pvt Ltd">
+                </div>
+                <div class="form-group">
+                    <label for="pan">Enterprise PAN</label>
+                    <input type="text" id="pan" class="form-control" placeholder="e.g. ABCDE1234F" style="text-transform:uppercase;">
                 </div>
                 <div class="form-group">
                     <label for="projectName">Project Name</label>
-                    <input type="text" id="projectName" class="form-control" readonly>
+                    <input type="text" id="projectName" class="form-control" placeholder="e.g. Industrial Plant Phase 2">
                 </div>
             </div>
 

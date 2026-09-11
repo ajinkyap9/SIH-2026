@@ -14,7 +14,6 @@ class PlatformAuditLog(Base):
     timestamp = Column(DateTime, default=get_utc_now, index=True)
     transaction_id = Column(String(100), index=True, nullable=True)
     actor_email = Column(String(255), nullable=True)
-    actor_role = Column(String(50), nullable=True)
     masked_pan = Column(String(20), nullable=True)
     endpoint = Column(String(255), nullable=False)
     action = Column(String(100), nullable=False)  # VERIFY_PLANT, SCHEMA_MAPPING_UPDATE, CONSENT_GRANTED

@@ -84,18 +84,18 @@ export const db = {
   landRecords: {
     "101": {
       gtn: "101",
-      malak_name: "Ramesh Dattatray Patil",
-      malak_pan: "RMPTL1234F",
+      malak_name: "ABC Industries Pvt Ltd",
+      malak_pan: "ABCDE1234F",
       malak_aadhaar: "998877665544",
-      kshetra: "2.5",
+      kshetra: "8.0",
       kshetra_unit: "HA",
       jamabandi: "APPROVED",
-      jamin_prakar: "AGRICULTURAL",
+      jamin_prakar: "INDUSTRIAL",
       bandhak: false,
       court_case: false,
       jilha: "Pune",
       taluka: "Haveli",
-      gaw: "Kothrud",
+      gaw: "Wagholi",
       last_updated: "2026-08-10T10:00:00Z"
     },
     "102": {

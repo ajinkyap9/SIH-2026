@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // POST /api/auth/verify-aadhaar - Instant inline check during registration
-router.post('/verify-aadhaar', (req, res) => {
+router.post('/verify-aadhaar', async (req, res) => {
   const { aadhaar } = req.body;
   const clean = (aadhaar || '').replace(/[\s-]/g, '');
 
@@ -20,7 +20,7 @@ router.post('/verify-aadhaar', (req, res) => {
     return res.json({ valid: false, message: 'Aadhaar must be exactly 12 numeric digits.' });
   }
 
-  const existing = getCitizenByAadhaar(clean);
+  const existing = await getCitizenByAadhaar(clean);
   if (existing) {
     return res.json({ valid: false, message: 'This Aadhaar is already registered in the system.' });
   }
@@ -29,7 +29,7 @@ router.post('/verify-aadhaar', (req, res) => {
 });
 
 // POST /api/auth/verify-pan - Instant inline check during registration
-router.post('/verify-pan', (req, res) => {
+router.post('/verify-pan', async (req, res) => {
   const { pan } = req.body;
   const clean = (pan || '').replace(/\s/g, '').toUpperCase();
 
@@ -37,7 +37,7 @@ router.post('/verify-pan', (req, res) => {
     return res.json({ valid: false, message: 'Invalid PAN format. Format must be 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F).' });
   }
 
-  const existing = getCitizenByPan(clean);
+  const existing = await getCitizenByPan(clean);
   if (existing) {
     return res.json({ valid: false, message: 'This PAN is already registered in the system.' });
   }
@@ -46,7 +46,7 @@ router.post('/verify-pan', (req, res) => {
 });
 
 // POST /api/auth/register - Register new citizen with immediate Aadhaar & compulsory PAN verification
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { firstName, lastName, mobile, email, aadhaar, pan } = req.body;
 
   if (!firstName || !lastName || !mobile || !email || !aadhaar || !pan) {
@@ -78,22 +78,22 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid email address.' });
   }
 
-  // Check uniqueness in SQLite
-  if (getCitizenByAadhaar(cleanAadhaar)) {
+  // Check uniqueness in database
+  if (await getCitizenByAadhaar(cleanAadhaar)) {
     return res.status(409).json({ success: false, message: 'Aadhaar number already registered. Please login instead.' });
   }
-  if (getCitizenByPan(cleanPan)) {
+  if (await getCitizenByPan(cleanPan)) {
     return res.status(409).json({ success: false, message: 'PAN already registered. Please login instead.' });
   }
-  if (getCitizenByMobile(cleanMobile)) {
+  if (await getCitizenByMobile(cleanMobile)) {
     return res.status(409).json({ success: false, message: 'Mobile number already registered.' });
   }
-  if (getCitizenByEmail(cleanEmail)) {
+  if (await getCitizenByEmail(cleanEmail)) {
     return res.status(409).json({ success: false, message: 'Email address already registered.' });
   }
 
   try {
-    const citizen = createCitizen({
+    const citizen = await createCitizen({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       mobile: cleanMobile,
@@ -104,10 +104,10 @@ router.post('/register', (req, res) => {
 
     res.json({
       success: true,
-      message: 'Citizen registered successfully! Aadhaar and PAN verified.',
+      message: 'Citizen registered successfully! Aadhaar and PAN verified in database.',
       citizen: {
         id: citizen.id,
-        name: `${citizen.first_name} ${citizen.last_name}`
+        name: `${citizen.first_name || firstName} ${citizen.last_name || lastName}`
       }
     });
   } catch (err) {
@@ -117,7 +117,7 @@ router.post('/register', (req, res) => {
 });
 
 // POST /api/auth/login - Request OTP using Aadhaar or PAN
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { identifierType, identifierValue } = req.body;
 
   if (!identifierValue) {
@@ -128,21 +128,21 @@ router.post('/login', (req, res) => {
 
   let citizen = null;
   if (identifierType === 'aadhaar') {
-    citizen = getCitizenByAadhaar(clean);
+    citizen = await getCitizenByAadhaar(clean);
   } else {
-    citizen = getCitizenByPan(clean);
+    citizen = await getCitizenByPan(clean);
   }
 
   if (!citizen) {
     return res.status(404).json({
       success: false,
-      message: `No citizen account found for this ${identifierType.toUpperCase()}. Please register as a new user.`
+      message: `No citizen/enterprise account found for this ${identifierType.toUpperCase()}. Please register as a new user.`
     });
   }
 
   const txnId = `TXN-${Date.now()}`;
   const demoOtp = '654321';
-  const rawMobile = String(citizen.mobile);
+  const rawMobile = String(citizen.mobile || '9876543210');
   const maskedPhone = rawMobile.slice(0, 5) + '*****' + rawMobile.slice(-1);
 
   activeOtps.set(txnId, {
@@ -193,11 +193,14 @@ router.post('/verify-otp', (req, res) => {
     token,
     citizen: {
       id: c.id,
-      firstName: c.first_name,
-      lastName: c.last_name,
-      fullName: `${c.first_name} ${c.last_name}`,
-      email: c.email,
-      pan: c.pan
+      firstName: c.first_name || '',
+      lastName: c.last_name || '',
+      fullName: c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : (c.organization_name || 'Citizen'),
+      email: c.email || '',
+      pan: c.pan || c.organization_pan || '',
+      mobile: c.mobile || '',
+      organizationName: c.organization_name || (c.first_name ? `${c.first_name} ${c.last_name}` : ''),
+      organizationPan: c.organization_pan || c.pan || ''
     }
   });
 });

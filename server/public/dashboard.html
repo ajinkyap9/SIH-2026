@@ -1322,6 +1322,10 @@
         }
       });
 
+      if (secName === 'status') {
+        loadApplicationsDropdown().then(() => fetchSelectedAppStatus());
+      }
+
       // Update top tabs active state if matching
       document.querySelectorAll('.top-tab').forEach(t => {
         const onclickAttr = t.getAttribute('onclick') || '';
@@ -1862,7 +1866,7 @@
           resultBox.innerHTML = `
             <strong>⚠️ Land Department Flag: ${dep.status}</strong>
             <div>${dep.reason || 'Land record requirements not satisfied.'}</div>
-            <div style="font-size: 0.72rem; color: #7f1d1d; margin-top: 4px;">Tip: For demo Survey 101, use owner PAN <code>RMPTL1234F</code> (Ramesh Patil).</div>
+            <div style="font-size: 0.72rem; color: #7f1d1d; margin-top: 4px;">Tip: For demo Survey 101, use owner PAN <code>ABCDE1234F</code> (ABC Industries Pvt Ltd).</div>
           `;
           return;
         }
@@ -1913,7 +1917,7 @@
       }
     }
 
-    // Apply 2: Electricity Department
+    // Apply 2: Electricity Department — calls real Electricity API via interop proxy
     async function submitElecApp() {
       const resultBox = document.getElementById('elecCardResult');
 
@@ -1933,14 +1937,43 @@
 
       const btn = document.getElementById('btnApplyElecAction');
       btn.disabled = true;
-      btn.innerText = 'Checking Power Sanction...';
+      btn.innerText = 'Calling Electricity Department API...';
 
-      setTimeout(() => {
+      // Read electricity app number from the form field
+      const elecApplNo = (document.getElementById('appElecApplNo')?.value || 'ELEC-2026-00101').trim();
+      const elecPan = (document.getElementById('appElecPan')?.value || (citizen?.pan || 'ABCDE1234F')).trim().toUpperCase();
+
+      try {
+        const res = await fetch('/api/interop/verify-electricity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicationNumber: elecApplNo, pan: elecPan })
+        });
+        const data = await res.json();
+
+        if (!data.success || (data.dependency_status !== 'RESOLVED' && data.dependency_status !== 'IN_PROGRESS')) {
+          btn.disabled = false;
+          btn.innerText = 'Verify Power Sanction ➔';
+          resultBox.style.display = 'block';
+          resultBox.style.background = '#fef2f2';
+          resultBox.style.border = '1px solid #fca5a5';
+          resultBox.style.color = '#991b1b';
+          const statusMsg = data.dependency_status === 'FAILED' ? '⚠️ PAN mismatch with electricity department records.' :
+                            data.dependency_status === 'WAITING' ? '⏳ Application under scrutiny (status: ' + (data.application?.appl_stat || 'PENDING') + ').' :
+                            data.dependency_status === 'BLOCKED' ? '🚫 Application rejected by electricity department.' :
+                            data.message || 'Electricity verification could not be completed.';
+          resultBox.innerHTML = `
+            <strong>Electricity Department Status: ${data.dependency_status || 'UNAVAILABLE'}</strong>
+            <div>${statusMsg}</div>
+            <div style="font-size: 0.72rem; margin-top: 4px;">Demo: Use App# <code>ELEC-2026-00101</code> with PAN <code>ABCDE1234F</code> for APPROVED status.</div>
+          `;
+          return;
+        }
+
         flowchartState.elec = 'APPROVED';
 
         // Update Electricity flowchart node
-        const fcElec = document.getElementById('fcNodeElec');
-        fcElec.className = 'fc-node wave-2 approved-stage';
+        document.getElementById('fcNodeElec').className = 'fc-node wave-2 approved-stage';
         document.getElementById('fcElecStatusBadge').className = 'status-tag status-approved';
         document.getElementById('fcElecStatusBadge').innerText = 'SANCTIONED ✓';
 
@@ -1950,20 +1983,30 @@
         btn.disabled = true;
         btn.innerText = '✓ Power Sanction Verified';
 
+        const app = data.application || {};
         resultBox.style.display = 'block';
         resultBox.style.background = '#f0fdf4';
         resultBox.style.border = '1px solid #86efac';
         resultBox.style.color = '#166534';
         resultBox.innerHTML = `
-          <strong>✓ MSEDCL Load Sanction Approved!</strong>
-          <div>Sanction Order #ELEC-MH-2026-991 generated. Dedicated feeder bay earmarked.</div>
+          <strong>✓ MSEDCL Load Sanction Verified!</strong>
+          <div>App: <strong>${app.appl_no || elecApplNo}</strong> | Status: <strong>${app.appl_stat || 'APPROVED'}</strong> | Load: <strong>${app.load_sanc || 'N/A'} kVA</strong></div>
+          <div style="font-size:0.72rem; color:#15803d; margin-top:4px;">PAN Matched ✓ | Meter: ${app.meter_stat || 'N/A'} | Connection: ${app.conn_stat || 'N/A'}</div>
         `;
 
         checkUnifiedCertificateReady();
-      }, 700);
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Verify Power Sanction ➔';
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#fef2f2';
+        resultBox.style.border = '1px solid #fca5a5';
+        resultBox.style.color = '#991b1b';
+        resultBox.innerHTML = '<strong>⚠️ Electricity API Unreachable</strong><div>Ensure the Electricity service is running on port 8000.</div>';
+      }
     }
 
-    // Apply 3: Pollution Department
+    // Apply 3: Pollution Department — calls real Pollution API via interop proxy
     async function submitPollApp() {
       const resultBox = document.getElementById('pollCardResult');
 
@@ -1983,14 +2026,47 @@
 
       const btn = document.getElementById('btnApplyPollAction');
       btn.disabled = true;
-      btn.innerText = 'Evaluating Environmental Siting...';
+      btn.innerText = 'Calling MPCB Pollution API...';
 
-      setTimeout(() => {
+      // Read pollution application number from the form field
+      const pollApplNo = (document.getElementById('appPollApplNo')?.value || 'MPCB-8821').trim();
+      const pollPan = (document.getElementById('appPollPan')?.value || (citizen?.pan || 'ABCDE1234F')).trim().toUpperCase();
+      const pollIndType = document.getElementById('appPollCat')?.value?.split(' ')[0] || 'Chemical';
+
+      try {
+        const res = await fetch('/api/interop/verify-pollution', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicationNo: pollApplNo, pan: pollPan, industryType: pollIndType })
+        });
+        const data = await res.json();
+
+        const depStatus = data.dependency_status;
+
+        if (!data.success || (depStatus !== 'RESOLVED' && depStatus !== 'IN_PROGRESS')) {
+          btn.disabled = false;
+          btn.innerText = 'Verify Pollution Consent (CTE) ➔';
+          resultBox.style.display = 'block';
+          resultBox.style.background = '#fef2f2';
+          resultBox.style.border = '1px solid #fca5a5';
+          resultBox.style.color = '#991b1b';
+          const canon = data.canonical || {};
+          const statusMsg = depStatus === 'FAILED' ? '⚠️ PAN mismatch with MPCB department records.' :
+                            depStatus === 'WAITING' ? `⏳ Consent application pending (status: ${canon.consent_status || 'PENDING'}).` :
+                            depStatus === 'BLOCKED' ? '🚫 Consent rejected by MPCB.' :
+                            data.message || 'Pollution verification could not be completed.';
+          resultBox.innerHTML = `
+            <strong>MPCB Status: ${depStatus || 'UNAVAILABLE'}</strong>
+            <div>${statusMsg}</div>
+            <div style="font-size:0.72rem; margin-top:4px;">Demo: Use App# <code>MPCB-8821</code> with PAN <code>ABCDE1234F</code> for APPROVED consent.</div>
+          `;
+          return;
+        }
+
         flowchartState.poll = 'APPROVED';
 
         // Update Pollution flowchart node
-        const fcPoll = document.getElementById('fcNodePoll');
-        fcPoll.className = 'fc-node wave-2 approved-stage';
+        document.getElementById('fcNodePoll').className = 'fc-node wave-2 approved-stage';
         document.getElementById('fcPollStatusBadge').className = 'status-tag status-approved';
         document.getElementById('fcPollStatusBadge').innerText = 'CTE ISSUED ✓';
 
@@ -2000,17 +2076,27 @@
         btn.disabled = true;
         btn.innerText = '✓ MPCB CTE Verified';
 
+        const canon = data.canonical || {};
         resultBox.style.display = 'block';
         resultBox.style.background = '#f0fdf4';
         resultBox.style.border = '1px solid #86efac';
         resultBox.style.color = '#166534';
         resultBox.innerHTML = `
-          <strong>✓ Consent to Establish (CTE) Issued!</strong>
-          <div>MPCB Consent Order #CTE-2026-MH-4412 issued under Water (1974) & Air (1981) Acts.</div>
+          <strong>✓ Consent to Establish (CTE) Verified from MPCB!</strong>
+          <div>App: <strong>${data.application_no || pollApplNo}</strong> | Consent: <strong>${canon.consent_status || 'APPROVED'}</strong> | Category: <strong>${canon.emission_category || 'RED'}</strong></div>
+          <div style="font-size:0.72rem; color:#15803d; margin-top:4px;">Compliance: ${canon.compliance_status || 'COMPLIANT'} | Valid Until: ${canon.valid_until || 'N/A'}</div>
         `;
 
         checkUnifiedCertificateReady();
-      }, 700);
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = 'Verify Pollution Consent (CTE) ➔';
+        resultBox.style.display = 'block';
+        resultBox.style.background = '#fef2f2';
+        resultBox.style.border = '1px solid #fca5a5';
+        resultBox.style.color = '#991b1b';
+        resultBox.innerHTML = '<strong>⚠️ Pollution API Unreachable</strong><div>Ensure the Pollution service is running on port 4002.</div>';
+      }
     }
 
     function checkUnifiedCertificateReady() {
@@ -2037,9 +2123,13 @@
 
     function openKrishnaLandService() {
       const currentUrl = window.location.origin + window.location.pathname;
-      const surveyVal = document.getElementById('appLandSurvey')?.value || '101';
-      const panVal = document.getElementById('appLandPan')?.value || (citizen?.pan || 'ABCDE1234F');
-      const landPortalUrl = `http://localhost:4000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(currentUrl)}&survey=${encodeURIComponent(surveyVal)}&pan=${encodeURIComponent(panVal)}`;
+      const surveyVal = document.getElementById('appLandSurvey')?.value || '';
+      // Use logged-in user's PAN — never hardcode a fallback
+      const panVal = document.getElementById('appLandPan')?.value || citizen?.pan || '';
+      const applicantName = citizen?.organizationName || citizen?.fullName || '';
+      const applicantEmail = citizen?.email || '';
+      const applicantMobile = citizen?.mobile || '';
+      const landPortalUrl = `http://localhost:4000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(currentUrl)}&survey=${encodeURIComponent(surveyVal)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}`;
       window.open(landPortalUrl, '_blank');
     }
 
@@ -2048,8 +2138,12 @@
       const urlParams = new URLSearchParams(window.location.search);
       const landRef = urlParams.get('land_ref') || `LAND-${Date.now().toString().slice(-4)}`;
       const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=${landRef}`;
-      const applicantName = citizen?.fullName || 'Demo Enterprise';
-      const electricityPortalUrl = `http://localhost:8000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&req_load=300`;
+      // Use logged-in user's real data — no hardcoded fallbacks
+      const panVal = citizen?.pan || '';
+      const applicantName = citizen?.organizationName || citizen?.fullName || '';
+      const applicantEmail = citizen?.email || '';
+      const applicantMobile = citizen?.mobile || '';
+      const electricityPortalUrl = `http://localhost:8000/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&req_load=300`;
       window.open(electricityPortalUrl, '_blank');
     }
 
@@ -2059,8 +2153,12 @@
       const landRef = urlParams.get('land_ref') || 'LAND-PREV';
       const elecRef = urlParams.get('electricity_ref') || 'ELEC-PREV';
       const callbackUrl = `${currentUrl}?land_status=COMPLETED&land_ref=${landRef}&electricity_status=COMPLETED&electricity_ref=${elecRef}&pollution_status=COMPLETED`;
-      const applicantName = citizen?.fullName || 'Demo Enterprise';
-      const pollutionPortalUrl = `http://localhost:4002/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&applicant=${encodeURIComponent(applicantName)}&project=Industrial%20Unit&industry=Manufacturing`;
+      // Use logged-in user's real data — no hardcoded fallbacks
+      const panVal = citizen?.pan || '';
+      const applicantName = citizen?.organizationName || citizen?.fullName || '';
+      const applicantEmail = citizen?.email || '';
+      const applicantMobile = citizen?.mobile || '';
+      const pollutionPortalUrl = `http://localhost:4002/?app_id=${KRISHNA_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&industry=Manufacturing`;
       window.open(pollutionPortalUrl, '_blank');
     }
 
@@ -2214,6 +2312,31 @@
       }
     };
 
+    // Load live applications into dropdown from PostgreSQL
+    async function loadApplicationsDropdown() {
+      const selector = document.getElementById('trackAppSelector');
+      if (!selector) return;
+      try {
+        const res = await fetch('/api/portal/applications-list');
+        const data = await res.json();
+        if (data.success && data.applications && data.applications.length > 0) {
+          const currentVal = selector.value;
+          selector.innerHTML = '<option value="">— Select an application from your account / database —</option>';
+          data.applications.forEach(app => {
+            const opt = document.createElement('option');
+            opt.value = app.id;
+            opt.textContent = `${app.label || app.id} [${app.status || 'ACTIVE'}]`;
+            selector.appendChild(opt);
+          });
+          if (currentVal && Array.from(selector.options).some(o => o.value === currentVal)) {
+            selector.value = currentVal;
+          } else {
+            selector.selectedIndex = 1;
+          }
+        }
+      } catch (_) {}
+    }
+
     function onSelectTrackApplication(appId) {
       if (!appId) return;
       fetchSelectedAppStatus(appId);
@@ -2221,40 +2344,74 @@
 
     async function fetchSelectedAppStatus(appId) {
       const selectedId = appId || document.getElementById('trackAppSelector')?.value || 'APP-MH-2026-101';
-      const appData = registeredApplications[selectedId];
-      if (!appData) return;
+      if (!selectedId) return;
 
-      const titleEl = document.getElementById('resAppTitle');
-      const idEl = document.getElementById('resAppId');
-      const deptEl = document.getElementById('resDepartment');
-      const stageEl = document.getElementById('resCurrentStage');
-      const updatedEl = document.getElementById('resLastUpdated');
+      let a = null;
+      try {
+        const res = await fetch('/api/portal/status-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ appId: selectedId })
+        });
+        const data = await res.json();
+        if (data.success && data.found && data.application) {
+          a = data.application;
+        }
+      } catch (_) {}
+
+      // Fallback
+      if (!a && registeredApplications[selectedId]) {
+        const reg = registeredApplications[selectedId];
+        a = {
+          title: reg.title,
+          appId: reg.id,
+          department: reg.department,
+          currentStage: reg.currentStage,
+          status: reg.badge,
+          badgeClass: reg.badgeClass,
+          updatedAt: reg.lastUpdated,
+          nextAction: reg.nextAction,
+          remarks: 'Cross-departmental interoperability verification validated.',
+          step: reg.step
+        };
+      }
+
+      if (!a) return;
+
+      const titleEl      = document.getElementById('resAppTitle');
+      const idEl         = document.getElementById('resAppId');
+      const deptEl       = document.getElementById('resDepartment');
+      const stageEl      = document.getElementById('resCurrentStage');
+      const updatedEl    = document.getElementById('resLastUpdated');
       const nextActionEl = document.getElementById('resNextAction');
-      const badgeEl = document.getElementById('resStatusBadge');
+      const remarksEl    = document.getElementById('resRemarks');
+      const badgeEl      = document.getElementById('resStatusBadge');
 
-      if (titleEl) titleEl.innerText = appData.title;
-      if (idEl) idEl.innerText = appData.id;
-      if (deptEl) deptEl.innerText = appData.department;
-      if (stageEl) stageEl.innerText = appData.currentStage;
-      if (updatedEl) updatedEl.innerText = appData.lastUpdated;
-      if (nextActionEl) nextActionEl.innerText = appData.nextAction;
+      if (titleEl)      titleEl.innerText      = a.title || a.citizenName || 'Application';
+      if (idEl)         idEl.innerText         = a.appId || selectedId;
+      if (deptEl)       deptEl.innerText       = a.department || 'Government Department';
+      if (stageEl)      stageEl.innerText      = a.currentStage || a.status;
+      if (updatedEl)    updatedEl.innerText    = a.updatedAt ? new Date(a.updatedAt).toLocaleString('en-IN') : 'Live';
+      if (nextActionEl) nextActionEl.innerText = a.nextAction || 'Under review';
+      if (remarksEl)    remarksEl.innerText    = a.remarks || 'Prerequisites validated in database.';
 
       if (badgeEl) {
-        badgeEl.className = appData.badgeClass;
-        badgeEl.innerText = appData.badge;
+        badgeEl.className = a.badgeClass || ((a.status === 'APPROVED' || a.status === 'SANCTIONED') ? 'status-tag status-approved' : 'status-tag status-pending');
+        badgeEl.innerText = a.status || 'IN_PROGRESS';
       }
 
       // Update milestone stepper
+      const stepNumber = a.step || (a.status === 'APPROVED' ? 4 : 3);
       for (let i = 1; i <= 4; i++) {
         const stepEl = document.getElementById(`trackStep${i}`);
         if (!stepEl) continue;
         const circle = stepEl.querySelector('.stepper-circle');
-        if (i < appData.step) {
+        if (i < stepNumber) {
           stepEl.className = 'stepper-step completed';
           if (circle) circle.innerText = '✓';
-        } else if (i === appData.step) {
+        } else if (i === stepNumber) {
           stepEl.className = 'stepper-step active';
-          if (circle) circle.innerText = (appData.step === 4) ? '✓' : '⏳';
+          if (circle) circle.innerText = (stepNumber === 4) ? '✓' : '⏳';
         } else {
           stepEl.className = 'stepper-step';
           if (circle) circle.innerText = '○';

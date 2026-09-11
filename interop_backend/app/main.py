@@ -33,7 +33,9 @@ def seed_database_defaults(db):
                 hashed_password=hash_password("SecretPass123"),
                 organization_name="ABC Industries Pvt Ltd",
                 organization_pan="ABCDE1234F",
-                role="APPLICANT",
+                aadhaar_number="111111111101",
+                aadhaar_masked="XXXX-XXXX-1101",
+                is_aadhaar_verified=True,
                 is_active=True
             ),
             User(
@@ -41,23 +43,9 @@ def seed_database_defaults(db):
                 hashed_password=hash_password("SecretPass123"),
                 organization_name="XYZ Manufacturing Pvt Ltd",
                 organization_pan="FGHIJ5678K",
-                role="APPLICANT",
-                is_active=True
-            ),
-            User(
-                email="admin@interop.gov.in",
-                hashed_password=hash_password("AdminSecret888"),
-                organization_name="Government Interoperability Directorate",
-                organization_pan="GOVAA0000A",
-                role="GOVT_ADMIN",
-                is_active=True
-            ),
-            User(
-                email="auditor@sih.gov.in",
-                hashed_password=hash_password("AuditorPass999"),
-                organization_name="National Compliance & Audit Bureau",
-                organization_pan="GOVAA0000B",
-                role="AUDITOR",
+                aadhaar_number="111111111102",
+                aadhaar_masked="XXXX-XXXX-1102",
+                is_aadhaar_verified=True,
                 is_active=True
             ),
         ]

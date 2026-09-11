@@ -172,8 +172,7 @@ class WorkflowEngine:
         elapsed_total_ms = (datetime.datetime.now(datetime.timezone.utc) - start_time).total_seconds() * 1000
         db.add(PlatformAuditLog(
             transaction_id=txn_id,
-            actor_email=user.email,
-            actor_role=user.role,
+            actor_email=user.email or user.organization_pan,
             masked_pan=mask_pan(request.organization_pan),
             endpoint="/api/projects/verify-plant",
             action="VERIFY_PLANT_CLEARANCE",
