@@ -39,6 +39,21 @@ def get_current_user(
     return user
 
 
+def require_role(*allowed_roles: str):
+    """Dependency factory: only lets through users whose role is in allowed_roles."""
+    def _check_role(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "status": "FORBIDDEN",
+                    "message": f"Role '{current_user.role}' is not permitted to perform this action. Required role(s): {', '.join(allowed_roles)}"
+                }
+            )
+        return current_user
+    return _check_role
+
+
 def check_consent_for_departments(
     db: Session,
     user: User,

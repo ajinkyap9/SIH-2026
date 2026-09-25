@@ -26,6 +26,31 @@ class PolicyEngine:
         return len(mismatches) == 0, mismatches
 
     @staticmethod
+    def is_land_approved(land_canon: CanonicalProjectModel | None) -> bool:
+        """Deterministic land-department approval check, reusable as a dependency gate."""
+        if not land_canon or not land_canon.land_details:
+            return False
+        details = land_canon.land_details
+        return (
+            details.mutation_status == "APPROVED"
+            and details.ownership_status == "VALID"
+            and not details.encumbrance
+            and not details.court_case
+        )
+
+    @staticmethod
+    def is_electricity_approved(elec_canon: CanonicalProjectModel | None) -> bool:
+        """Deterministic electricity-department approval check, reusable as a dependency gate."""
+        if not elec_canon or not elec_canon.electricity_details:
+            return False
+        details = elec_canon.electricity_details
+        return (
+            details.application_status == "APPROVED"
+            and details.connection_status in ["READY_FOR_ENERGIZATION", "ENERGIZED"]
+            and not details.outstanding_dues
+        )
+
+    @staticmethod
     def evaluate_overall_clearance(
         canonical: CanonicalProjectModel,
         pan_verified: bool,
@@ -44,13 +69,8 @@ class PolicyEngine:
 
         details = {}
         # 1. Land Check
-        land_ok = False
+        land_ok = PolicyEngine.is_land_approved(canonical)
         if canonical.land_details:
-            mut_ok = canonical.land_details.mutation_status == "APPROVED"
-            own_ok = canonical.land_details.ownership_status == "VALID"
-            no_enc = not canonical.land_details.encumbrance
-            no_court = not canonical.land_details.court_case
-            land_ok = mut_ok and own_ok and no_enc and no_court
             details["land"] = {
                 "passed": land_ok,
                 "mutation": canonical.land_details.mutation_status,
@@ -62,12 +82,8 @@ class PolicyEngine:
             details["land"] = {"passed": False, "reason": "No land records provided"}
 
         # 2. Electricity Check
-        elec_ok = False
+        elec_ok = PolicyEngine.is_electricity_approved(canonical)
         if canonical.electricity_details:
-            app_ok = canonical.electricity_details.application_status == "APPROVED"
-            conn_ok = canonical.electricity_details.connection_status in ["READY_FOR_ENERGIZATION", "ENERGIZED"]
-            no_dues = not canonical.electricity_details.outstanding_dues
-            elec_ok = app_ok and conn_ok and no_dues
             details["electricity"] = {
                 "passed": elec_ok,
                 "application_status": canonical.electricity_details.application_status,

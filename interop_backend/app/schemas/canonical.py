@@ -8,7 +8,7 @@ class LandDetails(BaseModel):
     area_unit: Optional[str] = None
     land_type: Optional[str] = None
     mutation_status: Optional[str] = None  # APPROVED, PENDING, REJECTED
-    ownership_status: Optional[str] = None  # VALID, INVALID
+    ownership_status: Optional[str] = None  # VALID, INVALID, UNKNOWN
     encumbrance: Optional[bool] = None
     court_case: Optional[bool] = None
 

@@ -48,6 +48,17 @@ def seed_database_defaults(db):
                 is_aadhaar_verified=True,
                 is_active=True
             ),
+            User(
+                email="admin@interop.gov.in",
+                hashed_password=hash_password("AdminPass123"),
+                organization_name="Interoperability Platform Administration",
+                organization_pan="ADMIN0000A",
+                aadhaar_number="111111111103",
+                aadhaar_masked="XXXX-XXXX-1103",
+                is_aadhaar_verified=True,
+                is_active=True,
+                role=User.ROLE_ADMIN
+            ),
         ]
         db.add_all(demo_users)
         db.commit()

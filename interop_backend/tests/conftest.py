@@ -228,3 +228,17 @@ def abc_token():
 @pytest.fixture
 def abc_headers(abc_token):
     return {"Authorization": f"Bearer {abc_token}"}
+
+
+@pytest.fixture
+def admin_token():
+    return create_access_token({
+        "sub": "admin@interop.gov.in",
+        "pan": "ADMIN0000A",
+        "org": "Interoperability Platform Administration"
+    })
+
+
+@pytest.fixture
+def admin_headers(admin_token):
+    return {"Authorization": f"Bearer {admin_token}"}

@@ -19,6 +19,15 @@ from app.adapters.pollution_adapter import PollutionAdapter
 from app.engine.mapper import RuleBasedMapper
 from app.engine.policy_engine import PolicyEngine
 from app.utils.masking import mask_pan
+from app.intake.dependency_resolver import resolve_execution_order
+
+# Services dispatched by this workflow, named per the shared dependency
+# resolver (app/intake/dependency_resolver.py) so execution order comes from
+# that generic resolver instead of being hardcoded here.
+PLANT_VERIFICATION_SERVICES = ["LAND_SERVICE", "ELECTRICITY_SERVICE", "POLLUTION_SERVICE"]
+
+# Departments that must be approved before Pollution is dispatched.
+POLLUTION_DEPENDENCIES = ["LAND", "ELECTRICITY"]
 
 
 def generate_transaction_id() -> str:
@@ -62,12 +71,18 @@ class WorkflowEngine:
         db.add(txn_record)
         db.commit()
 
-        # 2. Dispatch Parallel Calls to all 3 Department APIs
+        # 2. Resolve dispatch order via the shared dependency resolver (§8) instead
+        # of a hardcoded single-department check. Pollution depends on Land and
+        # Electricity, so it lands in a later wave than both of them.
+        execution_plan = resolve_execution_order(PLANT_VERIFICATION_SERVICES)
+        first_wave_services = {step.service for step in execution_plan if step.wave == 1}
+
+        # 2a. Dispatch the first wave (Land + Electricity have no prerequisites).
         land_task = self.land_adapter.verify_land(request.land_survey_number, request.organization_pan)
         elec_task = self.elec_adapter.verify_electricity(request.electricity_application_number, request.organization_pan)
-        poll_task = self.poll_adapter.verify_pollution(request.pollution_application_number, request.organization_pan, request.industry_type)
+        assert {"LAND_SERVICE", "ELECTRICITY_SERVICE"} <= first_wave_services
 
-        land_res, elec_res, poll_res = await asyncio.gather(land_task, elec_task, poll_task, return_exceptions=False)
+        land_res, elec_res = await asyncio.gather(land_task, elec_task, return_exceptions=False)
 
         # 3. Process Land Result
         land_canon = None
@@ -75,8 +90,11 @@ class WorkflowEngine:
         land_summary = "Land check pending"
         if land_res["success"] and land_res["data"]:
             raw = land_res["data"]
-            land_canon = RuleBasedMapper.transform_land(raw, request.organization_pan)
-            land_pan_match = (land_canon.land_details.ownership_status == "VALID") if land_canon.land_details else False
+            land_canon = RuleBasedMapper.transform_land(raw, request.organization_pan, db=db)
+            normalized_request_pan = request.organization_pan.strip().upper()
+            land_pan_match = (
+                land_canon.organization_pan.strip().upper() == normalized_request_pan
+            ) if land_canon and land_canon.organization_pan else False
             land_summary = f"Survey {request.land_survey_number}: Mutation {land_canon.land_details.mutation_status if land_canon.land_details else 'UNKNOWN'}"
         else:
             land_summary = f"Land call failed: {land_res.get('error')}"
@@ -98,7 +116,7 @@ class WorkflowEngine:
         elec_summary = "Electricity check pending"
         if elec_res["success"] and elec_res["data"]:
             raw = elec_res["data"]
-            elec_canon = RuleBasedMapper.transform_electricity(raw, request.organization_pan)
+            elec_canon = RuleBasedMapper.transform_electricity(raw, request.organization_pan, db=db)
             elec_pan_match = raw.get("pan_match", True)
             elec_summary = f"App {request.electricity_application_number}: Status {elec_canon.electricity_details.application_status if elec_canon.electricity_details else 'UNKNOWN'}, Dues: {elec_canon.electricity_details.outstanding_dues if elec_canon.electricity_details else 'UNKNOWN'}"
         else:
@@ -115,13 +133,37 @@ class WorkflowEngine:
             error_message=elec_res.get("error")
         ))
 
+        # 4a. Gate the second wave: Pollution only dispatches once ALL of its
+        # prerequisite departments are fully approved (MPCB's Consent to
+        # Establish requires a VERIFIED Land Ownership Certificate, not merely
+        # a submitted land record), not just Land.
+        dependency_satisfied = {
+            "LAND": PolicyEngine.is_land_approved(land_canon),
+            "ELECTRICITY": PolicyEngine.is_electricity_approved(elec_canon),
+        }
+        unmet_dependencies = [dep for dep in POLLUTION_DEPENDENCIES if not dependency_satisfied.get(dep, False)]
+        pollution_dispatched = not unmet_dependencies
+
+        if pollution_dispatched:
+            poll_res = await self.poll_adapter.verify_pollution(
+                request.pollution_application_number, request.organization_pan, request.industry_type
+            )
+        else:
+            poll_res = {
+                "success": False,
+                "data": None,
+                "status_code": None,
+                "latency_ms": 0.0,
+                "error": f"Pollution verification blocked: unmet prerequisite department(s): {', '.join(unmet_dependencies)}",
+            }
+
         # 5. Process Pollution Result
         poll_canon = None
         poll_pan_match = False
         poll_summary = "Pollution check pending"
         if poll_res["success"] and poll_res["data"]:
             raw = poll_res["data"]
-            poll_canon = RuleBasedMapper.transform_pollution(raw, request.organization_pan)
+            poll_canon = RuleBasedMapper.transform_pollution(raw, request.organization_pan, db=db)
             checks = raw.get("checks", {})
             poll_pan_match = checks.get("pan_match", True) if isinstance(checks, dict) else True
             poll_summary = f"Consent {request.pollution_application_number}: {poll_canon.pollution_details.consent_status if poll_canon.pollution_details else 'UNKNOWN'}, Compliance: {poll_canon.pollution_details.compliance_status if poll_canon.pollution_details else 'UNKNOWN'}"
@@ -155,9 +197,14 @@ class WorkflowEngine:
             poll_pan=poll_canon.organization_pan if poll_canon else None,
         )
 
+        # Pollution hasn't been contacted when it's blocked on unmet prerequisites,
+        # so its pan_match (which defaults to False) must not count against
+        # identity verification here -- only departments actually queried do.
+        identity_pan_match = land_pan_match and elec_pan_match and (poll_pan_match if pollution_dispatched else True)
+
         overall_status, next_action, _ = PolicyEngine.evaluate_overall_clearance(
             canonical=unified_canonical,
-            pan_verified=pan_verified and land_pan_match and elec_pan_match and poll_pan_match,
+            pan_verified=pan_verified and identity_pan_match,
         )
 
         unified_canonical.status = overall_status
@@ -222,7 +269,7 @@ class WorkflowEngine:
             organization_pan=request.organization_pan,
             organization_name=user.organization_name,
             overall_clearance_status=overall_status,
-            pan_identity_verified=pan_verified and land_pan_match and elec_pan_match and poll_pan_match,
+            pan_identity_verified=pan_verified and identity_pan_match,
             department_checks=checks_list,
             canonical_project_state=unified_canonical,
             recommended_next_action=next_action,

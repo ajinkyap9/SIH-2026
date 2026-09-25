@@ -3,26 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Samanvay</title>
+  <title data-i18n="login.pageTitle">Log in — Samanvay</title>
   <link rel="stylesheet" href="/css/gov-style.css">
+  <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
+  <script src="/js/i18n-strings.js" defer data-ui-added></script>
+  <script src="/js/i18n.js" defer data-ui-added></script>
 </head>
 <body>
+
+  <!-- Samanvay shared utility bar (GIGW): skip link, text size, language -->
+  <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
+  <div class="gigw-bar" data-ui-added>
+    <div class="gigw-bar__inner">
+      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and Pollution approvals</span>
+      <div class="gigw-bar__controls">
+        <div class="gigw-group" role="group" aria-label="Text size" data-i18n-aria-label="common.textSize">
+          <span class="gigw-group__label" data-i18n="common.textSize">Text size</span>
+          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text" data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
+          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text" data-i18n-aria-label="common.textNormal" translate="no">A</button>
+          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text" data-i18n-aria-label="common.textLarger" translate="no">A+</button>
+        </div>
+        <div class="gigw-group" role="group" aria-label="Language" data-i18n-aria-label="common.language">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true" translate="no">English</button>
+          <button type="button" data-lang="mr" lang="mr" aria-pressed="false" translate="no">मराठी</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
 
   <div class="gov-top-bar">
     <div>
-      <strong>Samanvay</strong> • Interoperability Platform Authentication
+      <strong translate="no">Samanvay</strong> • <span data-i18n="login.topbar">Log in</span>
     </div>
     <div>
-      <a href="/">Home</a> | <a href="/register.html">New Citizen Registration</a>
+      <a href="/" data-i18n="common.home">Home</a> | <a href="/register.html" data-i18n="common.register">New user? Register</a>
     </div>
   </div>
 
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
           <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
           <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
@@ -32,76 +55,106 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>Samanvay</h1>
-        <p>Interoperability Platform for user Verification</p>
+        <h1 translate="no">Samanvay</h1>
+        <p data-i18n="common.brandSub">One application for Land, Electricity and Pollution approvals</p>
       </div>
     </div>
-    <div>
-      <a href="/register.html" class="btn btn-primary">Register New Account</a>
+    <div class="header-actions">
+      <a href="/register.html" class="btn btn-outline" data-i18n="login.registerBtn">Register a new account</a>
     </div>
   </header>
+  <!-- Samanvay main navigation (GIGW pattern): short top-level menu + "Find a service".
+       The finder is a plain GET form; dashboard.html already opens ?tab=<section>. -->
+  <nav class="sv-nav" aria-label="Main menu" data-i18n-aria-label="nav.label" data-ui-added>
+    <div class="sv-nav__inner">
+      <ul class="sv-nav__list">
+        <li><a href="/" data-i18n="common.home">Home</a></li>
+        <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
+        <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
+        <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
+      </ul>
+      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service" data-i18n-aria-label="nav.find">
+        <label for="svFindService" class="sv-search__label" data-i18n="nav.find">Find a service</label>
+        <select id="svFindService" name="tab" class="sv-search__select" required>
+          <option value="" data-i18n="nav.findPh">— Choose a service —</option>
+          <option value="process" data-i18n="dash.wz.title">Check what permissions you need</option>
+          <option value="flowchart" data-i18n="dash.fc.title">Department checks</option>
+          <option value="status" data-i18n="dash.st.title">Track my application</option>
+          <option value="query" data-i18n="dash.nav.query">Ask a question</option>
+          <option value="grievance" data-i18n="dash.nav.grievance">Make a complaint</option>
+          <option value="feedback" data-i18n="dash.nav.feedback">Give feedback</option>
+        </select>
+        <button type="submit" class="btn sv-search__btn" data-i18n="nav.go">Go</button>
+      </form>
+    </div>
+  </nav>
 
   <main style="padding: 20px;">
+    <span id="main-content" class="skip-target" tabindex="-1"></span>
     <div class="auth-box">
       <div class="auth-header">
-        <h2>Citizen / Investor Authentication</h2>
-        <p>Verify your identity via registered Aadhaar or PAN Card to access the interoperability dashboard.</p>
+        <h2 data-i18n="login.title">Log in to your account</h2>
+        <p data-i18n="login.intro">Log in with the Aadhaar or PAN number you registered with. We will send a one-time password (OTP) to your registered mobile number.</p>
       </div>
 
       <div class="auth-body">
         <!-- Login Method Tabs -->
         <div class="auth-tabs">
-          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')">
-            Aadhaar e-KYC Login
-          </button>
-          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')">
-            PAN Card Login
-          </button>
+          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')" data-i18n="login.tabAadhaar">Log in with Aadhaar</button>
+          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')" data-i18n="login.tabPan">Log in with PAN</button>
         </div>
 
-        <div id="loginAlert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+        <div id="loginAlert" role="alert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
 
         <!-- Step 1: Identifier Input -->
         <form id="step1Form">
           <div class="form-group">
             <label id="inputLabel" class="form-label" for="loginIdentifier">
-              Enter 12-Digit Aadhaar Number <span class="req-star">*</span>
+              <span data-i18n="login.aadhaarLabel">Your 12-digit Aadhaar number</span> <span class="req-star">*</span>
             </label>
-            <input type="text" id="loginIdentifier" class="form-input" placeholder="Enter your registered Aadhaar" autocomplete="off" required>
-            <div id="inputHint" style="font-size: 0.75rem; color: var(--gov-text-muted); margin-top: 4px;">
-              A 6-digit verification OTP will be dispatched to your registered mobile number.
-            </div>
+            <input type="text" id="loginIdentifier" class="form-input" placeholder="Enter your registered Aadhaar number" autocomplete="off" required>
+            <div id="inputHint" style="font-size: 0.85rem; color: var(--gov-text-muted); margin-top: 4px;" data-i18n="login.hint">We will send a 6-digit OTP to the mobile number linked to your account.</div>
           </div>
 
-          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;">
-            Send OTP to Registered Mobile ➔
-          </button>
+          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;" data-i18n="login.sendOtp">Send OTP ➔</button>
         </form>
 
         <!-- Step 2: OTP Verification (hidden initially) -->
         <form id="step2Form" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
           <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
-            OTP sent to registered mobile <strong id="maskedPhoneSpan">*****</strong>.
-            Please check your SMS inbox.
+            <span data-i18n="login.otpSent">OTP sent to your registered mobile number</span> <strong id="maskedPhoneSpan" translate="no">*****</strong>.
+            <span data-i18n="login.checkSms">Please check your SMS messages.</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="otpInput">Enter 6-Digit OTP <span class="req-star">*</span></label>
-            <input type="text" id="otpInput" class="form-input" placeholder="Enter OTP received on mobile" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
+            <label class="form-label" for="otpInput"><span data-i18n="login.otpLabel">Enter the 6-digit OTP</span> <span class="req-star">*</span></label>
+            <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP" data-i18n-placeholder="login.otpPh" inputmode="numeric" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;">Cancel</button>
-            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;">Verify & Login ➔</button>
+          <div class="action-row" style="display: flex; gap: 10px;">
+            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;" data-i18n="common.cancel">Cancel</button>
+            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;" data-i18n="login.verify">Verify and log in ➔</button>
           </div>
         </form>
 
-        <div style="margin-top: 20px; text-align: center; font-size: 0.8rem; color: #64748b;">
-          Don't have an account? <a href="/register.html" style="color: var(--gov-primary); font-weight: 600;">Register here</a>
+        <div style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: #64748b;">
+          <span data-i18n="login.noAccount">Don’t have an account?</span> <a href="/register.html" style="color: var(--gov-primary); font-weight: 600;" data-i18n="login.registerHere">Register here</a>
         </div>
       </div>
     </div>
   </main>
+
+  <!-- Samanvay shared footer -->
+  <footer class="site-footer" data-ui-added>
+    <p class="site-footer__help">
+      <span data-i18n="common.footerHelp">Need help? Call the free helpline</span>
+      <a href="tel:18001208040" translate="no">1800-120-8040</a>
+      <span data-i18n="common.footerHours">(9:30 AM – 6:00 PM, working days)</span>
+      <span data-i18n="common.footerEmail">or email</span>
+      <a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a>
+    </p>
+    <p class="site-footer__meta" data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</p>
+  </footer>
 
   <script>
     let activeTab = 'aadhaar';
@@ -119,7 +172,7 @@
       loginAlert.style.background = '#dcfce7';
       loginAlert.style.color = '#15803d';
       loginAlert.style.border = '1px solid #86efac';
-      loginAlert.innerHTML = '✓ Account created successfully! Please login with your registered Aadhaar or PAN.';
+      loginAlert.innerHTML = '<span class="sv-alert-icon" aria-hidden="true">✓</span>Your account has been created. Please log in with your Aadhaar or PAN number.';
       loginAlert.style.display = 'block';
     }
 
@@ -133,13 +186,13 @@
       if (type === 'aadhaar') {
         document.getElementById('tabAadhaar').classList.add('active');
         document.getElementById('tabPan').classList.remove('active');
-        inputLabel.innerHTML = 'Enter 12-Digit Aadhaar Number <span class="req-star">*</span>';
-        loginIdentifier.placeholder = 'Enter your registered Aadhaar';
+        inputLabel.innerHTML = '<span data-i18n="login.aadhaarLabel">Your 12-digit Aadhaar number</span> <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter your registered Aadhaar number';
       } else {
         document.getElementById('tabPan').classList.add('active');
         document.getElementById('tabAadhaar').classList.remove('active');
-        inputLabel.innerHTML = 'Enter 10-Character PAN Card <span class="req-star">*</span>';
-        loginIdentifier.placeholder = 'Enter your registered PAN';
+        inputLabel.innerHTML = '<span data-i18n="login.panLabel">Your 10-character PAN</span> <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter your registered PAN, e.g. ABCDE1234F';
       }
     }
 
@@ -162,7 +215,7 @@
       const val = loginIdentifier.value.replace(/[\s-]/g, '');
       const btn = document.getElementById('btnGetOtp');
       btn.disabled = true;
-      btn.innerText = 'Verifying credentials...';
+      btn.innerText = 'Checking your details…';
 
       try {
         const res = await fetch('/api/auth/login', {
@@ -176,7 +229,7 @@
 
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = 'Send OTP to Registered Mobile ➔';
+        btn.innerText = 'Send OTP ➔';
 
         if (data.success) {
           currentTxnId = data.txnId;
@@ -190,8 +243,8 @@
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Send OTP to Registered Mobile ➔';
-        showAlert('error', 'Server connection error. Please try again.');
+        btn.innerText = 'Send OTP ➔';
+        showAlert('error', 'Could not connect to the server. Please try again in a few minutes.');
       }
     });
 
@@ -208,7 +261,7 @@
       const otp = document.getElementById('otpInput').value.trim();
       const btn = document.getElementById('btnVerifyOtp');
       btn.disabled = true;
-      btn.innerText = 'Authenticating...';
+      btn.innerText = 'Logging you in…';
 
       try {
         const res = await fetch('/api/auth/verify-otp', {
@@ -219,7 +272,7 @@
 
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = 'Verify & Login ➔';
+        btn.innerText = 'Verify and log in ➔';
 
         if (data.success) {
           // Store session with full citizen & enterprise context for cross-department SSO
@@ -236,15 +289,15 @@
           }));
           sessionStorage.setItem('gov_token', data.token);
 
-          showAlert('success', 'Authentication successful! Redirecting to dashboard...');
+          showAlert('success', 'You are logged in. Taking you to your dashboard…');
           setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
         } else {
           showAlert('error', data.message);
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Verify & Login ➔';
-        showAlert('error', 'Server error during OTP verification.');
+        btn.innerText = 'Verify and log in ➔';
+        showAlert('error', 'Something went wrong while checking your OTP. Please try again.');
       }
     });
 
@@ -259,7 +312,8 @@
         loginAlert.style.color = '#991b1b';
         loginAlert.style.border = '1px solid #fca5a5';
       }
-      loginAlert.innerHTML = msg;
+      // Colour is never the only signal: every alert also gets an icon.
+      loginAlert.innerHTML = '<span class="sv-alert-icon" aria-hidden="true">' + (type === 'success' ? '✓' : '⚠') + '</span>' + msg;
     }
   </script>
 </body>

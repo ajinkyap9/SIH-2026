@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Samanvay</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title data-i18n="index.pageTitle">Samanvay — one application for industry approvals</title>
+  <link rel="stylesheet" href="/css/gov-style.css">
+  <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
+  <script src="/js/i18n-strings.js" defer data-ui-added></script>
+  <script src="/js/i18n.js" defer data-ui-added></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -25,7 +28,6 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--slate-50);
       color: var(--navy-deep);
       -webkit-font-smoothing: antialiased;
@@ -136,6 +138,7 @@
       gap: 14px;
       flex-wrap: wrap;
     }
+    .hero-actions .btn-hero-primary { order: 2; }
     .btn-hero-primary {
       display: inline-flex;
       align-items: center;
@@ -151,6 +154,7 @@
     }
     .btn-hero-primary:hover { background: var(--blue); transform: translateY(-1px); }
     .btn-hero-primary svg { width: 18px; height: 18px; }
+    .btn-hero-primary, .btn-hero-secondary { min-height: 44px; }
     .btn-hero-secondary {
       display: inline-flex;
       align-items: center;
@@ -218,7 +222,7 @@
     }
     .flow-node-sub {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       font-weight: 400;
       color: var(--slate-500);
       margin-top: 4px;
@@ -285,7 +289,7 @@
       margin-bottom: 4px;
     }
     .flow-dept p {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       color: var(--slate-500);
       line-height: 1.4;
     }
@@ -332,7 +336,7 @@
       color: var(--navy-deep);
     }
     .value-card p {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       color: var(--slate-500);
       line-height: 1.55;
     }
@@ -362,89 +366,174 @@
 </head>
 <body>
 
-  <!-- ═══ Navigation ═══ -->
-  <nav class="navbar">
-    <a href="/" class="nav-brand">
-      <div class="nav-brand-mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 12l10 10 10-10L12 2z"/>
+  <!-- Samanvay shared utility bar (GIGW): skip link, text size, language -->
+  <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
+  <div class="gigw-bar" data-ui-added>
+    <div class="gigw-bar__inner">
+      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and Pollution approvals</span>
+      <div class="gigw-bar__controls">
+        <div class="gigw-group" role="group" aria-label="Text size" data-i18n-aria-label="common.textSize">
+          <span class="gigw-group__label" data-i18n="common.textSize">Text size</span>
+          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text" data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
+          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text" data-i18n-aria-label="common.textNormal" translate="no">A</button>
+          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text" data-i18n-aria-label="common.textLarger" translate="no">A+</button>
+        </div>
+        <div class="gigw-group" role="group" aria-label="Language" data-i18n-aria-label="common.language">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true" translate="no">English</button>
+          <button type="button" data-lang="mr" lang="mr" aria-pressed="false" translate="no">मराठी</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
+
+  <div class="gov-top-bar">
+    <div>
+      <strong translate="no">Samanvay</strong> • <span data-i18n="common.tagline">Single-window approvals</span>
+    </div>
+    <div>
+      <a href="/login.html" data-i18n="common.login">Log in</a> | <a href="/register.html" data-i18n="common.register">New user? Register</a>
+    </div>
+  </div>
+
+  <header class="main-header">
+    <a href="/" class="brand-wrapper" style="text-decoration: none;">
+      <div class="emblem-icon">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
+          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
+          <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="26" y="19" width="3" height="10" fill="#ffffff"/>
+          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808"/>
         </svg>
       </div>
-      <span class="nav-brand-name">Samanvay</span>
+      <div class="brand-title">
+        <h1 translate="no">Samanvay</h1>
+        <p data-i18n="common.brandSub">One application for Land, Electricity and Pollution approvals</p>
+      </div>
     </a>
-    <div class="nav-actions">
-      <a href="/login.html" class="nav-link">Login</a>
-      <a href="/dashboard.html" class="nav-cta">Let's Get Started</a>
+    <div class="header-actions">
+      <a href="/login.html" class="btn btn-outline" data-i18n="common.login">Log in</a>
+      <a href="/dashboard.html" class="btn btn-primary" data-i18n="index.cta">Start my application ➔</a>
+    </div>
+  </header>
+  <!-- Samanvay main navigation (GIGW pattern): short top-level menu + "Find a service".
+       The finder is a plain GET form; dashboard.html already opens ?tab=<section>. -->
+  <nav class="sv-nav" aria-label="Main menu" data-i18n-aria-label="nav.label" data-ui-added>
+    <div class="sv-nav__inner">
+      <ul class="sv-nav__list">
+        <li><a href="/" data-i18n="common.home">Home</a></li>
+        <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
+        <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
+        <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
+      </ul>
+      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service" data-i18n-aria-label="nav.find">
+        <label for="svFindService" class="sv-search__label" data-i18n="nav.find">Find a service</label>
+        <select id="svFindService" name="tab" class="sv-search__select" required>
+          <option value="" data-i18n="nav.findPh">— Choose a service —</option>
+          <option value="process" data-i18n="dash.wz.title">Check what permissions you need</option>
+          <option value="flowchart" data-i18n="dash.fc.title">Department checks</option>
+          <option value="status" data-i18n="dash.st.title">Track my application</option>
+          <option value="query" data-i18n="dash.nav.query">Ask a question</option>
+          <option value="grievance" data-i18n="dash.nav.grievance">Make a complaint</option>
+          <option value="feedback" data-i18n="dash.nav.feedback">Give feedback</option>
+        </select>
+        <button type="submit" class="btn sv-search__btn" data-i18n="nav.go">Go</button>
+      </form>
     </div>
   </nav>
 
+  <main class="landing-main">
+  <span id="main-content" class="skip-target" tabindex="-1"></span>
+
   <!-- ═══ Hero ═══ -->
-  <section class="hero">
+  <section class="hero hero--photo">
+    <div>
     <div class="hero-chip">
-      <span class="hero-chip-dot"></span>
-      Government Initiative &mdash; Interoperability Platform </div>
+      <span class="hero-chip-dot" aria-hidden="true"></span>
+      <span data-i18n="index.chip">Maharashtra single-window service</span></div>
 
-    <h1>One Application.<br><span>Every Department.</span></h1>
+    <h1><span data-i18n="index.h1a" style="color: inherit;">One application.</span><br><span data-i18n="index.h1b">Every department.</span></h1>
 
-    <p class="hero-desc">
-      Samanvay is an interoperability layer that connects Land Revenue, Electricity, and Pollution departments into a single, coordinated approval workflow — so citizens and businesses never fill the same form twice.
-    </p>
+    <p class="hero-desc" data-i18n="index.heroDesc">Samanvay connects the Land Revenue, Electricity and Pollution Control departments. You fill in your project details once, and every department that needs them gets them. No more filling in the same form three times.</p>
 
     <div class="hero-actions">
       <a href="/dashboard.html" class="btn-hero-primary">
-        Let's Get Started
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <span data-i18n="index.ctaShort">Start my application</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a href="/login.html" class="btn-hero-secondary">Login to Your Account</a>
+      <a href="/login.html" class="btn-hero-secondary" data-i18n="index.loginCta">Log in to my account</a>
     </div>
+    </div>
+    <!-- Photo: A.Savin, Wikipedia — Free Art License (Commons {{FAL}}), unmodified 1280px
+         rendition of File:Mumbai_03-2016_30_Gateway_of_India.jpg. See images/CREDITS.txt.
+         alt="" because the visible caption right below already describes the photo. -->
+    <figure class="hero-figure" data-ui-added>
+      <img src="/images/gateway-of-india.jpg" alt="" width="1280" height="1280" loading="eager" decoding="async">
+      <figcaption>
+        <strong data-i18n="index.heroCaption">Gateway of India, Mumbai</strong> ·
+        <span data-i18n="index.heroPhoto">Photo:</span>
+        <a href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin, Wikipedia</a> ·
+        <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art License</a>
+      </figcaption>
+    </figure>
   </section>
 
   <!-- ═══ Flow Diagram ═══ -->
   <section class="flow-section">
-    <div class="section-label">How It Works</div>
-    <h2 class="section-heading">From Application to Approval, Seamlessly</h2>
-    <p class="section-desc">
-      Instead of navigating three separate portals, your data flows through Samanvay's interoperability engine to every relevant department automatically.
-    </p>
+    <div class="section-label" data-i18n="index.howLabel">How it works</div>
+    <h2 class="section-heading" data-i18n="index.howTitle">From application to approval, in one place</h2>
+    <p class="section-desc" data-i18n="index.howDesc">Instead of visiting three separate websites, you tell us about your project once. We send your details to each department that needs them.</p>
 
     <div class="flow-pipeline">
       <div class="flow-node">
-        Citizen / Enterprise
-        <span class="flow-node-sub">Submits a single application</span>
+        <span data-i18n="index.flowYou">You (citizen or business)</span>
+        <span class="flow-node-sub" data-i18n="index.flowYouSub">Fill in one application</span>
       </div>
       <div class="flow-connector"></div>
       <div class="flow-node flow-core">
-        Samanvay Interoperability Layer
-        <span class="flow-node-sub">Intelligent orchestration &amp; data mapping</span>
+        <span translate="no">Samanvay</span>
+        <span class="flow-node-sub" data-i18n="index.flowCoreSub">Works out what you need and shares your details with each department</span>
       </div>
       <div class="flow-connector"></div>
+      <div class="flow-stage" data-ui-added>
+      <span class="flow-stage__label" data-i18n="index.flowStage1">Stage 1 — checked at the same time</span>
       <div class="flow-departments">
         <div class="flow-dept">
           <div class="flow-dept-icon land">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
           </div>
-          <h4>Land Revenue</h4>
-          <p>7/12 Extract, Mutation, Ownership verification</p>
+          <h4 data-i18n="index.landTitle">Land Revenue</h4>
+          <p data-i18n="index.landDesc">7/12 land record, mutation and ownership check</p>
         </div>
         <div class="flow-dept">
           <div class="flow-dept-icon elec">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
-          <h4>Electricity</h4>
-          <p>HT Power Load Sanction &amp; feasibility</p>
+          <h4 data-i18n="index.elecTitle">Electricity (MSEDCL)</h4>
+          <p data-i18n="index.elecDesc">New power connection and power load approval</p>
         </div>
+      </div>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-stage" data-ui-added>
+      <span class="flow-stage__label" data-i18n="index.flowStage2">Stage 2 — after Land and Electricity are both approved</span>
+      <div class="flow-departments">
         <div class="flow-dept">
           <div class="flow-dept-icon poll">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1.68-4.14A7.32 7.32 0 0014 20c3.86 0 7-3.14 7-7a7 7 0 00-4-6.33"/><path d="M11 2a5 5 0 015 5c0 2.76-2.24 5-5 5S6 9.76 6 7a5 5 0 015-5z"/></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1.68-4.14A7.32 7.32 0 0014 20c3.86 0 7-3.14 7-7a7 7 0 00-4-6.33"/><path d="M11 2a5 5 0 015 5c0 2.76-2.24 5-5 5S6 9.76 6 7a5 5 0 015-5z"/></svg>
           </div>
-          <h4>Pollution Control</h4>
-          <p>CTE, Environmental Consent &amp; Clearance</p>
+          <h4 data-i18n="index.pollTitle">Pollution Control (MPCB)</h4>
+          <p data-i18n="index.pollDesc">Permission to set up your unit (Consent to Establish)</p>
         </div>
+      </div>
       </div>
       <div class="flow-connector"></div>
       <div class="flow-node flow-result">
-        Coordinated Departmental Approvals
-        <span class="flow-node-sub" style="color: #047857;">All clearances resolved through one workflow</span>
+        <span data-i18n="index.flowResult">Approvals from every department</span>
+        <span class="flow-node-sub" style="color: #047857;" data-i18n="index.flowResultSub">All tracked in one place</span>
       </div>
     </div>
   </section>
@@ -452,37 +541,46 @@
   <!-- ═══ Value Props ═══ -->
   <section class="values-section">
     <div style="text-align: center; margin-bottom: 48px;">
-      <div class="section-label">Why Samanvay</div>
-      <h2 class="section-heading">Built for Multi-Department Coordination</h2>
+      <div class="section-label" data-i18n="index.whyLabel">Why Samanvay</div>
+      <h2 class="section-heading" data-i18n="index.whyTitle">Made for approvals that need many departments</h2>
     </div>
     <div class="values-grid">
       <div class="value-card">
         <div class="value-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         </div>
-        <h4>Interoperability First</h4>
-        <p>Connects siloed government systems through a canonical data model, so departments share information without custom integrations.</p>
+        <h4 data-i18n="index.v1t">Departments work together</h4>
+        <p data-i18n="index.v1p">Your details are shared securely between departments, so each one does not ask you for them again.</p>
       </div>
       <div class="value-card">
         <div class="value-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
         </div>
-        <h4>No Redundant Forms</h4>
-        <p>Fill your project details once. Samanvay pre-fills each department's application with data already provided, eliminating duplicate submissions.</p>
+        <h4 data-i18n="index.v2t">No repeated forms</h4>
+        <p data-i18n="index.v2p">Fill in your project details once. We fill in each department’s application for you with the details you already gave.</p>
       </div>
       <div class="value-card">
         <div class="value-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
         </div>
-        <h4>Real-Time Tracking</h4>
-        <p>Track every department's status — Land, Electricity, Pollution — from a single dashboard with complete visibility into your approval pipeline.</p>
+        <h4 data-i18n="index.v3t">Track everything in one place</h4>
+        <p data-i18n="index.v3p">See the status of your Land, Electricity and Pollution applications on one dashboard.</p>
       </div>
     </div>
   </section>
 
-  <!-- ═══ Footer ═══ -->
-  <footer class="landing-footer">
-    &copy; 2026 Samanvay &middot; Interoperability Platform  &middot; SIH 2026
+  </main>
+
+  <!-- Samanvay shared footer -->
+  <footer class="site-footer" data-ui-added>
+    <p class="site-footer__help">
+      <span data-i18n="common.footerHelp">Need help? Call the free helpline</span>
+      <a href="tel:18001208040" translate="no">1800-120-8040</a>
+      <span data-i18n="common.footerHours">(9:30 AM – 6:00 PM, working days)</span>
+      <span data-i18n="common.footerEmail">or email</span>
+      <a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a>
+    </p>
+    <p class="site-footer__meta" data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</p>
   </footer>
 
 </body>

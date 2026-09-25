@@ -43,6 +43,39 @@ def test_plant_verification_waiting(client, abc_token):
     assert "polling" in data["recommended_next_action"].lower()
 
 
+def test_pollution_not_dispatched_when_land_pending(client, abc_token):
+    # Guards the MPCB dependency guarantee: Pollution must only be dispatched
+    # once Land (and Electricity) are FULLY approved, not merely on file.
+    # Survey "103" mocks Land with mutation_status "PENDING" -- a record
+    # exists but isn't approved -- so the Pollution adapter must never be
+    # called for this request.
+    from app.auth.jwt_handler import create_access_token
+    xyz_token = create_access_token({
+        "sub": "applicant@xyzmfg.com",
+        "pan": "FGHIJ5678K",
+        "org": "XYZ Manufacturing Pvt Ltd"
+    })
+    headers = {"Authorization": f"Bearer {xyz_token}"}
+
+    payload = {
+        "project_name": "XYZ Talegaon Unit",
+        "organization_pan": "FGHIJ5678K",
+        "land_survey_number": "103",
+        "electricity_application_number": "ELEC-2026-00102",
+        "pollution_application_number": "MPCB-8822"
+    }
+    response = client.post("/api/projects/verify-plant", json=payload, headers=headers)
+    assert response.status_code == 200
+    data = response.json()
+
+    pollution_check = next(c for c in data["department_checks"] if c["department"] == "POLLUTION")
+    assert pollution_check["status"] == "UNAVAILABLE"
+    assert pollution_check["raw_facts"] is None
+    assert pollution_check["error"] is not None
+    assert "blocked" in pollution_check["error"].lower()
+    assert "LAND" in pollution_check["error"]
+
+
 def test_transaction_detail_endpoint(client, abc_headers):
     # Run a verify first
     payload = {

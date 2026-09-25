@@ -3,28 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registration — Samanvay Interoperability Platform</title>
+  <title data-i18n="reg.pageTitle">Register — Samanvay</title>
   <link rel="stylesheet" href="/css/gov-style.css">
+  <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
+  <script src="/js/i18n-strings.js" defer data-ui-added></script>
+  <script src="/js/i18n.js" defer data-ui-added></script>
 </head>
 <body>
 
-  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
-
-  <!-- Official Metadata Bar -->
-  <div class="gov-top-bar">
-    <div>
-      <strong>Samanvay</strong> • Interoperability Platform Registration
-    </div>
-    <div>
-      <a href="/">Home</a> | <a href="/login.html">Login</a>
+  <!-- Samanvay shared utility bar (GIGW): skip link, text size, language -->
+  <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
+  <div class="gigw-bar" data-ui-added>
+    <div class="gigw-bar__inner">
+      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and Pollution approvals</span>
+      <div class="gigw-bar__controls">
+        <div class="gigw-group" role="group" aria-label="Text size" data-i18n-aria-label="common.textSize">
+          <span class="gigw-group__label" data-i18n="common.textSize">Text size</span>
+          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text" data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
+          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text" data-i18n-aria-label="common.textNormal" translate="no">A</button>
+          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text" data-i18n-aria-label="common.textLarger" translate="no">A+</button>
+        </div>
+        <div class="gigw-group" role="group" aria-label="Language" data-i18n-aria-label="common.language">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true" translate="no">English</button>
+          <button type="button" data-lang="mr" lang="mr" aria-pressed="false" translate="no">मराठी</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Header -->
+  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
+
+  <div class="gov-top-bar">
+    <div>
+      <strong translate="no">Samanvay</strong> • <span data-i18n="reg.topbar">New account</span>
+    </div>
+    <div>
+      <a href="/" data-i18n="common.home">Home</a> | <a href="/login.html" data-i18n="common.login">Log in</a>
+    </div>
+  </div>
+
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
           <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
           <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
@@ -34,91 +55,117 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>Citizen & Investor Registration</h1>
-        <p>Aadhaar e-KYC & Compulsory PAN Verification Gateway</p>
+        <h1 data-i18n="reg.h1">Create your account</h1>
+        <p data-i18n="reg.h1sub">Register with your Aadhaar and PAN to apply for approvals</p>
       </div>
     </div>
-    <div>
-      <a href="/login.html" class="btn btn-outline">Already Registered? Login</a>
+    <div class="header-actions">
+      <a href="/login.html" class="btn btn-outline" data-i18n="reg.loginBtn">Already registered? Log in</a>
     </div>
   </header>
+  <!-- Samanvay main navigation (GIGW pattern): short top-level menu + "Find a service".
+       The finder is a plain GET form; dashboard.html already opens ?tab=<section>. -->
+  <nav class="sv-nav" aria-label="Main menu" data-i18n-aria-label="nav.label" data-ui-added>
+    <div class="sv-nav__inner">
+      <ul class="sv-nav__list">
+        <li><a href="/" data-i18n="common.home">Home</a></li>
+        <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
+        <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
+        <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
+      </ul>
+      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service" data-i18n-aria-label="nav.find">
+        <label for="svFindService" class="sv-search__label" data-i18n="nav.find">Find a service</label>
+        <select id="svFindService" name="tab" class="sv-search__select" required>
+          <option value="" data-i18n="nav.findPh">— Choose a service —</option>
+          <option value="process" data-i18n="dash.wz.title">Check what permissions you need</option>
+          <option value="flowchart" data-i18n="dash.fc.title">Department checks</option>
+          <option value="status" data-i18n="dash.st.title">Track my application</option>
+          <option value="query" data-i18n="dash.nav.query">Ask a question</option>
+          <option value="grievance" data-i18n="dash.nav.grievance">Make a complaint</option>
+          <option value="feedback" data-i18n="dash.nav.feedback">Give feedback</option>
+        </select>
+        <button type="submit" class="btn sv-search__btn" data-i18n="nav.go">Go</button>
+      </form>
+    </div>
+  </nav>
 
   <main style="padding: 20px;">
+    <span id="main-content" class="skip-target" tabindex="-1"></span>
     <div class="auth-box">
       <div class="auth-header">
-        <h2>New Citizen Account Registration</h2>
-        <p>Complete your identity credentials. Aadhaar and PAN will be verified immediately with authoritative registries.</p>
+        <h2 data-i18n="reg.title">New account registration</h2>
+        <p data-i18n="reg.intro">Enter your details below. We check your Aadhaar and PAN straight away, so you can fix any mistake before you submit.</p>
       </div>
 
       <div class="auth-body">
-        <div id="regAlert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+        <div id="regAlert" role="alert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
 
         <form id="regForm">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
             <div class="form-group">
-              <label class="form-label" for="firstName">First Name <span class="req-star">*</span></label>
-              <input type="text" id="firstName" class="form-input" placeholder="e.g. Ramesh" required>
+              <label class="form-label" for="firstName"><span data-i18n="reg.first">First name</span> <span class="req-star">*</span></label>
+              <input type="text" id="firstName" class="form-input" placeholder="e.g. Ramesh" data-i18n-placeholder="reg.firstPh" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="lastName">Last Name <span class="req-star">*</span></label>
-              <input type="text" id="lastName" class="form-input" placeholder="e.g. Patil" required>
+              <label class="form-label" for="lastName"><span data-i18n="reg.last">Last name</span> <span class="req-star">*</span></label>
+              <input type="text" id="lastName" class="form-input" placeholder="e.g. Patil" data-i18n-placeholder="reg.lastPh" required>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
             <div class="form-group">
-              <label class="form-label" for="mobile">Mobile Number <span class="req-star">*</span></label>
-              <input type="tel" id="mobile" class="form-input" placeholder="10-digit mobile" maxlength="10" required>
+              <label class="form-label" for="mobile"><span data-i18n="reg.mobile">Mobile number</span> <span class="req-star">*</span></label>
+              <input type="tel" id="mobile" class="form-input" placeholder="10-digit mobile number" data-i18n-placeholder="reg.mobilePh" inputmode="numeric" maxlength="10" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="email">Email Address <span class="req-star">*</span></label>
-              <input type="email" id="email" class="form-input" placeholder="name@domain.com" required>
+              <label class="form-label" for="email"><span data-i18n="common.email">Email address</span> <span class="req-star">*</span></label>
+              <input type="email" id="email" class="form-input" placeholder="name@example.com" data-i18n-placeholder="reg.emailPh" required>
             </div>
           </div>
 
           <!-- Aadhaar Field with Immediate Verification -->
           <div class="form-group">
             <label class="form-label" for="aadhaar">
-              Aadhaar Number (12 Digits) <span class="req-star">*</span>
+              <span data-i18n="reg.aadhaar">Aadhaar number (12 digits)</span> <span class="req-star">*</span>
             </label>
             <div class="input-with-verify">
-              <input type="text" id="aadhaar" class="form-input" placeholder="e.g. 9988-7766-5544" maxlength="14" required>
-              <button type="button" id="btnVerifyAadhaar" class="btn btn-outline" style="white-space: nowrap;">
-                Verify Aadhaar
-              </button>
+              <input type="text" id="aadhaar" class="form-input" placeholder="e.g. 9988-7766-5544" data-i18n-placeholder="reg.aadhaarPh" inputmode="numeric" maxlength="14" required>
+              <button type="button" id="btnVerifyAadhaar" class="btn btn-outline" style="white-space: nowrap;" data-i18n="reg.checkAadhaar">Check Aadhaar</button>
             </div>
-            <div id="aadhaarStatus" style="font-size: 0.75rem; margin-top: 4px; color: var(--gov-text-muted);">
-              Instant format & uniqueness validation against database.
-            </div>
+            <div id="aadhaarStatus" style="font-size: 0.85rem; margin-top: 4px; color: var(--gov-text-muted);" aria-live="polite" data-i18n="reg.aadhaarHelp">We check that the number is valid and not already registered.</div>
           </div>
 
           <!-- Compulsory PAN Field with Immediate Verification -->
           <div class="form-group">
             <label class="form-label" for="pan">
-              Permanent Account Number (PAN) <span class="req-star">* (Compulsory)</span>
+              <span data-i18n="reg.pan">PAN (Permanent Account Number)</span> <span class="req-star">*</span> <span data-i18n="reg.required">(required)</span>
             </label>
             <div class="input-with-verify">
-              <input type="text" id="pan" class="form-input" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
-              <button type="button" id="btnVerifyPan" class="btn btn-outline" style="white-space: nowrap;">
-                Verify PAN
-              </button>
+              <input type="text" id="pan" class="form-input" placeholder="e.g. ABCDE1234F" data-i18n-placeholder="reg.panPh" maxlength="10" style="text-transform: uppercase;" required>
+              <button type="button" id="btnVerifyPan" class="btn btn-outline" style="white-space: nowrap;" data-i18n="reg.checkPan">Check PAN</button>
             </div>
-            <div id="panStatus" style="font-size: 0.75rem; margin-top: 4px; color: var(--gov-text-muted);">
-              Mandatory 10-character PAN checked against Income Tax schema.
-            </div>
+            <div id="panStatus" style="font-size: 0.85rem; margin-top: 4px; color: var(--gov-text-muted);" aria-live="polite" data-i18n="reg.panHelp">Your 10-character PAN, for example ABCDE1234F. It is needed for every application.</div>
           </div>
 
-          <button type="submit" id="btnSubmitReg" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 8px;">
-            Create Citizen Account & Save to Database ➔
-          </button>
+          <button type="submit" id="btnSubmitReg" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 8px;" data-i18n="reg.submit">Create my account ➔</button>
         </form>
 
-        <div style="margin-top: 20px; font-size: 0.75rem; color: #64748b; text-align: center;">
-          All credentials stored securely in compliance with the Digital Personal Data Protection (DPDP) Act. Zero data duplication policy.
-        </div>
+        <div style="margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: center;" data-i18n="reg.privacy">Your details are stored securely, as the Digital Personal Data Protection (DPDP) Act requires. We never ask you for the same information twice.</div>
       </div>
     </div>
   </main>
+
+  <!-- Samanvay shared footer -->
+  <footer class="site-footer" data-ui-added>
+    <p class="site-footer__help">
+      <span data-i18n="common.footerHelp">Need help? Call the free helpline</span>
+      <a href="tel:18001208040" translate="no">1800-120-8040</a>
+      <span data-i18n="common.footerHours">(9:30 AM – 6:00 PM, working days)</span>
+      <span data-i18n="common.footerEmail">or email</span>
+      <a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a>
+    </p>
+    <p class="site-footer__meta" data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</p>
+  </footer>
 
   <script>
     const aadhaarInput = document.getElementById('aadhaar');
@@ -144,10 +191,10 @@
     document.getElementById('btnVerifyAadhaar').addEventListener('click', async () => {
       const val = aadhaarInput.value.replace(/[\s-]/g, '');
       if (val.length !== 12) {
-        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Aadhaar must be 12 numeric digits</span>';
+        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Aadhaar number must have 12 digits.</span>';
         return;
       }
-      aadhaarStatus.innerHTML = '<span>Verifying Aadhaar...</span>';
+      aadhaarStatus.innerHTML = '<span>Checking your Aadhaar number…</span>';
       try {
         const res = await fetch('/api/auth/verify-aadhaar', {
           method: 'POST',
@@ -156,12 +203,12 @@
         });
         const data = await res.json();
         if (data.valid) {
-          aadhaarStatus.innerHTML = `<span class="verify-badge verify-valid">✓ ${data.message}</span>`;
+          aadhaarStatus.innerHTML = `<span class="verify-badge verify-valid">${data.message}</span>`;
         } else {
-          aadhaarStatus.innerHTML = `<span class="verify-badge verify-invalid">✗ ${data.message}</span>`;
+          aadhaarStatus.innerHTML = `<span class="verify-badge verify-invalid">${data.message}</span>`;
         }
       } catch (e) {
-        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Connection error</span>';
+        aadhaarStatus.innerHTML = '<span class="verify-badge verify-invalid">Could not connect. Please try again.</span>';
       }
     });
 
@@ -169,10 +216,10 @@
     document.getElementById('btnVerifyPan').addEventListener('click', async () => {
       const val = panInput.value.trim().toUpperCase();
       if (val.length !== 10) {
-        panStatus.innerHTML = '<span class="verify-badge verify-invalid">PAN must be 10 characters (e.g. ABCDE1234F)</span>';
+        panStatus.innerHTML = '<span class="verify-badge verify-invalid">PAN must have 10 characters, for example ABCDE1234F.</span>';
         return;
       }
-      panStatus.innerHTML = '<span>Verifying PAN format...</span>';
+      panStatus.innerHTML = '<span>Checking your PAN…</span>';
       try {
         const res = await fetch('/api/auth/verify-pan', {
           method: 'POST',
@@ -181,12 +228,12 @@
         });
         const data = await res.json();
         if (data.valid) {
-          panStatus.innerHTML = `<span class="verify-badge verify-valid">✓ ${data.message}</span>`;
+          panStatus.innerHTML = `<span class="verify-badge verify-valid">${data.message}</span>`;
         } else {
-          panStatus.innerHTML = `<span class="verify-badge verify-invalid">✗ ${data.message}</span>`;
+          panStatus.innerHTML = `<span class="verify-badge verify-invalid">${data.message}</span>`;
         }
       } catch (e) {
-        panStatus.innerHTML = '<span class="verify-badge verify-invalid">Connection error</span>';
+        panStatus.innerHTML = '<span class="verify-badge verify-invalid">Could not connect. Please try again.</span>';
       }
     });
 
@@ -206,7 +253,7 @@
 
       const btn = document.getElementById('btnSubmitReg');
       btn.disabled = true;
-      btn.innerText = 'Registering in SQLite...';
+      btn.innerText = 'Creating your account…';
 
       try {
         const res = await fetch('/api/auth/register', {
@@ -216,13 +263,13 @@
         });
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = 'Create Citizen Account & Save to Database ➔';
+        btn.innerText = 'Create my account ➔';
 
         if (data.success) {
           regAlert.style.background = '#dcfce7';
           regAlert.style.color = '#15803d';
           regAlert.style.border = '1px solid #86efac';
-          regAlert.innerHTML = `<strong>Registration Successful!</strong> ${data.message} Redirecting to login...`;
+          regAlert.innerHTML = `<span class="sv-alert-icon" aria-hidden="true">✓</span><strong>Registration successful!</strong> ${data.message} Taking you to the login page…`;
           regAlert.style.display = 'block';
           setTimeout(() => {
             window.location.href = `/login.html?registered=${encodeURIComponent(payload.aadhaar)}`;
@@ -231,15 +278,15 @@
           regAlert.style.background = '#fee2e2';
           regAlert.style.color = '#991b1b';
           regAlert.style.border = '1px solid #fca5a5';
-          regAlert.innerHTML = `<strong>Error:</strong> ${data.message}`;
+          regAlert.innerHTML = `<span class="sv-alert-icon" aria-hidden="true">⚠</span><strong>Could not register:</strong> ${data.message}`;
           regAlert.style.display = 'block';
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Create Citizen Account & Save to Database ➔';
+        btn.innerText = 'Create my account ➔';
         regAlert.style.background = '#fee2e2';
         regAlert.style.color = '#991b1b';
-        regAlert.innerHTML = 'Network error connecting to backend server.';
+        regAlert.innerHTML = '<span class="sv-alert-icon" aria-hidden="true">⚠</span>Could not connect to the server. Please try again in a few minutes.';
         regAlert.style.display = 'block';
       }
     });

@@ -1,10 +1,12 @@
 from typing import Dict, Any, Optional
+from sqlalchemy.orm import Session
 from app.schemas.canonical import (
     CanonicalProjectModel,
     LandDetails,
     ElectricityDetails,
     PollutionDetails,
 )
+from app.models.schema_registry import SchemaMappingRule
 
 
 def set_nested_value(target_dict: dict, path: str, value: Any):
@@ -99,7 +101,29 @@ class RuleBasedMapper:
     }
 
     @classmethod
-    def transform_land(cls, raw: Dict[str, Any], requested_pan: Optional[str] = None) -> CanonicalProjectModel:
+    def _load_active_overrides(cls, db: Optional[Session], department_code: str) -> Dict[str, str]:
+        """Approved SchemaMappingRule rows for this department, keyed by source field.
+
+        These take priority over the static *_DIRECT_MAP dictionaries so a
+        government admin can fix a renamed/unknown upstream field via the
+        schema-drift approval flow without a code deploy. No db session (e.g.
+        the ad-hoc /api/canonical/transform test endpoint) means static-only.
+        """
+        if db is None:
+            return {}
+        rules = db.query(SchemaMappingRule).filter(
+            SchemaMappingRule.department_code == department_code,
+            SchemaMappingRule.is_active == True,  # noqa: E712
+        ).all()
+        return {rule.source_field: rule.target_canonical_field for rule in rules}
+
+    @classmethod
+    def transform_land(
+        cls,
+        raw: Dict[str, Any],
+        requested_pan: Optional[str] = None,
+        db: Optional[Session] = None,
+    ) -> CanonicalProjectModel:
         # Handle wrapped payload
         data = raw.get("canonical", raw)
 
@@ -109,7 +133,9 @@ class RuleBasedMapper:
             "land_details": {},
         }
 
-        for source_k, target_path in cls.LAND_DIRECT_MAP.items():
+        # DB-approved mappings win over the static dictionary for the same field.
+        effective_map = {**cls.LAND_DIRECT_MAP, **cls._load_active_overrides(db, "LAND")}
+        for source_k, target_path in effective_map.items():
             if source_k in data and data[source_k] is not None:
                 val = data[source_k]
                 if target_path == "land_details.area" and val is not None:
@@ -134,7 +160,7 @@ class RuleBasedMapper:
             ownership_valid = pan.strip().upper() == requested_pan.strip().upper()
             extracted["land_details"]["ownership_status"] = "VALID" if ownership_valid else "INVALID"
         else:
-            extracted["land_details"]["ownership_status"] = "VALID"
+            extracted["land_details"]["ownership_status"] = "UNKNOWN"
 
         # Status normalization
         jamabandi = data.get("jamabandi") or data.get("mutation_status")
@@ -150,7 +176,12 @@ class RuleBasedMapper:
         return CanonicalProjectModel(**extracted)
 
     @classmethod
-    def transform_electricity(cls, raw: Dict[str, Any], requested_pan: Optional[str] = None) -> CanonicalProjectModel:
+    def transform_electricity(
+        cls,
+        raw: Dict[str, Any],
+        requested_pan: Optional[str] = None,
+        db: Optional[Session] = None,
+    ) -> CanonicalProjectModel:
         # Handle wrapped verify responses e.g. { application: { ... } }
         data = raw.get("application", raw)
 
@@ -160,7 +191,8 @@ class RuleBasedMapper:
             "electricity_details": {},
         }
 
-        for source_k, target_path in cls.ELECTRICITY_DIRECT_MAP.items():
+        effective_map = {**cls.ELECTRICITY_DIRECT_MAP, **cls._load_active_overrides(db, "ELECTRICITY")}
+        for source_k, target_path in effective_map.items():
             if source_k in data and data[source_k] is not None:
                 val = data[source_k]
                 if target_path in ["electricity_details.requested_load_kw", "electricity_details.sanctioned_load_kw"]:
@@ -194,7 +226,12 @@ class RuleBasedMapper:
         return CanonicalProjectModel(**extracted)
 
     @classmethod
-    def transform_pollution(cls, raw: Dict[str, Any], requested_pan: Optional[str] = None) -> CanonicalProjectModel:
+    def transform_pollution(
+        cls,
+        raw: Dict[str, Any],
+        requested_pan: Optional[str] = None,
+        db: Optional[Session] = None,
+    ) -> CanonicalProjectModel:
         data = raw.get("canonical", raw)
 
         extracted: Dict[str, Any] = {
@@ -203,7 +240,8 @@ class RuleBasedMapper:
             "pollution_details": {},
         }
 
-        for source_k, target_path in cls.POLLUTION_DIRECT_MAP.items():
+        effective_map = {**cls.POLLUTION_DIRECT_MAP, **cls._load_active_overrides(db, "POLLUTION")}
+        for source_k, target_path in effective_map.items():
             if source_k in data and data[source_k] is not None:
                 val = data[source_k]
                 if target_path in ["pollution_details.hazardous_waste", "pollution_details.environmental_clearance_required"]:
