@@ -5,12 +5,141 @@ const { toCanonical, detectSchemaDrift } = require('../utils/schemaMapper');
 const { evaluateLandDependency } = require('../utils/policyEngine');
 const { auditMiddleware, getRecentTransactions } = require('../utils/audit');
 const { shouldSimulateFailure, sendSimulatedOutage } = require('../utils/failureSimulator');
+const { notifyGatewayOfMutationChange } = require('../utils/webhookNotifier');
 
 const router = express.Router();
 
 /**
+ * ============================================================================
+ * MAHARASHTRA BHUMI ABHILEKH (MAHABHULEKH / महाभूमी) OFFICIAL API ENDPOINTS
+ * ============================================================================
+ */
+
+/**
+ * GET /api/land/mahabhulekh/divisions
+ * Returns Maharashtra administrative divisions (पुणे, कोकण, नाशिक, छत्रपती संभाजीनगर, अमरावती, नागपूर)
+ */
+router.get('/mahabhulekh/divisions', (req, res) => {
+  const data = store.getDivisionsData();
+  res.json({
+    success: true,
+    portal: 'MahaBhulekh (महाराष्ट्र भूमी अभिलेख)',
+    authority: 'Revenue and Forest Department, Government of Maharashtra (महसूल व वन विभाग)',
+    divisions: data.divisions
+  });
+});
+
+/**
+ * GET /api/land/mahabhulekh/7-12
+ * Searches and returns official Form 7 & Form 12 (गाव नमुना ७ व १२ - सातबारा उतारा)
+ * Query params: division, district, taluka, village, searchType (survey|khata|name|pan), query
+ */
+router.get('/mahabhulekh/7-12', async (req, res) => {
+  const { division, district, taluka, village, searchType, query, surveyNumber, pan } = req.query;
+  const targetQuery = query || surveyNumber || pan || '101';
+  const targetSearchType = searchType || (surveyNumber ? 'survey' : (pan ? 'pan' : 'survey'));
+
+  const results = await store.searchMahaBhulekh({
+    division,
+    district,
+    taluka,
+    village,
+    searchType: targetSearchType,
+    query: targetQuery
+  });
+
+  if (!results || results.length === 0) {
+    return res.status(404).json({
+      success: false,
+      error: 'Not Found',
+      message: `महाराष्ट्र भूमी अभिलेख प्रणालीमध्ये संबंधित रेकॉर्ड आढळले नाही (No 7/12 record found for "${targetQuery}").`
+    });
+  }
+
+  const record = results[0];
+  const { simulateOutage, ...cleanRecord } = record;
+
+  res.json({
+    success: true,
+    portal: 'MahaBhulekh (महाभूमी)',
+    form_type: 'गाव नमुना ७ व १२ (Village Form VII & XII - 7/12 Extract)',
+    district: cleanRecord.district_mr || cleanRecord.district,
+    taluka: cleanRecord.taluka_mr || cleanRecord.taluka,
+    village: cleanRecord.village_mr || cleanRecord.village,
+    uin: `MH-${(cleanRecord.district || 'PUN').substring(0, 3).toUpperCase()}-${cleanRecord.gtn}-${Date.now().toString(36).toUpperCase()}`,
+    record: cleanRecord,
+    total_matching: results.length,
+    canonical: toCanonical(cleanRecord)
+  });
+});
+
+/**
+ * GET /api/land/mahabhulekh/8-a
+ * Returns Form 8-A (गाव नमुना ८-अ - खाते उतारा / Holding Sheet)
+ */
+router.get('/mahabhulekh/8-a', async (req, res) => {
+  const { khataNo, pan, name, query } = req.query;
+  const target = khataNo || pan || name || query || '452';
+
+  const extract = await store.get8AExtract(target);
+  if (!extract) {
+    return res.status(404).json({
+      success: false,
+      error: 'Not Found',
+      message: `गाव नमुना ८-अ खाते उतारा आढळला नाही (No 8-A extract found for "${target}").`
+    });
+  }
+
+  res.json({
+    success: true,
+    portal: 'MahaBhulekh (महाभूमी)',
+    form_type: 'गाव नमुना ८-अ (Village Form VIII-A - Khate Utapa)',
+    extract
+  });
+});
+
+/**
+ * GET /api/land/mahabhulekh/ferfar
+ * Returns e-Ferfar mutation records (ई-फेरफार नोंद)
+ */
+router.get('/mahabhulekh/ferfar', async (req, res) => {
+  const { ferfarNo, surveyNumber } = req.query;
+  const list = await store.getFerfarRecords(ferfarNo || surveyNumber);
+
+  res.json({
+    success: true,
+    portal: 'MahaBhulekh e-Ferfar (ई-महाभूमी)',
+    count: list.length,
+    ferfar_records: list
+  });
+});
+
+/**
+ * GET /api/land/mahabhulekh/aapli-chawadi
+ * Returns Aapli Chawadi Section 135-D public notices (आपली चावडी डिजिटल फलक)
+ */
+router.get('/mahabhulekh/aapli-chawadi', async (req, res) => {
+  const { village, taluka } = req.query;
+  const notices = await store.getAapliChawadiNotices(village || taluka);
+
+  res.json({
+    success: true,
+    portal: 'Aapli Chawadi (आपली चावडी - महसूल विभाग)',
+    description: 'महाराष्ट्र जमीन महसूल संहिता १९६६ कलम १३५-ड अन्वये नोटीस फलक',
+    count: notices.length,
+    notices
+  });
+});
+
+/**
+ * ============================================================================
+ * CORE & INTEROPERABILITY GATEWAY COMPATIBILITY ENDPOINTS
+ * ============================================================================
+ */
+
+/**
  * GET /api/land/all
- * Returns all land records loaded dynamically from PostgreSQL.
+ * Returns all land records.
  */
 router.get('/all', async (req, res) => {
   const all = await store.getAllRecords();
@@ -19,7 +148,7 @@ router.get('/all', async (req, res) => {
 
 /**
  * POST /api/land/apply
- * Submits a new land application and persists it to PostgreSQL.
+ * Submits a new land application / mutation.
  */
 router.post('/apply', async (req, res) => {
   const { surveyNumber, pan, applicantName, district, taluka, village, area, certificateType } = req.body || {};
@@ -32,6 +161,7 @@ router.post('/apply', async (req, res) => {
 
   const newRecord = {
     gtn: String(surveyNumber).trim(),
+    survey_number: String(surveyNumber).trim(),
     malak_name: applicantName || (existing ? existing.malak_name : 'Applicant'),
     malak_pan: String(pan).trim().toUpperCase(),
     kshetra: area ? String(area) : (existing ? existing.kshetra : '5.0'),
@@ -56,7 +186,7 @@ router.post('/apply', async (req, res) => {
 
 /**
  * GET /api/land/records/:surveyNumber
- * Returns the raw, legacy-shaped record — from PostgreSQL by GTN or PAN.
+ * Returns the raw, legacy-shaped record — by GTN or PAN.
  */
 router.get(
   '/records/:surveyNumber',
@@ -139,6 +269,7 @@ router.post(
     if (!record) {
       record = await store.saveRecord({
         gtn: String(surveyNumber).trim(),
+        survey_number: String(surveyNumber).trim(),
         malak_name: applicantName || 'Registered Applicant',
         malak_pan: String(pan).trim().toUpperCase(),
         kshetra: area ? String(area) : '5.0',
@@ -152,6 +283,9 @@ router.post(
         village: village || 'Wagholi'
       });
     }
+
+    // (Reference zip auto-approved PENDING records 10 s after a verify call and
+    // fired the webhook. Left out: it silently changes department state.)
 
     const { simulateOutage, ...cleanRecord } = record;
     const canonical = toCanonical(cleanRecord);
@@ -192,19 +326,18 @@ router.patch(
       });
     }
 
+    notifyGatewayOfMutationChange(updated);
+
     res.json({
       survey_number: updated.gtn,
       mutation_status: updated.jamabandi,
-      note: 'Persisted to PostgreSQL database and live store.'
+      note: 'Persisted to live store. Gateway notified.'
     });
   }
 );
 
 /**
  * POST /api/land/schema-mapping/detect
- * Body: an arbitrary JSON object shaped like a (possibly drifted)
- * departmental record. Returns mapping suggestions with confidence
- * scores, never a silent auto-correction (Section 11 / 23).
  */
 router.post(
   '/schema-mapping/detect',
@@ -224,8 +357,6 @@ router.post(
 
 /**
  * GET /api/land/audit
- * Recent transaction log — restricted to the interoperability
- * platform's own credentials, per Section 13.
  */
 router.get('/audit', requirePermission('read:audit'), (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 50, 500);

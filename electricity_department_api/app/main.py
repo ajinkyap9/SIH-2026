@@ -18,6 +18,7 @@ from app.routers import (
     status_router,
     admin_router,
     audit_router,
+    portal_router,
 )
 
 
@@ -58,6 +59,7 @@ This service exposes department-native schemas and operates independently of ext
         {"name": "Status", "description": "Lightweight status polling for async dependencies"},
         {"name": "Admin Demo", "description": "Demo-only state mutation for hackathon simulations"},
         {"name": "Audit", "description": "Department-side access and trace logs"},
+        {"name": "Public Portal (UI)", "description": "Read-only views for the department website"},
     ]
 )
 
@@ -114,6 +116,7 @@ app.include_router(verification_router)
 app.include_router(status_router)
 app.include_router(admin_router)
 app.include_router(audit_router)
+app.include_router(portal_router)  # public website views (read-only)
 
 # Mount the static public directory for the Electricity UI Demo
 _THIS_DIR = Path(__file__).resolve().parent          # …/electricity_department_api/app

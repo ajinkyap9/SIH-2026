@@ -6,10 +6,12 @@
   <title data-i18n="reg.pageTitle">Register — Samanvay</title>
   <link rel="stylesheet" href="/css/gov-style.css">
   <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
+  <link rel="stylesheet" href="/css/samanvay-design.css" data-ui-added>
   <script src="/js/i18n-strings.js" defer data-ui-added></script>
   <script src="/js/i18n.js" defer data-ui-added></script>
 </head>
 <body>
+  <div class="tricolor-stripe" aria-hidden="true" data-ui-added></div>
 
   <!-- Samanvay shared utility bar (GIGW): skip link, text size, language -->
   <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
@@ -31,7 +33,6 @@
     </div>
   </div>
 
-  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
 
   <div class="gov-top-bar">
     <div>
@@ -89,7 +90,7 @@
     </div>
   </nav>
 
-  <main style="padding: 20px;">
+  <main class="auth-page-container">
     <span id="main-content" class="skip-target" tabindex="-1"></span>
     <div class="auth-box">
       <div class="auth-header">
@@ -153,18 +154,50 @@
         <div style="margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: center;" data-i18n="reg.privacy">Your details are stored securely, as the Digital Personal Data Protection (DPDP) Act requires. We never ask you for the same information twice.</div>
       </div>
     </div>
+    <p class="auth-credit" data-ui-added><span data-i18n="index.heroCaption">Gateway of India, Mumbai</span> · <span data-i18n="index.heroPhoto">Photo:</span> <a href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin, Wikipedia</a> · <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art License</a></p>
   </main>
 
-  <!-- Samanvay shared footer -->
-  <footer class="site-footer" data-ui-added>
-    <p class="site-footer__help">
-      <span data-i18n="common.footerHelp">Need help? Call the free helpline</span>
-      <a href="tel:18001208040" translate="no">1800-120-8040</a>
-      <span data-i18n="common.footerHours">(9:30 AM – 6:00 PM, working days)</span>
-      <span data-i18n="common.footerEmail">or email</span>
-      <a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a>
-    </p>
-    <p class="site-footer__meta" data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</p>
+  <!-- Samanvay shared footer (multi-column, same on every page) -->
+  <footer class="gov-footer" data-ui-added>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h2 translate="no">Samanvay</h2>
+        <p data-i18n="footer.about">One application for Land, Electricity and Pollution approvals in Maharashtra.</p>
+        <p data-i18n="footer.proto">Prototype for Smart India Hackathon 2026. Department records are sample data.</p>
+      </div>
+      <nav class="footer-col" aria-label="Quick links" data-i18n-aria-label="footer.quick">
+        <h2 data-i18n="footer.quick">Quick links</h2>
+        <ul class="footer-links-list">
+          <li><a href="/" data-i18n="common.home">Home</a></li>
+          <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
+          <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
+          <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
+          <li><a href="/register.html" data-i18n="common.register">New user? Register</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="Department websites" data-i18n-aria-label="footer.depts">
+        <h2 data-i18n="footer.depts">Department websites</h2>
+        <ul class="footer-links-list">
+          <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
+          <li><a href="http://localhost:8000/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
+          <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
+        </ul>
+      </nav>
+      <div class="footer-col">
+        <h2 data-i18n="footer.help">Help and support</h2>
+        <p>
+          <span data-i18n="footer.helpline">Free helpline</span><br>
+          <a class="footer-helpline" href="tel:18001208040" translate="no">1800-120-8040</a><br>
+          <span data-i18n="footer.hours">9:30 AM – 6:00 PM, working days</span>
+        </p>
+        <p><a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a></p>
+        <p data-i18n="footer.a11y">Text size and English / मराठी controls are at the top of every page.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</span>
+      <a href="#main-content" data-i18n="footer.top">Back to top ↑</a>
+    </div>
   </footer>
 
   <script>

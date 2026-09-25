@@ -6,365 +6,55 @@
   <title data-i18n="index.pageTitle">Samanvay — one application for industry approvals</title>
   <link rel="stylesheet" href="/css/gov-style.css">
   <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
+  <link rel="stylesheet" href="/css/samanvay-design.css" data-ui-added>
   <script src="/js/i18n-strings.js" defer data-ui-added></script>
   <script src="/js/i18n.js" defer data-ui-added></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --navy: #1e3a8a;
-      --navy-deep: #0f172a;
-      --blue: #1d4ed8;
-      --blue-light: #3b82f6;
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-400: #94a3b8;
-      --slate-500: #64748b;
-      --slate-600: #475569;
-      --slate-700: #334155;
-      --emerald: #059669;
-      --amber: #d97706;
-    }
-
-    body {
-      background: var(--slate-50);
-      color: var(--navy-deep);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── NAVBAR ─── */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--slate-200);
-      padding: 0 clamp(20px, 4vw, 48px);
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .nav-brand-mark {
-      width: 34px; height: 34px;
-      background: var(--navy);
-      border-radius: 8px;
-      display: grid; place-items: center;
-    }
-    .nav-brand-mark svg { width: 18px; height: 18px; }
-    .nav-brand-name {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--navy);
-      letter-spacing: -0.02em;
-    }
-    .nav-actions { display: flex; gap: 10px; align-items: center; }
-    .nav-link {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--slate-600);
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      transition: color 0.15s, background 0.15s;
-    }
-    .nav-link:hover { color: var(--navy); background: var(--slate-100); }
-    .nav-cta {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #fff;
-      background: var(--navy);
-      padding: 9px 20px;
-      border-radius: 7px;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-    .nav-cta:hover { background: var(--blue); }
-
-    /* ─── HERO ─── */
-    .hero {
-      padding: 100px clamp(20px, 5vw, 48px) 80px;
-      text-align: center;
-      background: white;
-      border-bottom: 1px solid var(--slate-200);
-    }
+    /* Landing-only rules that the shared stylesheets do not cover. */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root { --navy: #1e3a8a; }
     .hero-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--slate-100);
-      border: 1px solid var(--slate-200);
       border-radius: 999px;
       padding: 6px 16px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      color: var(--slate-600);
-      margin-bottom: 28px;
     }
-    .hero-chip-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--emerald);
-    }
-    .hero h1 {
-      font-size: clamp(2.25rem, 5vw, 3.5rem);
-      font-weight: 900;
-      line-height: 1.12;
-      letter-spacing: -0.03em;
-      color: var(--navy-deep);
-      max-width: 820px;
-      margin: 0 auto 24px;
-    }
-    .hero h1 span { color: var(--blue); }
-    .hero-desc {
-      font-size: 1.15rem;
-      color: var(--slate-500);
-      line-height: 1.7;
-      max-width: 620px;
-      margin: 0 auto 44px;
-    }
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
+    .hero-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+    .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
     .hero-actions .btn-hero-primary { order: 2; }
-    .btn-hero-primary {
+    .btn-hero-primary, .btn-hero-secondary {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--navy);
-      color: #fff;
-      font-weight: 600;
-      font-size: 1.05rem;
-      padding: 15px 32px;
+      min-height: 44px;
+      padding: 13px 28px;
       border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
       text-decoration: none;
-      transition: background 0.15s, transform 0.1s;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
     }
-    .btn-hero-primary:hover { background: var(--blue); transform: translateY(-1px); }
     .btn-hero-primary svg { width: 18px; height: 18px; }
-    .btn-hero-primary, .btn-hero-secondary { min-height: 44px; }
-    .btn-hero-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: var(--slate-600);
-      font-weight: 500;
-      font-size: 1.05rem;
-      padding: 15px 28px;
-      border-radius: 8px;
-      border: 1px solid var(--slate-200);
-      text-decoration: none;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .btn-hero-secondary:hover { border-color: var(--slate-400); color: var(--navy-deep); }
-
-    /* ─── FLOW DIAGRAM ─── */
-    .flow-section {
-      padding: 80px clamp(20px, 5vw, 48px);
-      text-align: center;
-    }
-    .section-label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--blue);
-      margin-bottom: 12px;
-    }
-    .section-heading {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--navy-deep);
-      margin-bottom: 16px;
-    }
-    .section-desc {
-      color: var(--slate-500);
-      font-size: 1.05rem;
-      max-width: 580px;
-      margin: 0 auto 52px;
-      line-height: 1.6;
-    }
-
-    .flow-pipeline {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-    }
-    .flow-node {
-      position: relative;
-      background: white;
-      border: 1px solid var(--slate-200);
-      border-radius: 12px;
-      padding: 20px 32px;
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--navy-deep);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      width: 280px;
-      text-align: center;
-    }
-    .flow-node-sub {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: var(--slate-500);
-      margin-top: 4px;
-    }
-    .flow-core {
-      background: var(--navy);
-      color: #fff;
-      border-color: var(--navy);
-      width: 340px;
-      padding: 24px 36px;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 20px rgba(30,58,138,0.18);
-    }
-    .flow-core .flow-node-sub { color: rgba(255,255,255,0.65); }
-    .flow-connector {
-      width: 2px;
-      height: 36px;
-      background: var(--slate-200);
-      position: relative;
-    }
-    .flow-connector::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: -3px;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--slate-400);
-    }
-    .flow-departments {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .flow-dept {
-      background: white;
-      border: 1px solid var(--slate-200);
-      border-radius: 12px;
-      padding: 20px 24px;
-      width: 200px;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .flow-dept:hover {
-      border-color: var(--blue-light);
-      box-shadow: 0 4px 16px rgba(59,130,246,0.1);
-    }
-    .flow-dept-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      display: grid; place-items: center;
-      margin: 0 auto 12px;
-      font-size: 1.25rem;
-    }
-    .flow-dept-icon.land { background: #fef3c7; color: #b45309; }
-    .flow-dept-icon.elec { background: #dbeafe; color: #1d4ed8; }
-    .flow-dept-icon.poll { background: #d1fae5; color: #047857; }
-    .flow-dept h4 {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--navy-deep);
-      margin-bottom: 4px;
-    }
-    .flow-dept p {
-      font-size: 0.85rem;
-      color: var(--slate-500);
-      line-height: 1.4;
-    }
-    .flow-result {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      color: #065f46;
-    }
-
-    /* ─── VALUE PROPS ─── */
-    .values-section {
-      padding: 80px clamp(20px, 5vw, 48px);
-      background: white;
-      border-top: 1px solid var(--slate-200);
-      border-bottom: 1px solid var(--slate-200);
-    }
-    .values-grid {
-      max-width: 960px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-    }
-    .value-card {
-      padding: 28px;
-      border-radius: 12px;
-      border: 1px solid var(--slate-200);
-      background: var(--slate-50);
-      transition: border-color 0.2s;
-    }
-    .value-card:hover { border-color: var(--blue-light); }
+    .btn-hero-secondary { background: transparent; border: 1px solid; }
+    .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .value-card { padding: 24px; }
     .value-icon {
       width: 42px; height: 42px;
       border-radius: 10px;
-      background: var(--slate-100);
+      background: #f1f5f9;
       display: grid; place-items: center;
-      margin-bottom: 18px;
-      font-size: 1.2rem;
+      margin-bottom: 14px;
     }
-    .value-card h4 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--navy-deep);
-    }
-    .value-card p {
-      font-size: 0.95rem;
-      color: var(--slate-500);
-      line-height: 1.55;
-    }
-
-    /* ─── FOOTER ─── */
-    .landing-footer {
-      text-align: center;
-      padding: 48px clamp(20px, 5vw, 48px);
-      color: var(--slate-400);
-      font-size: 0.82rem;
-    }
-
-    /* ─── RESPONSIVENESS ─── */
-    @media (max-width: 768px) {
-      .values-grid { grid-template-columns: 1fr; }
-      .flow-departments { flex-direction: column; align-items: center; }
-      .flow-dept { width: 100%; max-width: 280px; }
-      .hero { padding: 64px 20px 56px; }
-    }
-    @media (max-width: 480px) {
-      .navbar { height: 56px; }
-      .nav-brand-name { font-size: 1.15rem; }
-      .nav-link { display: none; }
-      .hero-actions { flex-direction: column; align-items: center; }
-    }
+    .value-card p { font-size: 0.95rem; color: #475569; line-height: 1.55; }
+    @media (max-width: 768px) { .values-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .hero-actions { flex-direction: column; align-items: stretch; } }
   </style>
 </head>
 <body>
+  <div class="tricolor-stripe" aria-hidden="true" data-ui-added></div>
 
   <!-- Samanvay shared utility bar (GIGW): skip link, text size, language -->
   <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
@@ -386,7 +76,6 @@
     </div>
   </div>
 
-  <div style="height: 4px; background: #1e3a8a; width: 100%;"></div>
 
   <div class="gov-top-bar">
     <div>
@@ -448,139 +137,292 @@
   <main class="landing-main">
   <span id="main-content" class="skip-target" tabindex="-1"></span>
 
-  <!-- ═══ Hero ═══ -->
-  <section class="hero hero--photo">
-    <div>
-    <div class="hero-chip">
-      <span class="hero-chip-dot" aria-hidden="true"></span>
-      <span data-i18n="index.chip">Maharashtra single-window service</span></div>
+  <!-- Notice strip (reference design). Wording is factual: this is a prototype on sample data. -->
+  <div class="gov-notice-strip" role="note" data-ui-added>
+    <span class="gov-notice-tag" data-i18n="index.noticeTag">Notice</span>
+    <span class="gov-notice-text" data-i18n="index.noticeText">Samanvay is a Smart India Hackathon 2026 prototype. The department records it checks are sample data.</span>
+  </div>
 
-    <h1><span data-i18n="index.h1a" style="color: inherit;">One application.</span><br><span data-i18n="index.h1b">Every department.</span></h1>
+  <!-- ═══ Hero: reference's navy banner + floating badges, over the Gateway of India photo.
+       Photo: A.Savin, Wikipedia — Free Art License (Commons {{FAL}}); see images/CREDITS.txt.
+       It is a CSS background (decorative); the visible credit line below names it. ═══ -->
+  <section class="gov-hero-banner" aria-labelledby="heroTitle" data-ui-added>
+    <a class="hero-floating-badge badge-green float-badge-1" href="#svc-land"><span class="dot" aria-hidden="true"></span><span data-i18n="index.badgeLand">Land records (7/12)</span></a>
+    <a class="hero-floating-badge badge-blue float-badge-2" href="#svc-elec"><span class="dot" aria-hidden="true"></span><span data-i18n="index.badgeElec">Electricity connection (MSEDCL)</span></a>
+    <a class="hero-floating-badge badge-orange float-badge-3" href="#svc-poll"><span class="dot" aria-hidden="true"></span><span data-i18n="index.badgePoll">Pollution permission (MPCB)</span></a>
+    <a class="hero-floating-badge badge-purple float-badge-4" href="/login.html"><span class="dot" aria-hidden="true"></span><span data-i18n="index.badgeLogin">Log in with Aadhaar or PAN</span></a>
 
-    <p class="hero-desc" data-i18n="index.heroDesc">Samanvay connects the Land Revenue, Electricity and Pollution Control departments. You fill in your project details once, and every department that needs them gets them. No more filling in the same form three times.</p>
+    <div class="gov-hero-container">
+      <div class="hero-chip">
+        <span class="hero-chip-dot" aria-hidden="true"></span>
+        <span data-i18n="index.chip">Maharashtra single-window service</span>
+      </div>
+      <h2 class="gov-hero-title" id="heroTitle"><span data-i18n="index.h1a">One application.</span> <span class="sv-accent" data-i18n="index.h1b">Every department.</span></h2>
+      <p class="gov-hero-subtitle" data-i18n="index.heroDesc">Samanvay connects the Land Revenue, Electricity and Pollution Control departments. You fill in your project details once, and every department that needs them gets them. No more filling in the same form three times.</p>
 
-    <div class="hero-actions">
-      <a href="/dashboard.html" class="btn-hero-primary">
-        <span data-i18n="index.ctaShort">Start my application</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="/login.html" class="btn-hero-secondary" data-i18n="index.loginCta">Log in to my account</a>
+      <!-- Reference had a free-text search with script; this is the same finder as the menu,
+           as a plain GET form to /dashboard.html?tab=… (no script). -->
+      <form class="sv-hero-find" role="search" action="/dashboard.html" method="get" aria-label="Find a service" data-i18n-aria-label="nav.find">
+        <label for="svHeroFind" data-i18n="nav.find">Find a service</label>
+        <select id="svHeroFind" name="tab" required>
+          <option value="" data-i18n="nav.findPh">— Choose a service —</option>
+          <option value="process" data-i18n="dash.wz.title">Check what permissions you need</option>
+          <option value="flowchart" data-i18n="dash.fc.title">Department checks</option>
+          <option value="status" data-i18n="dash.st.title">Track my application</option>
+          <option value="query" data-i18n="dash.nav.query">Ask a question</option>
+          <option value="grievance" data-i18n="dash.nav.grievance">Make a complaint</option>
+          <option value="feedback" data-i18n="dash.nav.feedback">Give feedback</option>
+        </select>
+        <button type="submit" class="btn btn-saffron" data-i18n="nav.go">Go</button>
+      </form>
+
+      <div class="hero-popular-searches">
+        <span data-i18n="index.popular">Popular:</span>
+        <a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a>
+        <a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a>
+        <a href="/dashboard.html?tab=flowchart" data-i18n="dash.fc.title">Department checks</a>
+        <a href="/dashboard.html?tab=grievance" data-i18n="dash.nav.grievance">Make a complaint</a>
+      </div>
+
+      <div class="hero-actions">
+        <a href="/dashboard.html" class="btn-hero-primary">
+          <span data-i18n="index.ctaShort">Start my application</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="/login.html" class="btn-hero-secondary" data-i18n="index.loginCta">Log in to my account</a>
+      </div>
     </div>
-    </div>
-    <!-- Photo: A.Savin, Wikipedia — Free Art License (Commons {{FAL}}), unmodified 1280px
-         rendition of File:Mumbai_03-2016_30_Gateway_of_India.jpg. See images/CREDITS.txt.
-         alt="" because the visible caption right below already describes the photo. -->
-    <figure class="hero-figure" data-ui-added>
-      <img src="/images/gateway-of-india.jpg" alt="" width="1280" height="1280" loading="eager" decoding="async">
-      <figcaption>
-        <strong data-i18n="index.heroCaption">Gateway of India, Mumbai</strong> ·
-        <span data-i18n="index.heroPhoto">Photo:</span>
-        <a href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin, Wikipedia</a> ·
-        <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art License</a>
-      </figcaption>
-    </figure>
+
+    <p class="sv-hero-credit">
+      <span data-i18n="index.heroCaption">Gateway of India, Mumbai</span> ·
+      <span data-i18n="index.heroPhoto">Photo:</span>
+      <a href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin, Wikipedia</a> ·
+      <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art License</a>
+    </p>
   </section>
 
-  <!-- ═══ Flow Diagram ═══ -->
-  <section class="flow-section">
-    <div class="section-label" data-i18n="index.howLabel">How it works</div>
-    <h2 class="section-heading" data-i18n="index.howTitle">From application to approval, in one place</h2>
-    <p class="section-desc" data-i18n="index.howDesc">Instead of visiting three separate websites, you tell us about your project once. We send your details to each department that needs them.</p>
-
-    <div class="flow-pipeline">
-      <div class="flow-node">
-        <span data-i18n="index.flowYou">You (citizen or business)</span>
-        <span class="flow-node-sub" data-i18n="index.flowYouSub">Fill in one application</span>
-      </div>
-      <div class="flow-connector"></div>
-      <div class="flow-node flow-core">
-        <span translate="no">Samanvay</span>
-        <span class="flow-node-sub" data-i18n="index.flowCoreSub">Works out what you need and shares your details with each department</span>
-      </div>
-      <div class="flow-connector"></div>
-      <div class="flow-stage" data-ui-added>
-      <span class="flow-stage__label" data-i18n="index.flowStage1">Stage 1 — checked at the same time</span>
-      <div class="flow-departments">
-        <div class="flow-dept">
-          <div class="flow-dept-icon land">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
-          </div>
-          <h4 data-i18n="index.landTitle">Land Revenue</h4>
-          <p data-i18n="index.landDesc">7/12 land record, mutation and ownership check</p>
-        </div>
-        <div class="flow-dept">
-          <div class="flow-dept-icon elec">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </div>
-          <h4 data-i18n="index.elecTitle">Electricity (MSEDCL)</h4>
-          <p data-i18n="index.elecDesc">New power connection and power load approval</p>
-        </div>
-      </div>
-      </div>
-      <div class="flow-connector"></div>
-      <div class="flow-stage" data-ui-added>
-      <span class="flow-stage__label" data-i18n="index.flowStage2">Stage 2 — after Land and Electricity are both approved</span>
-      <div class="flow-departments">
-        <div class="flow-dept">
-          <div class="flow-dept-icon poll">
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1.68-4.14A7.32 7.32 0 0014 20c3.86 0 7-3.14 7-7a7 7 0 00-4-6.33"/><path d="M11 2a5 5 0 015 5c0 2.76-2.24 5-5 5S6 9.76 6 7a5 5 0 015-5z"/></svg>
-          </div>
-          <h4 data-i18n="index.pollTitle">Pollution Control (MPCB)</h4>
-          <p data-i18n="index.pollDesc">Permission to set up your unit (Consent to Establish)</p>
-        </div>
-      </div>
-      </div>
-      <div class="flow-connector"></div>
-      <div class="flow-node flow-result">
-        <span data-i18n="index.flowResult">Approvals from every department</span>
-        <span class="flow-node-sub" style="color: #047857;" data-i18n="index.flowResultSub">All tracked in one place</span>
-      </div>
+  <!-- ═══ Stat strip. Reference showed "< 0.5s" and "100% Paperless"; those are not
+       measured anywhere, so these are facts the product actually has. ═══ -->
+  <div class="stats-banner-grid" data-ui-added>
+    <div class="stat-pill-card stat-green">
+      <div class="stat-icon-wrapper stat-icon-green" aria-hidden="true">🏛️</div>
+      <div class="stat-content"><h3 data-i18n="index.stat1t">3 departments</h3><p data-i18n="index.stat1p">Land Revenue, Electricity and Pollution Control</p></div>
     </div>
-  </section>
-
-  <!-- ═══ Value Props ═══ -->
-  <section class="values-section">
-    <div style="text-align: center; margin-bottom: 48px;">
-      <div class="section-label" data-i18n="index.whyLabel">Why Samanvay</div>
-      <h2 class="section-heading" data-i18n="index.whyTitle">Made for approvals that need many departments</h2>
+    <div class="stat-pill-card stat-orange">
+      <div class="stat-icon-wrapper stat-icon-orange" aria-hidden="true">⏱️</div>
+      <div class="stat-content"><h3 data-i18n="index.stat2t">2 stages</h3><p data-i18n="index.stat2p">Land and Electricity together, then Pollution</p></div>
     </div>
-    <div class="values-grid">
-      <div class="value-card">
-        <div class="value-icon">
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-        </div>
-        <h4 data-i18n="index.v1t">Departments work together</h4>
-        <p data-i18n="index.v1p">Your details are shared securely between departments, so each one does not ask you for them again.</p>
-      </div>
-      <div class="value-card">
-        <div class="value-icon">
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
-        </div>
-        <h4 data-i18n="index.v2t">No repeated forms</h4>
-        <p data-i18n="index.v2p">Fill in your project details once. We fill in each department’s application for you with the details you already gave.</p>
-      </div>
-      <div class="value-card">
-        <div class="value-icon">
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-        </div>
-        <h4 data-i18n="index.v3t">Track everything in one place</h4>
-        <p data-i18n="index.v3p">See the status of your Land, Electricity and Pollution applications on one dashboard.</p>
-      </div>
+    <div class="stat-pill-card stat-blue">
+      <div class="stat-icon-wrapper stat-icon-blue" aria-hidden="true">🪪</div>
+      <div class="stat-content"><h3 data-i18n="index.stat3t">Aadhaar or PAN</h3><p data-i18n="index.stat3p">Log in with a one-time password (OTP)</p></div>
     </div>
-  </section>
+    <div class="stat-pill-card stat-purple">
+      <div class="stat-icon-wrapper stat-icon-purple" aria-hidden="true">🌐</div>
+      <div class="stat-content"><h3 data-i18n="index.stat4t" translate="no">English | मराठी</h3><p data-i18n="index.stat4p">Switch language on any page</p></div>
+    </div>
+  </div>
 
+  <div class="gov-container">
+
+    <!-- ═══ Online services (reference's accented cards). Stage tags follow the backend waves. ═══ -->
+    <section aria-labelledby="svcTitle">
+      <div class="section-head">
+        <div>
+          <h2 id="svcTitle" data-i18n="index.svcTitle">Online services</h2>
+          <p data-i18n="index.svcSub">The approvals Samanvay checks for you, and the order they happen in.</p>
+        </div>
+      </div>
+      <div class="gov-services-grid">
+        <article class="gov-service-card card-top-accent-green" id="svc-land">
+          <div>
+            <div class="card-icon-header">
+              <div class="card-icon-badge icon-green" aria-hidden="true">🌾</div>
+              <span class="dept-tag dept-tag--green" data-i18n="index.svcLandTag">Revenue Department</span>
+            </div>
+            <h3 data-i18n="index.svcLandTitle">Land record (7/12) check</h3>
+            <p data-i18n="index.svcLandDesc">We check your 7/12 land record, mutation entry and ownership with the Land Revenue department.</p>
+          </div>
+          <div class="gov-service-footer">
+            <span class="dept-tag" data-i18n="dash.fc.stage1">Stage 1</span>
+            <a href="/dashboard.html?tab=process" class="service-link" data-i18n="index.svcStart">Start ➔</a>
+          </div>
+        </article>
+        <article class="gov-service-card card-top-accent-blue" id="svc-elec">
+          <div>
+            <div class="card-icon-header">
+              <div class="card-icon-badge icon-blue" aria-hidden="true">⚡</div>
+              <span class="dept-tag dept-tag--blue" data-i18n="index.svcElecTag">MSEDCL (Mahavitaran)</span>
+            </div>
+            <h3 data-i18n="index.svcElecTitle">Electricity connection check</h3>
+            <p data-i18n="index.svcElecDesc">We check your new connection application and the power load you asked for with MSEDCL.</p>
+          </div>
+          <div class="gov-service-footer">
+            <span class="dept-tag" data-i18n="dash.fc.stage1">Stage 1</span>
+            <a href="/dashboard.html?tab=process" class="service-link" data-i18n="index.svcStart">Start ➔</a>
+          </div>
+        </article>
+        <article class="gov-service-card card-top-accent-orange" id="svc-poll">
+          <div>
+            <div class="card-icon-header">
+              <div class="card-icon-badge icon-amber" aria-hidden="true">🏭</div>
+              <span class="dept-tag dept-tag--amber" data-i18n="index.svcPollTag">Pollution Control Board</span>
+            </div>
+            <h3 data-i18n="index.svcPollTitle">Permission to set up (Consent to Establish)</h3>
+            <p data-i18n="index.svcPollDesc">Checked only after Land and Electricity are both approved, because the Pollution Control Board needs those first.</p>
+          </div>
+          <div class="gov-service-footer">
+            <span class="dept-tag" data-i18n="dash.fc.stage2">Stage 2</span>
+            <a href="/dashboard.html?tab=process" class="service-link" data-i18n="index.svcStart">Start ➔</a>
+          </div>
+        </article>
+        <article class="gov-service-card" id="svc-all">
+          <div>
+            <div class="card-icon-header">
+              <div class="card-icon-badge icon-navy" aria-hidden="true">🛡️</div>
+              <span class="dept-tag" translate="no">Samanvay</span>
+            </div>
+            <h3 data-i18n="index.svcAllTitle">One application for all three</h3>
+            <p data-i18n="index.svcAllDesc">Answer 10 questions once. We work out which approvals you need and send your details to each department.</p>
+          </div>
+          <div class="gov-service-footer">
+            <span></span>
+            <a href="/dashboard.html?tab=process" class="service-link" data-i18n="index.svcStart">Start ➔</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══ How it works (reference's step strip; static, and shows the real Stage 1 / Stage 2 order) ═══ -->
+    <section aria-labelledby="flowTitle">
+      <div class="section-head">
+        <div>
+          <h2 id="flowTitle" data-i18n="index.flowTitle">How Samanvay works</h2>
+          <p data-i18n="index.flowSub">From one application to a result from every department.</p>
+        </div>
+      </div>
+      <ol class="citizen-flow-strip">
+        <li class="flow-step-node"><span data-i18n="index.flow1">You answer 10 questions</span><small data-i18n="index.flow1s">About your project, once</small></li>
+        <li class="flow-step-node"><span data-i18n="index.flow2">We work out what you need</span><small data-i18n="index.flow2s">Which approvals, in which order</small></li>
+        <li class="flow-step-node flow-step-node--wave"><span data-i18n="index.flow3">Stage 1: Land + Electricity</span><small data-i18n="index.flow3s">Checked at the same time</small></li>
+        <li class="flow-step-node flow-step-node--wave"><span data-i18n="index.flow4">Stage 2: Pollution Control Board</span><small data-i18n="index.flow4s">Only after both are approved</small></li>
+        <li class="flow-step-node flow-step-node--done"><span data-i18n="index.flow5">Your overall result</span><small data-i18n="index.flow5s">Then finish on each department’s website</small></li>
+      </ol>
+    </section>
+
+    <!-- ═══ Track call-out ═══ -->
+    <section aria-labelledby="trackTitle">
+      <div class="track-panel">
+        <div>
+          <h3 id="trackTitle" data-i18n="index.trackTitle">Already applied?</h3>
+          <p data-i18n="index.trackText">Log in to see the latest status of your application from each department.</p>
+        </div>
+        <a href="/dashboard.html?tab=status" class="btn btn-primary" data-i18n="dash.st.title">Track my application</a>
+      </div>
+    </section>
+
+    <!-- ═══ Why Samanvay (existing value cards, reference card styling) ═══ -->
+    <section class="values-section" aria-labelledby="whyTitle">
+      <div class="section-head">
+        <div>
+          <h2 id="whyTitle" data-i18n="index.whyTitle">Made for approvals that need many departments</h2>
+        </div>
+      </div>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <h3 data-i18n="index.v1t">Departments work together</h3>
+          <p data-i18n="index.v1p">Your details are shared securely between departments, so each one does not ask you for them again.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <h3 data-i18n="index.v2t">No repeated forms</h3>
+          <p data-i18n="index.v2p">Fill in your project details once. We fill in each department’s application for you with the details you already gave.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          </div>
+          <h3 data-i18n="index.v3t">Track everything in one place</h3>
+          <p data-i18n="index.v3p">See the status of your Land, Electricity and Pollution applications on one dashboard.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FAQ (reference accordion as native <details>; no script) ═══ -->
+    <section aria-labelledby="faqTitle">
+      <div class="section-head">
+        <div>
+          <h2 id="faqTitle" data-i18n="index.faqTitle">Help and frequently asked questions</h2>
+        </div>
+      </div>
+      <div class="accordion-wrapper">
+        <details class="accordion-item" open>
+          <summary class="accordion-header" data-i18n="index.faqQ1">Do I fill in a separate form for each department?</summary>
+          <div class="accordion-body" data-i18n="index.faqA1">No. You answer the questions once and Samanvay sends your details to each department that needs them. You still sign, pay fees and make the final submission on each department’s official website.</div>
+        </details>
+        <details class="accordion-item">
+          <summary class="accordion-header" data-i18n="index.faqQ2">In what order are the departments checked?</summary>
+          <div class="accordion-body" data-i18n="index.faqA2">Land and Electricity are checked at the same time. The Pollution Control Board check starts only after both have approved.</div>
+        </details>
+        <details class="accordion-item">
+          <summary class="accordion-header" data-i18n="index.faqQ3">What do I need to log in?</summary>
+          <div class="accordion-body" data-i18n="index.faqA3">The Aadhaar or PAN number you registered with. We send a one-time password (OTP) to your registered mobile number.</div>
+        </details>
+        <details class="accordion-item">
+          <summary class="accordion-header" data-i18n="index.faqQ4">How do I track my application?</summary>
+          <div class="accordion-body" data-i18n="index.faqA4">Log in and open “Track my application” on your dashboard.</div>
+        </details>
+      </div>
+    </section>
+
+  </div>
   </main>
 
-  <!-- Samanvay shared footer -->
-  <footer class="site-footer" data-ui-added>
-    <p class="site-footer__help">
-      <span data-i18n="common.footerHelp">Need help? Call the free helpline</span>
-      <a href="tel:18001208040" translate="no">1800-120-8040</a>
-      <span data-i18n="common.footerHours">(9:30 AM – 6:00 PM, working days)</span>
-      <span data-i18n="common.footerEmail">or email</span>
-      <a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a>
-    </p>
-    <p class="site-footer__meta" data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</p>
+  <!-- Samanvay shared footer (multi-column, same on every page) -->
+  <footer class="gov-footer" data-ui-added>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h2 translate="no">Samanvay</h2>
+        <p data-i18n="footer.about">One application for Land, Electricity and Pollution approvals in Maharashtra.</p>
+        <p data-i18n="footer.proto">Prototype for Smart India Hackathon 2026. Department records are sample data.</p>
+      </div>
+      <nav class="footer-col" aria-label="Quick links" data-i18n-aria-label="footer.quick">
+        <h2 data-i18n="footer.quick">Quick links</h2>
+        <ul class="footer-links-list">
+          <li><a href="/" data-i18n="common.home">Home</a></li>
+          <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
+          <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
+          <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
+          <li><a href="/register.html" data-i18n="common.register">New user? Register</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="Department websites" data-i18n-aria-label="footer.depts">
+        <h2 data-i18n="footer.depts">Department websites</h2>
+        <ul class="footer-links-list">
+          <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
+          <li><a href="http://localhost:8000/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
+          <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
+        </ul>
+      </nav>
+      <div class="footer-col">
+        <h2 data-i18n="footer.help">Help and support</h2>
+        <p>
+          <span data-i18n="footer.helpline">Free helpline</span><br>
+          <a class="footer-helpline" href="tel:18001208040" translate="no">1800-120-8040</a><br>
+          <span data-i18n="footer.hours">9:30 AM – 6:00 PM, working days</span>
+        </p>
+        <p><a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a></p>
+        <p data-i18n="footer.a11y">Text size and English / मराठी controls are at the top of every page.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</span>
+      <a href="#main-content" data-i18n="footer.top">Back to top ↑</a>
+    </div>
   </footer>
 
 </body>

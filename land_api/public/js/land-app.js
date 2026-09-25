@@ -1,445 +1,748 @@
 /**
- * Land Records Department — Independent Frontend Application
- * ============================================================
- * This JavaScript is completely standalone. It does NOT import,
- * reference, or depend on any MAITRI UI code or modules.
- * It communicates solely with the Land API at localhost:4000.
- * ============================================================
+ * MAHARASHTRA BHUMI ABHILEKH (MAHABHULEKH / महाभूमी)
+ * Client-side Controller & Dynamic Renderer
  */
 
-const LAND_API = 'http://localhost:4000/api/land';
-const API_KEY = 'interop-demo-key-001';
-const MAITRI_API = 'http://localhost:5000/api/portal';
+let currentDivision = 'pune';
+let divisionsData = [];
+let currentTab = '7-12';
+let currentLanguage = 'mr'; // 'mr' (मराठी) or 'en' (English)
 
-// Read URL params for MAITRI integration (callback mechanism)
-const urlParams = new URLSearchParams(window.location.search);
-const maitriAppId = urlParams.get('app_id');
-const maitriCallback = urlParams.get('callback');
-const maitriSurvey = urlParams.get('survey');
-const maitriPan = urlParams.get('pan');
+// ── Samanvay hand-off ───────────────────────────────────────────────────────────
+// The Samanvay dashboard opens this portal with ?app_id=…&callback=…&survey=…&pan=…
+// &applicant=…&email=…&mobile=… . We pre-fill the application, and after it is
+// submitted we send the citizen back with land_status=COMPLETED so Samanvay
+// unlocks the next step (Electricity).
+const SAMANVAY_PORTAL_API = 'http://localhost:5000/api/portal';
+const handoff = (() => {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    appId: p.get('app_id'),
+    callback: p.get('callback'),
+    survey: p.get('survey') || '',
+    pan: (p.get('pan') || '').toUpperCase(),
+    applicant: p.get('applicant') || '',
+  };
+})();
+let lastApplicationRef = '';
 
-// If arriving from MAITRI with context, pre-fill and go to apply
-window.addEventListener('DOMContentLoaded', () => {
-  if (maitriAppId && maitriSurvey) {
-    // Pre-fill the apply form with MAITRI context
-    switchTab('apply');
-    if (maitriPan && document.getElementById('applyPan')) {
-      document.getElementById('applyPan').value = maitriPan;
-    }
-    if (maitriSurvey && document.getElementById('applySurvey')) {
-      document.getElementById('applySurvey').value = maitriSurvey;
-    }
-    const maitriApplicant = urlParams.get('applicant');
-    if (maitriApplicant) {
-      if (document.getElementById('applyName')) document.getElementById('applyName').value = maitriApplicant;
-      if (document.getElementById('applyOrg')) document.getElementById('applyOrg').value = maitriApplicant;
-    }
-    const maitriPhone = urlParams.get('mobile');
-    if (maitriPhone && document.getElementById('applyPhone')) {
-      document.getElementById('applyPhone').value = maitriPhone;
-    }
-
-    // Auto-fetch verified profile from backend database
-    if (maitriPan) {
-      fetchAndFillProfile();
-    }
-  }
-
-  // Load all records for the "All Records" tab
-  loadAllRecords();
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadDivisions();
+  switchTab('7-12');
+  presetLookup('101', 'Pune', 'Haveli', 'Wagholi');
+  // Start the hand-off whenever we were opened from Samanvay. (Samanvay may
+  // send an empty survey number, so app_id alone is enough.)
+  if (handoff.appId) startSamanvayHandoff();
 });
 
-// =============================================
-// AUTO-FILL PROFILE FROM MAITRI DATABASE
-// =============================================
-async function fetchAndFillProfile() {
-  const panInput = document.getElementById('applyPan');
-  const pan = (maitriPan || panInput?.value || '').trim().toUpperCase();
-  if (!pan || pan.length < 10) {
-    alert('Please enter a valid 10-character PAN number first.');
-    return;
-  }
+function startSamanvayHandoff() {
+  switchTab('apply');
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  setVal('applySurvey', handoff.survey);
+  setVal('applyPan', handoff.pan);
+  setVal('applyName', handoff.applicant);
+  const banner = document.getElementById('samanvayHandoff');
+  if (banner) banner.hidden = false;
+  if (handoff.pan) fillProfileFromSamanvay(handoff.pan);
+}
 
-  const bar = document.getElementById('autoFillBar');
-  const msg = document.getElementById('autoFillMsg');
-  const badge = document.getElementById('autoFillBadge');
-
-  if (bar) bar.style.display = 'block';
-  if (msg) msg.textContent = '🔄 Fetching your profile from database...';
-
+// Same lookup the previous portal used: the citizen's verified profile in Samanvay's database.
+async function fillProfileFromSamanvay(pan) {
+  const msg = document.getElementById('samanvayProfileMsg');
+  if (msg) msg.textContent = '🔄 समन्वय मधून प्रोफाइल आणत आहे… (Fetching your profile from Samanvay…)';
   try {
-    const res = await fetch(`${MAITRI_API}/user-profile?pan=${encodeURIComponent(pan)}`);
+    const res = await fetch(`${SAMANVAY_PORTAL_API}/user-profile?pan=${encodeURIComponent(pan)}`);
     const data = await res.json();
-
-    if (data.success && data.found) {
+    if (data.success && data.found && data.profile) {
       const p = data.profile;
-
-      // Auto-fill all fields — fully editable by user
-      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
-      setVal('applyPan', p.pan);
-      setVal('applyName', p.full_name || p.organization_name);
-      setVal('applyOrg', p.organization_name);
-      setVal('applyPhone', p.mobile);
-      setVal('applyEmail', p.email);
-      setVal('applyAadhaar', p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '*') : '');
-
-      if (msg) msg.innerHTML = `✅ Profile auto-filled for <strong>${p.organization_name || p.full_name}</strong>. You may edit any field before proceeding.`;
-      if (bar) {
-        bar.style.background = '#f0fdf4';
-        bar.style.borderColor = '#86efac';
-        bar.style.color = '#15803d';
-      }
-      if (badge) badge.style.display = 'inline-block';
-    } else {
-      if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found for this PAN. Please fill in manually.'}`;
-      if (bar) {
-        bar.style.background = '#fef9c3';
-        bar.style.borderColor = '#fde047';
-        bar.style.color = '#854d0e';
-      }
+      const nameEl = document.getElementById('applyName');
+      if (nameEl) nameEl.value = p.organization_name || p.full_name || nameEl.value;
+      const panEl = document.getElementById('applyPan');
+      if (panEl && p.pan) panEl.value = p.pan;
+      if (msg) msg.textContent = `✅ प्रोफाइल भरले: ${p.organization_name || p.full_name} (Profile filled — you can edit any field)`;
+    } else if (msg) {
+      msg.textContent = '⚠️ या पॅनसाठी प्रोफाइल सापडले नाही — कृपया माहिती स्वतः भरा. (No profile found for this PAN — please fill in manually.)';
     }
   } catch (err) {
-    if (msg) msg.textContent = '❌ Could not connect to database. Please fill manually.';
-    if (bar) {
-      bar.style.background = '#fef2f2';
-      bar.style.borderColor = '#fca5a5';
-      bar.style.color = '#991b1b';
-    }
+    if (msg) msg.textContent = '⚠️ समन्वयशी जोडणी झाली नाही — कृपया माहिती स्वतः भरा. (Could not reach Samanvay — please fill in manually.)';
   }
 }
 
+function returnToSamanvay() {
+  const ref = lastApplicationRef || ('LND-' + Date.now().toString().slice(-8));
+  if (!handoff.callback) { window.location.href = 'http://localhost:5000/dashboard.html?tab=flowchart'; return; }
+  const sep = handoff.callback.includes('?') ? '&' : '?';
+  const url = `${handoff.callback}${sep}app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
+  if (window.opener && !window.opener.closed) {
+    window.opener.location.href = url;
+    window.close();
+  } else {
+    window.location.href = url;
+  }
+}
 
-// =============================================
-// TAB SWITCHING
-// =============================================
-function switchTab(tab) {
-  const sections = ['trackSection', 'applySection', 'recordsSection'];
-  sections.forEach(s => {
-    document.getElementById(s).style.display = 'none';
+// ── Language Toggle ─────────────────────────────────────────────────────────────
+function setLanguage(lang) {
+  currentLanguage = lang;
+  document.querySelectorAll('.lang-mr').forEach(el => el.style.display = lang === 'mr' ? '' : 'none');
+  document.querySelectorAll('.lang-en').forEach(el => el.style.display = lang === 'en' ? '' : 'none');
+  populateDistricts(currentDivision);
+}
+
+// ── Load Divisions ──────────────────────────────────────────────────────────────
+async function loadDivisions() {
+  try {
+    const res = await fetch('/api/land/mahabhulekh/divisions');
+    const data = await res.json();
+    divisionsData = data.divisions || [];
+    renderDivisionsGrid();
+    populateDistricts('pune');
+  } catch (err) {
+    console.error('Failed to load divisions:', err);
+  }
+}
+
+function renderDivisionsGrid() {
+  const container = document.getElementById('divisionGrid');
+  if (!container) return;
+
+  container.innerHTML = divisionsData.map(d => `
+    <div class="mb-division-card ${d.id === currentDivision ? 'selected' : ''}" onclick="selectDivision('${d.id}')">
+      <div class="mb-division-name">${d.name_mr}</div>
+      <div class="mb-division-sub">${d.name_en} (${d.districts.length} जिल्हे)</div>
+    </div>
+  `).join('');
+}
+
+function selectDivision(divId) {
+  currentDivision = divId;
+  renderDivisionsGrid();
+  populateDistricts(divId);
+}
+
+function populateDistricts(divId) {
+  const divObj = divisionsData.find(d => d.id === divId) || divisionsData[0];
+  const districtSelect = document.getElementById('selDistrict');
+  if (!districtSelect || !divObj) return;
+
+  districtSelect.innerHTML = divObj.districts.map(dist => 
+    `<option value="${dist.id}" data-name-en="${dist.name_en}" data-name-mr="${dist.name_mr}">${dist.name_mr} (${dist.name_en})</option>`
+  ).join('');
+
+  onDistrictChange();
+}
+
+function onDistrictChange() {
+  const divObj = divisionsData.find(d => d.id === currentDivision) || divisionsData[0];
+  const districtSelect = document.getElementById('selDistrict');
+  const talukaSelect = document.getElementById('selTaluka');
+  if (!districtSelect || !talukaSelect || !divObj) return;
+
+  const selectedDistId = districtSelect.value;
+  const distObj = divObj.districts.find(d => d.id === selectedDistId) || divObj.districts[0];
+
+  talukaSelect.innerHTML = distObj ? distObj.talukas.map(t => 
+    `<option value="${t.id}" data-name-en="${t.name_en}" data-name-mr="${t.name_mr}">${t.name_mr} (${t.name_en})</option>`
+  ).join('') : '';
+
+  onTalukaChange();
+}
+
+function onTalukaChange() {
+  const divObj = divisionsData.find(d => d.id === currentDivision) || divisionsData[0];
+  const districtSelect = document.getElementById('selDistrict');
+  const talukaSelect = document.getElementById('selTaluka');
+  const villageSelect = document.getElementById('selVillage');
+  if (!districtSelect || !talukaSelect || !villageSelect || !divObj) return;
+
+  const distObj = divObj.districts.find(d => d.id === districtSelect.value);
+  const talukaObj = distObj ? distObj.talukas.find(t => t.id === talukaSelect.value) : null;
+
+  villageSelect.innerHTML = talukaObj ? talukaObj.villages.map(v => 
+    `<option value="${v.id}" data-name-en="${v.name_en}" data-name-mr="${v.name_mr}">${v.name_mr} (${v.name_en})</option>`
+  ).join('') : '';
+}
+
+// ── Tab Switching ───────────────────────────────────────────────────────────────
+function switchTab(tabId) {
+  currentTab = tabId;
+  document.querySelectorAll('.mb-nav a').forEach(a => a.classList.remove('active'));
+  const activeNav = document.getElementById(`nav-${tabId}`);
+  if (activeNav) activeNav.classList.add('active');
+
+  const tabContainers = ['7-12', '8-a', 'ferfar', 'aapli-chawadi', 'apply', 'all-records'];
+  tabContainers.forEach(t => {
+    const el = document.getElementById(`section-${t}`);
+    if (el) el.style.display = t === tabId ? 'block' : 'none';
   });
 
-  const navLinks = document.querySelectorAll('.land-nav a');
-  navLinks.forEach(a => a.classList.remove('active'));
-
-  if (tab === 'track') {
-    document.getElementById('trackSection').style.display = 'block';
-    navLinks[1].classList.add('active');
-  } else if (tab === 'apply') {
-    document.getElementById('applySection').style.display = 'block';
-    navLinks[2].classList.add('active');
-    resetStepper();
-  } else if (tab === 'records') {
-    document.getElementById('recordsSection').style.display = 'block';
-    navLinks[3].classList.add('active');
-    loadAllRecords();
-  } else {
-    // Home = track by default
-    document.getElementById('trackSection').style.display = 'block';
-    navLinks[0].classList.add('active');
+  if (tabId === 'all-records') {
+    fetchAllRecords();
+  } else if (tabId === 'ferfar') {
+    fetchFerfarRecords();
+  } else if (tabId === 'aapli-chawadi') {
+    fetchAapliChawadi();
   }
 }
 
-// =============================================
-// TRACK / VERIFY RECORD
-// =============================================
-function presetTrack(survey, pan) {
-  document.getElementById('trackSurvey').value = survey;
-  document.getElementById('trackPan').value = pan || '';
-  document.getElementById('trackForm').dispatchEvent(new Event('submit', { cancelable: true }));
+// ── Preset Quick Lookup ─────────────────────────────────────────────────────────
+function presetLookup(surveyNo, district, taluka, village) {
+  const searchInput = document.getElementById('searchQuery');
+  if (searchInput) searchInput.value = surveyNo;
+
+  const radioSurvey = document.getElementById('radioSurvey');
+  if (radioSurvey) radioSurvey.checked = true;
+
+  handleSearch712();
 }
 
-async function handleTrackSubmit(e) {
-  e.preventDefault();
-  const survey = document.getElementById('trackSurvey').value.trim();
-  const pan = document.getElementById('trackPan')?.value.trim();
-  const query = survey || pan;
-  if (!query) return;
+// ── Fetch & Render 7/12 Extract ─────────────────────────────────────────────────
+async function handleSearch712(e) {
+  if (e) e.preventDefault();
+  const searchBtn = document.getElementById('btnSearch712');
+  const resultContainer = document.getElementById('result712');
+  const query = (document.getElementById('searchQuery')?.value || '101').trim();
 
-  const btn = document.getElementById('trackBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="land-spinner"></span> Fetching...';
+  let searchType = 'survey';
+  if (document.getElementById('radioKhata')?.checked) searchType = 'khata';
+  if (document.getElementById('radioName')?.checked) searchType = 'name';
+  if (document.getElementById('radioPan')?.checked) searchType = 'pan';
 
-  hideError();
-  document.getElementById('trackResult').style.display = 'none';
+  const distSelect = document.getElementById('selDistrict');
+  const talSelect = document.getElementById('selTaluka');
+  const vilSelect = document.getElementById('selVillage');
+
+  const district = distSelect?.options[distSelect.selectedIndex]?.dataset.nameEn || '';
+  const taluka = talSelect?.options[talSelect.selectedIndex]?.dataset.nameEn || '';
+  const village = vilSelect?.options[vilSelect.selectedIndex]?.dataset.nameEn || '';
+
+  if (searchBtn) searchBtn.disabled = true;
+  if (resultContainer) {
+    resultContainer.innerHTML = `
+      <div style="text-align: center; padding: 30px; color: var(--mb-maroon);">
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">⏳</div>
+        <strong>महाराष्ट्र भूमी अभिलेख प्रणालीतून ७/१२ उतारा प्राप्त करत आहे...</strong>
+      </div>
+    `;
+  }
 
   try {
-    const res = await fetch(`${LAND_API}/records/${encodeURIComponent(query)}`, {
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY }
-    });
+    const url = `/api/land/mahabhulekh/7-12?query=${encodeURIComponent(query)}&searchType=${searchType}&district=${encodeURIComponent(district)}&taluka=${encodeURIComponent(taluka)}&village=${encodeURIComponent(village)}`;
+    const res = await fetch(url);
     const data = await res.json();
 
-    if (!res.ok) {
-      showError(data.message || data.error || 'Record not found in database');
-      btn.disabled = false;
-      btn.textContent = 'Fetch Land Record';
+    if (!res.ok || !data.success) {
+      resultContainer.innerHTML = `
+        <div class="mb-card" style="border-left: 4px solid #dc3545; padding: 20px;">
+          <h4 style="color: #dc3545; margin-bottom: 6px;">रेकॉर्ड आढळले नाही (No Record Found)</h4>
+          <p style="color: var(--mb-text-muted); font-size: 0.9rem;">${data.message || 'या निकषांवर कोणताही सातबारा उतारा उपलब्ध नाही.'}</p>
+        </div>
+      `;
       return;
     }
 
-    displayTrackResult(data);
-    document.getElementById('trackJson').textContent = JSON.stringify(data, null, 2);
-    document.getElementById('trackResult').style.display = 'block';
+    renderSatbara712(data.record, data.uin);
   } catch (err) {
-    showError('Cannot connect to Land Department API. Is it running on port 4000?');
+    resultContainer.innerHTML = `
+      <div class="mb-card" style="border-left: 4px solid #dc3545; padding: 20px;">
+        <h4 style="color: #dc3545;">API त्रुटी (Connection Error)</h4>
+        <p style="color: var(--mb-text-muted);">${err.message}</p>
+      </div>
+    `;
+  } finally {
+    if (searchBtn) searchBtn.disabled = false;
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Fetch Land Record';
 }
 
-function displayTrackResult(record) {
-  const badge = document.getElementById('trackMutationBadge');
-  badge.textContent = record.jamabandi;
-  badge.className = 'land-badge ' + (
-    record.jamabandi === 'APPROVED' ? 'land-badge-approved' :
-    record.jamabandi === 'PENDING' ? 'land-badge-pending' : 'land-badge-rejected'
-  );
+function renderSatbara712(r, uin) {
+  const container = document.getElementById('result712');
+  if (!container) return;
 
-  const details = document.getElementById('trackDetails');
-  details.innerHTML = `
-    <div class="land-detail-row">
-      <span class="land-detail-label">Survey / Gat Number</span>
-      <span class="land-detail-value">${record.gtn}</span>
+  const isApproved = r.jamabandi === 'APPROVED';
+  const isPending = r.jamabandi === 'PENDING';
+  const isRejected = r.jamabandi === 'REJECTED';
+
+  const statusBadge = isApproved 
+    ? `<span style="background: #198754; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">प्रमाणित / APPROVED</span>`
+    : isPending
+    ? `<span style="background: #ffc107; color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">प्रलंबित फेरफार / PENDING MUTATION</span>`
+    : `<span style="background: #dc3545; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">नामंजूर / REJECTED</span>`;
+
+  const cropsHtml = (r.crop_data && r.crop_data.length > 0) ? r.crop_data.map(c => `
+    <tr>
+      <td style="text-align: center;">${c.year || '2025-26'}</td>
+      <td style="text-align: center;">${c.season || 'वार्षिक'}</td>
+      <td><strong>${c.crop_name || 'अकृषिक'}</strong></td>
+      <td style="text-align: right;">${c.area || r.kshetra} हे.आर</td>
+      <td style="text-align: center;">${c.irrigation_source || 'एमआयडीसी / विहीर'}</td>
+      <td style="text-align: center;">${c.mixed_crop || 'नाही'}</td>
+    </tr>
+  `).join('') : `
+    <tr>
+      <td colspan="6" style="text-align: center; color: #666;">पिकांची नोंद उपलब्ध नाही / अकृषिक जमीन</td>
+    </tr>
+  `;
+
+  container.innerHTML = `
+    <!-- Top Action Bar -->
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--mb-maroon);">
+        📄 सातबारा उतारा (गाव नमुना ७ व १२) • UIN: <span style="font-family: monospace; color: #000;">${uin || 'MH-PUN-101'}</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="mb-btn mb-btn-outline" onclick="window.print()" style="padding: 6px 14px; font-size: 0.85rem;">
+          🖨️ मुद्रण (Print / Save PDF)
+        </button>
+        <button class="mb-btn mb-btn-primary" onclick="simulateMutationToggle('${r.gtn}')" style="padding: 6px 14px; font-size: 0.85rem;">
+          ⚙️ फेरफार स्थिती बदला (Simulate Mutation)
+        </button>
+      </div>
     </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Owner Name (मालक)</span>
-      <span class="land-detail-value">${record.malak_name}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Owner PAN</span>
-      <span class="land-detail-value">${record.malak_pan}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Area (क्षेत्र)</span>
-      <span class="land-detail-value">${record.kshetra} ${record.kshetra_unit}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Land Type (जमीन प्रकार)</span>
-      <span class="land-detail-value">${record.jamin_prakar}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Mutation Status (जमाबंदी)</span>
-      <span class="land-detail-value" style="color: ${record.jamabandi === 'APPROVED' ? 'var(--land-success)' : record.jamabandi === 'PENDING' ? 'var(--land-warning)' : 'var(--land-danger)'};">${record.jamabandi}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Encumbrance (बंधक)</span>
-      <span class="land-detail-value">${record.bandhak ? '⚠️ Yes' : '✅ None'}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Court Case Pending</span>
-      <span class="land-detail-value">${record.court_case ? '⚠️ Yes' : '✅ None'}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">District</span>
-      <span class="land-detail-value">${record.district}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Taluka</span>
-      <span class="land-detail-value">${record.taluka}</span>
-    </div>
-    <div class="land-detail-row">
-      <span class="land-detail-label">Village</span>
-      <span class="land-detail-value">${record.village}</span>
+
+    <!-- Official 7/12 Sheet -->
+    <div class="satbara-sheet">
+      <div class="satbara-watermark">महाराष्ट्र शासन • महसूल विभाग</div>
+
+      <div class="satbara-header">
+        <h2>महाराष्ट्र शासन • महसूल विभाग (GOVERNMENT OF MAHARASHTRA)</h2>
+        <h3>गाव नमुना सात (अधिकार अभिलेख पत्रक) व गाव नमुना बारा (पिकांची पाहणी नोंदवही)</h3>
+        <p style="font-size: 0.8rem; color: #444; margin-top: 2px;">(महाराष्ट्र जमीन महसूल अधिकार अभिलेख आणि नोंदवह्या तयार करणे व सुस्थितीत ठेवणे नियम १९७१ यातील नियम ३, ५, ६ आणि २९)</p>
+      </div>
+
+      <div class="satbara-meta">
+        <div><strong>गाव:</strong> ${r.village_mr || r.village} (${r.village})</div>
+        <div><strong>तालुका:</strong> ${r.taluka_mr || r.taluka} (${r.taluka})</div>
+        <div><strong>जिल्हा:</strong> ${r.district_mr || r.district} (${r.district})</div>
+        <div><strong>गट / सर्व्हे क्र.:</strong> <span style="font-size: 1.1rem; color: #780000;">${r.gtn || r.survey_number}</span></div>
+      </div>
+
+      <!-- FORM 7 SECTION -->
+      <table class="satbara-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">भूमापन क्रमांक व उपविभाग</th>
+            <th style="width: 25%;">भोगवटादाराचे नाव व हिस्सा</th>
+            <th style="width: 25%;">क्षेत्र व आकारणी</th>
+            <th style="width: 25%;">इतर हक्क व फेरफार</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight: 700; font-size: 1rem; color: #780000;">गट क्र. ${r.gtn}</div>
+              <div style="margin-top: 4px; font-size: 0.82rem; color: #555;">उपविभाग / हिस्सा: <strong>${r.hissa_no || '१'}</strong></div>
+              <div style="margin-top: 4px; font-size: 0.82rem;"><strong>खाते क्रमांक:</strong> <span style="background: #eee; padding: 1px 6px; border-radius: 3px;">${r.khata_no || '४५२'}</span></div>
+              <div style="margin-top: 8px; font-size: 0.82rem;"><strong>धारणा प्रकार / वर्ग:</strong><br>${r.bhogvatadar_varg || 'भोगवटादार वर्ग - १'}</div>
+            </td>
+            <td>
+              <div style="font-weight: 700; font-size: 0.95rem; line-height: 1.3;">
+                ${r.malak_name || 'मे. एबीसी इंडस्ट्रीज प्रा. लि.'}
+              </div>
+              <div style="font-size: 0.8rem; color: #555; margin-top: 4px;">
+                PAN: <strong style="letter-spacing: 0.5px;">${r.malak_pan || 'ABCDE1234F'}</strong>
+              </div>
+              <div style="font-size: 0.8rem; color: #555;">
+                आधार: <strong>${r.malak_aadhaar ? 'XXXX-XXXX-' + r.malak_aadhaar.slice(-4) : 'XXXX-XXXX-5544'}</strong>
+              </div>
+              <div style="margin-top: 8px; font-size: 0.82rem;">
+                <strong>जमीन वापर:</strong> ${r.jamin_prakar_mr || r.jamin_prakar || 'अकृषिक - औद्योगिक'}
+              </div>
+              <div style="margin-top: 6px;">
+                ${statusBadge}
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; padding-bottom: 3px;">
+                <span>लागवडीयोग्य क्षेत्र:</span>
+                <strong>${(parseFloat(r.kshetra) - parseFloat(r.pot_kharaba || 0)).toFixed(2)} हे.आर</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; padding: 3px 0;">
+                <span>पोटखराबा क्षेत्र:</span>
+                <strong>${r.pot_kharaba || '०.१०'} हे.आर</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-weight: 700;">
+                <span>एकूण क्षेत्र:</span>
+                <span style="color: #780000;">${r.kshetra} ${r.kshetra_unit || 'हेक्टर'}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.82rem;">
+                <span>आकारणी (रुपये):</span>
+                <strong>रु. ${r.aakarni || '४५.५०'}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                <span>जुडी / विशेष कर:</span>
+                <strong>रु. ${r.judi_tax || '०.००'}</strong>
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 0.82rem; margin-bottom: 6px;">
+                <strong>प्रमाणित फेरफार नोंदी:</strong><br>
+                ${(r.ferfar_nos || ['१०४५', '११८२', '१२९०']).map(f => `<span style="display: inline-block; background: #e8f4ec; color: #1a5632; padding: 1px 6px; margin: 2px; border-radius: 3px; font-weight: 600;">क्र. ${f}</span>`).join(' ')}
+              </div>
+              <div style="font-size: 0.82rem; margin-top: 6px; color: ${r.pending_ferfar && r.pending_ferfar !== 'निरंक' ? '#b45309' : '#555'};">
+                <strong>प्रलंबित फेरफार:</strong> ${r.pending_ferfar || 'निरंक'}
+              </div>
+              <div style="font-size: 0.82rem; margin-top: 6px; color: ${r.bandhak ? '#dc2626' : '#15803d'};">
+                <strong>बोजा / कर्ज:</strong> ${r.boja_details || (r.bandhak ? 'कर्ज बोजा लागू' : 'निरंक (बोजा नाही)')}
+              </div>
+              <div style="font-size: 0.82rem; margin-top: 4px; color: ${r.court_case ? '#dc2626' : '#555'};">
+                <strong>न्यायालयीन वाद:</strong> ${r.court_details || (r.court_case ? 'वादग्रस्त' : 'निरंक')}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- FORM 12 SECTION -->
+      <div style="font-weight: 700; font-size: 0.95rem; margin: 14px 0 6px 0; color: #222; border-bottom: 1px solid #333; padding-bottom: 4px;">
+        गाव नमुना बारा (पिकांची पाहणी नोंदवही - Crop Inspection Sheet)
+      </div>
+
+      <table class="satbara-table">
+        <thead>
+          <tr>
+            <th>वर्ष</th>
+            <th>हंगाम</th>
+            <th>पिकाचे नाव व जात</th>
+            <th>जलसिंचित / लागवड क्षेत्र</th>
+            <th>पाण्याचा स्त्रोत</th>
+            <th>मिश्र पीक</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cropsHtml}
+        </tbody>
+      </table>
+
+      <!-- Digital Signature Stamp & QR Code -->
+      <div class="satbara-digital-sign">
+        <div>
+          <div class="satbara-seal-box">
+            🛡️ <strong>डिजिटल स्वाक्षरीत अधिकृत उतारा (Digitally Signed Record)</strong><br>
+            तलाठी / मंडळ अधिकारी: <strong>${r.talathi_name || 'तलाठी कार्यालय'}</strong><br>
+            स्वाक्षरी दिनांक व वेळ: <strong>${new Date().toLocaleString('mr-IN')}</strong>
+          </div>
+        </div>
+        <div style="text-align: right; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 0.75rem; color: #555;">
+            सदर ७/१२ उतारा हा <strong>महाभूमी / महाभूलेख</strong> प्रणालीद्वारे<br>
+            डिजिटल स्वाक्षरीत असून शासकीय कामकाजासाठी वैध आहे.
+          </div>
+          <div style="background: #f8f9fa; border: 1px solid #333; padding: 6px; font-family: monospace; font-size: 0.7rem; text-align: center;">
+            <div style="font-size: 1.8rem; line-height: 1;">📱</div>
+            QR VERIFIED
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
 
-// =============================================
-// APPLY FOR CERTIFICATE — STEPPER
-// =============================================
-let currentStep = 1;
+// ── Fetch & Render 8-A Extract ──────────────────────────────────────────────────
+async function handleSearch8A(e) {
+  if (e) e.preventDefault();
+  const query = (document.getElementById('search8AQuery')?.value || '452').trim();
+  const container = document.getElementById('result8A');
 
-function resetStepper() {
-  currentStep = 1;
-  updateStepperUI();
-  document.getElementById('applyStep1').style.display = 'block';
-  document.getElementById('applyStep2').style.display = 'none';
-  document.getElementById('applyStep3').style.display = 'none';
-  document.getElementById('applySuccess').style.display = 'none';
-}
-
-function goToStep(step) {
-  // Validate before advancing
-  if (step === 2 && currentStep === 1) {
-    const name = document.getElementById('applyName').value.trim();
-    const pan = document.getElementById('applyPan').value.trim();
-    const phone = document.getElementById('applyPhone').value.trim();
-    if (!name || !pan || !phone) {
-      alert('Please fill all required fields before proceeding.');
-      return;
-    }
-  }
-  if (step === 3 && currentStep === 2) {
-    const district = document.getElementById('applyDistrict').value;
-    const taluka = document.getElementById('applyTaluka').value.trim();
-    const survey = document.getElementById('applySurvey').value.trim();
-    if (!district || !taluka || !survey) {
-      alert('Please fill all required fields before proceeding.');
-      return;
-    }
-    populateReview();
-  }
-
-  currentStep = step;
-  updateStepperUI();
-
-  document.getElementById('applyStep1').style.display = step === 1 ? 'block' : 'none';
-  document.getElementById('applyStep2').style.display = step === 2 ? 'block' : 'none';
-  document.getElementById('applyStep3').style.display = step === 3 ? 'block' : 'none';
-}
-
-function updateStepperUI() {
-  for (let i = 1; i <= 3; i++) {
-    const el = document.getElementById(`step${i}`);
-    el.classList.remove('active', 'completed');
-    if (i < currentStep) el.classList.add('completed');
-    if (i === currentStep) el.classList.add('active');
-  }
-}
-
-function populateReview() {
-  const content = document.getElementById('applyReviewContent');
-  content.innerHTML = `
-    <div style="margin-bottom: 20px;">
-      <strong style="font-size: 0.82rem; color: var(--land-primary); text-transform: uppercase; letter-spacing: 0.5px;">Applicant Details</strong>
-      <div class="land-detail-row"><span class="land-detail-label">Name</span><span class="land-detail-value">${document.getElementById('applyName').value}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">PAN</span><span class="land-detail-value">${document.getElementById('applyPan').value.toUpperCase()}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Organization</span><span class="land-detail-value">${document.getElementById('applyOrg').value || '—'}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Contact</span><span class="land-detail-value">${document.getElementById('applyPhone').value}</span></div>
-    </div>
-    <div>
-      <strong style="font-size: 0.82rem; color: var(--land-primary); text-transform: uppercase; letter-spacing: 0.5px;">Land Details</strong>
-      <div class="land-detail-row"><span class="land-detail-label">District</span><span class="land-detail-value">${document.getElementById('applyDistrict').value}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Taluka</span><span class="land-detail-value">${document.getElementById('applyTaluka').value}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Village</span><span class="land-detail-value">${document.getElementById('applyVillage').value || '—'}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Survey / Gat No</span><span class="land-detail-value">${document.getElementById('applySurvey').value}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Area</span><span class="land-detail-value">${document.getElementById('applyArea').value || '—'} Ha</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Certificate Type</span><span class="land-detail-value">${document.getElementById('applyCertType').value.replace(/_/g, ' ')}</span></div>
-      <div class="land-detail-row"><span class="land-detail-label">Purpose</span><span class="land-detail-value">${document.getElementById('applyPurpose').value}</span></div>
+  container.innerHTML = `
+    <div style="text-align: center; padding: 24px; color: var(--mb-maroon);">
+      ⏳ गाव नमुना ८-अ खाते उतारा शोधत आहे...
     </div>
   `;
-}
-
-async function handleApplySubmit() {
-  const btn = document.getElementById('applySubmitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="land-spinner"></span> Submitting...';
-
-  const pan = document.getElementById('applyPan').value.trim().toUpperCase();
-  const survey = document.getElementById('applySurvey').value.trim();
-  let refNo = 'LND-' + Date.now().toString().slice(-8);
 
   try {
-    const res = await fetch(`${LAND_API}/apply`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        surveyNumber: survey,
-        pan: pan,
-        applicantName: document.getElementById('applyName')?.value.trim(),
-        district: document.getElementById('applyDistrict')?.value,
-        taluka: document.getElementById('applyTaluka')?.value,
-        village: document.getElementById('applyVillage')?.value,
-        area: document.getElementById('applyArea')?.value,
-        certificateType: document.getElementById('applyCertType')?.value
-      })
-    });
+    const res = await fetch(`/api/land/mahabhulekh/8-a?query=${encodeURIComponent(query)}`);
     const data = await res.json();
-    if (data.success && data.application_ref) {
-      refNo = data.application_ref;
+
+    if (!res.ok || !data.success) {
+      container.innerHTML = `<div class="mb-card" style="padding: 20px; color: #dc3545;">${data.message || '८-अ खाते उतारा आढळला नाही.'}</div>`;
+      return;
     }
+
+    const ext = data.extract;
+    container.innerHTML = `
+      <div class="satbara-sheet">
+        <div class="satbara-header">
+          <h2>महाराष्ट्र शासन • महसूल विभाग (GOVERNMENT OF MAHARASHTRA)</h2>
+          <h3>गाव नमुना आठ-अ (८-अ खातेदाराच्या जमिनीची नोंदवही / Holding Register)</h3>
+        </div>
+
+        <div class="satbara-meta">
+          <div><strong>खाते क्रमांक:</strong> <span style="color: #780000; font-size: 1.1rem;">${ext.khata_no}</span></div>
+          <div><strong>खातेदाराचे नाव:</strong> <strong>${ext.malak_name}</strong></div>
+          <div><strong>गाव:</strong> ${ext.village} | <strong>तालुका:</strong> ${ext.taluka} | <strong>जिल्हा:</strong> ${ext.district}</div>
+        </div>
+
+        <table class="satbara-table">
+          <thead>
+            <tr>
+              <th>अनु. क्र.</th>
+              <th>सर्व्हे / गट क्रमांक</th>
+              <th>हिस्सा</th>
+              <th>जमिनीचा प्रकार</th>
+              <th>एकूण क्षेत्र (हे.आर)</th>
+              <th>पोटखराबा</th>
+              <th>आकारणी (रु.)</th>
+              <th>फेरफार स्थिती</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${ext.holdings.map((h, idx) => `
+              <tr>
+                <td style="text-align: center;">${idx + 1}</td>
+                <td style="text-align: center; font-weight: 700; color: #780000;">गट क्र. ${h.survey_number}</td>
+                <td style="text-align: center;">${h.hissa_no}</td>
+                <td>${h.jamin_prakar}</td>
+                <td style="text-align: right; font-weight: 600;">${h.area_hectares} हे.आर</td>
+                <td style="text-align: right;">${h.pot_kharaba}</td>
+                <td style="text-align: right;">रु. ${h.aakarni}</td>
+                <td style="text-align: center;">
+                  <span style="background: ${h.mutation_status === 'APPROVED' ? '#198754' : '#ffc107'}; color: ${h.mutation_status === 'APPROVED' ? '#fff' : '#000'}; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: 700;">
+                    ${h.mutation_status}
+                  </span>
+                </td>
+              </tr>
+            `).join('')}
+            <tr style="background: #f8f9fa; font-weight: 700;">
+              <td colspan="4" style="text-align: right;">एकूण खाते धारणा (Total Holding):</td>
+              <td style="text-align: right; color: #780000;">${ext.total_area_hectares} हेक्टर</td>
+              <td style="text-align: right;">${ext.total_pot_kharaba}</td>
+              <td style="text-align: right;">रु. ${ext.total_aakarni}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
   } catch (err) {
-    console.warn('Backend apply call note:', err.message);
-  }
-
-  document.getElementById('applyRefNo').textContent = refNo;
-
-  // Hide stepper and show success
-  document.getElementById('applyStep3').style.display = 'none';
-  document.getElementById('applySuccess').style.display = 'block';
-
-  // Show return-to-MAITRI if we came from there
-  if (maitriAppId) {
-    document.getElementById('returnToMaitriSection').style.display = 'block';
-  }
-
-  // Mark all steps as completed
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById(`step${i}`).classList.remove('active');
-    document.getElementById(`step${i}`).classList.add('completed');
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Submit Application';
-
-  loadAllRecords();
-}
-
-// =============================================
-// RETURN TO MAITRI (CALLBACK)
-// =============================================
-function returnToMaitri() {
-  const refNo = document.getElementById('applyRefNo').textContent;
-  if (maitriCallback) {
-    // Navigate the opener (MAITRI) to the callback URL
-    const callbackUrl = `${maitriCallback}?app_id=${encodeURIComponent(maitriAppId)}&land_status=COMPLETED&land_ref=${encodeURIComponent(refNo)}`;
-    if (window.opener && !window.opener.closed) {
-      window.opener.location.href = callbackUrl;
-      window.close();
-    } else {
-      window.location.href = callbackUrl;
-    }
-  } else {
-    // Fallback: just go to MAITRI
-    window.location.href = 'http://localhost:5000/dashboard.html';
+    container.innerHTML = `<div class="mb-card" style="padding: 20px; color: #dc3545;">त्रुटी: ${err.message}</div>`;
   }
 }
 
-// =============================================
-// ALL RECORDS
-// =============================================
-async function loadAllRecords() {
-  const body = document.getElementById('allRecordsBody');
+// ── Fetch e-Ferfar ──────────────────────────────────────────────────────────────
+async function fetchFerfarRecords() {
+  const container = document.getElementById('resultFerfar');
+  if (!container) return;
 
   try {
-    const res = await fetch(`${LAND_API}/all`);
+    const res = await fetch('/api/land/mahabhulekh/ferfar');
+    const data = await res.json();
+    const list = data.ferfar_records || [];
+
+    container.innerHTML = `
+      <table class="satbara-table">
+        <thead>
+          <tr>
+            <th>फेरफार क्र.</th>
+            <th>गट / सर्व्हे क्र.</th>
+            <th>गाव / तालुका</th>
+            <th>फेरफार प्रकार / नोंदीचे स्वरूप</th>
+            <th>अर्जदार / खरेदीदार</th>
+            <th>माजी मालक</th>
+            <th>अर्ज दिनांक</th>
+            <th>स्थिती (Status)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map(f => `
+            <tr>
+              <td style="text-align: center; font-weight: 800; color: #780000;">क्र. ${f.ferfar_no}</td>
+              <td style="text-align: center; font-weight: 700;">गट ${f.survey_number}</td>
+              <td>${f.village}, ${f.taluka}</td>
+              <td><strong>${f.mutation_type}</strong></td>
+              <td>${f.applicant_name}</td>
+              <td>${f.previous_owner}</td>
+              <td style="text-align: center;">${f.application_date}</td>
+              <td style="text-align: center;">
+                <span style="background: ${f.status === 'CERTIFIED' ? '#198754' : '#ffc107'}; color: ${f.status === 'CERTIFIED' ? '#fff' : '#000'}; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">
+                  ${f.status_mr || f.status}
+                </span>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p style="color: #dc3545;">त्रुटी: ${err.message}</p>`;
+  }
+}
+
+// ── Fetch Aapli Chawadi ─────────────────────────────────────────────────────────
+async function fetchAapliChawadi() {
+  const container = document.getElementById('resultAapliChawadi');
+  if (!container) return;
+
+  try {
+    const res = await fetch('/api/land/mahabhulekh/aapli-chawadi');
+    const data = await res.json();
+    const notices = data.notices || [];
+
+    container.innerHTML = `
+      <div style="margin-bottom: 16px; font-size: 0.9rem; color: #555;">
+        महाराष्ट्र जमीन महसूल संहिता १९६६ कलम १३५-ड अन्वये गावनिहाय जाहीर नोटीस फलक.
+      </div>
+      <div style="display: grid; gap: 14px;">
+        ${notices.map(n => `
+          <div class="mb-card" style="border-left: 4px solid var(--mb-maroon); margin-bottom: 0;">
+            <div class="mb-card-header" style="background: #fff8f5;">
+              <span>📜 नोटीस क्र. ${n.notice_no || '135D'} • फेरफार क्र. ${n.ferfar_no || '1402'} (गट क्र. ${n.survey_number || '103'})</span>
+              <span style="font-size: 0.8rem; color: #780000;">मुदत: ${n.expiry_date || '15 दिवस'}</span>
+            </div>
+            <div class="mb-card-body" style="font-size: 0.92rem; line-height: 1.5;">
+              <p>${n.details || 'अधिकार अभिलेखात बदल करण्याबाबत जाहीर नोटीस.'}</p>
+              <div style="margin-top: 10px; font-size: 0.8rem; color: #666;">
+                गाव: <strong>${n.village || 'वाघोली'}</strong> | तालुका: <strong>${n.taluka || 'हवेली'}</strong> | प्रसिद्ध दिनांक: <strong>${n.notice_date || '2026-02-20'}</strong>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p style="color: #dc3545;">त्रुटी: ${err.message}</p>`;
+  }
+}
+
+// ── Fetch All Records (Admin / Audit) ───────────────────────────────────────────
+async function fetchAllRecords() {
+  const container = document.getElementById('resultAllRecords');
+  if (!container) return;
+
+  try {
+    const res = await fetch('/api/land/all');
     const data = await res.json();
     const records = data.records || [];
 
-    if (body) {
-      if (records.length === 0) {
-        body.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px;">No records found in database.</td></tr>';
-        return;
-      }
-      body.innerHTML = records.map(record => {
-        const badgeClass = record.jamabandi === 'APPROVED' ? 'land-badge-approved' :
-                           record.jamabandi === 'PENDING' ? 'land-badge-pending' : 'land-badge-rejected';
-        return `
-          <tr style="cursor: pointer;" onclick="presetTrack('${record.gtn}', '${record.malak_pan}'); switchTab('track');">
-            <td><strong>${record.gtn}</strong></td>
-            <td>${record.malak_name}</td>
-            <td style="font-family: monospace; font-size: 0.82rem;">${record.malak_pan}</td>
-            <td>${record.kshetra} ${record.kshetra_unit}</td>
-            <td>${record.district}</td>
-            <td>${record.jamin_prakar}</td>
-            <td><span class="land-badge ${badgeClass}">${record.jamabandi}</span></td>
+    container.innerHTML = `
+      <div style="margin-bottom: 12px; font-weight: 700; color: var(--mb-maroon);">
+        एकूण रेकॉर्ड्स (Total Records in MahaBhulekh Database): ${records.length}
+      </div>
+      <table class="satbara-table">
+        <thead>
+          <tr>
+            <th>गट क्र.</th>
+            <th>खातेदार / मालक</th>
+            <th>PAN</th>
+            <th>गाव / तालुका</th>
+            <th>क्षेत्र</th>
+            <th>वापर</th>
+            <th>जमाबंदी / फेरफार</th>
+            <th>बोजा</th>
+            <th>न्यायालय</th>
           </tr>
-        `;
-      }).join('');
-    }
+        </thead>
+        <tbody>
+          ${records.map(r => `
+            <tr>
+              <td style="text-align: center; font-weight: 800; color: #780000;">${r.gtn}</td>
+              <td><strong>${r.malak_name}</strong></td>
+              <td style="font-family: monospace;">${r.malak_pan}</td>
+              <td>${r.village}, ${r.taluka}</td>
+              <td style="text-align: right;">${r.kshetra} HA</td>
+              <td>${r.jamin_prakar}</td>
+              <td style="text-align: center;">
+                <span style="background: ${r.jamabandi === 'APPROVED' ? '#198754' : (r.jamabandi === 'PENDING' ? '#ffc107' : '#dc3545')}; color: ${r.jamabandi === 'PENDING' ? '#000' : '#fff'}; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: 700;">
+                  ${r.jamabandi}
+                </span>
+              </td>
+              <td style="text-align: center; color: ${r.bandhak ? '#dc2626' : '#15803d'}; font-weight: 700;">${r.bandhak ? 'होय' : 'नाही'}</td>
+              <td style="text-align: center; color: ${r.court_case ? '#dc2626' : '#15803d'}; font-weight: 700;">${r.court_case ? 'होय' : 'नाही'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
   } catch (err) {
-    if (body) body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--land-danger); padding: 32px;">Failed to load records. Is the Land API running?</td></tr>';
+    container.innerHTML = `<p style="color: #dc3545;">त्रुटी: ${err.message}</p>`;
   }
 }
 
-// =============================================
-// HELPERS
-// =============================================
-function showError(msg) {
-  const el = document.getElementById('trackError');
-  el.innerHTML = `<strong>Error:</strong> ${msg}`;
-  el.style.display = 'block';
+// ── Apply for Mutation / Land Certificate ───────────────────────────────────────
+async function handleApplySubmit(e) {
+  e.preventDefault();
+  const surveyNumber = document.getElementById('applySurvey').value.trim();
+  const pan = document.getElementById('applyPan').value.trim();
+  const applicantName = document.getElementById('applyName').value.trim();
+  const area = document.getElementById('applyArea').value.trim();
+  const district = document.getElementById('applyDistrict').value.trim();
+  const taluka = document.getElementById('applyTaluka').value.trim();
+  const village = document.getElementById('applyVillage').value.trim();
+  const msgEl = document.getElementById('applyMsg');
+
+  if (msgEl) {
+    msgEl.innerHTML = `<div style="padding: 12px; color: var(--mb-maroon);">⏳ अर्ज महसूल प्रणालीमध्ये दाखल करत आहे...</div>`;
+  }
+
+  try {
+    const res = await fetch('/api/land/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ surveyNumber, pan, applicantName, area, district, taluka, village })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      if (msgEl) {
+        msgEl.innerHTML = `
+          <div style="background: #e8f4ec; border: 1px solid #198754; color: #198754; padding: 14px; border-radius: 6px; margin-top: 12px;">
+            <strong>✅ अर्ज यशस्वीरीत्या दाखल झाला!</strong><br>
+            अर्ज संदर्भ क्रमांक (Application Ref): <strong>${data.application_ref}</strong><br>
+            गट क्र. ${surveyNumber} चा सातबारा व फेरफार त्वरित अपडेट करण्यात आला आहे.
+          </div>
+        `;
+      }
+      lastApplicationRef = data.application_ref || '';
+      if (handoff.appId) {
+        // Opened from Samanvay: stay here and offer the way back to the next step.
+        const back = document.getElementById('returnToSamanvay');
+        if (back) { back.hidden = false; back.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      } else {
+        setTimeout(() => {
+          switchTab('7-12');
+          presetLookup(surveyNumber, district, taluka, village);
+        }, 2000);
+      }
+    } else {
+      if (msgEl) {
+        msgEl.innerHTML = `<div style="color: #dc3545; padding: 12px;">❌ त्रुटी: ${data.message || 'अर्ज दाखल करता आला नाही.'}</div>`;
+      }
+    }
+  } catch (err) {
+    if (msgEl) {
+      msgEl.innerHTML = `<div style="color: #dc3545; padding: 12px;">❌ नेटवर्क त्रुटी: ${err.message}</div>`;
+    }
+  }
 }
 
-function hideError() {
-  document.getElementById('trackError').style.display = 'none';
+// ── Mutation Simulator Toggle ──────────────────────────────────────────────────
+async function simulateMutationToggle(surveyNo) {
+  const newStatus = prompt(`फेरफार स्थिती निवडा (Enter new status for Survey #${surveyNo}):\n1. APPROVED\n2. PENDING\n3. REJECTED\n4. UNDER_OBJECTION`, 'APPROVED');
+  if (!newStatus) return;
+
+  const valid = ['APPROVED', 'PENDING', 'REJECTED', 'UNDER_OBJECTION'];
+  const formatted = newStatus.trim().toUpperCase();
+  if (!valid.includes(formatted)) {
+    alert(`अवैध स्थिती! कृपया यापैकी एक प्रविष्ट करा: ${valid.join(', ')}`);
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/land/records/${surveyNo}/mutation`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': 'land-admin-mutation-key-007'
+      },
+      body: JSON.stringify({ mutation_status: formatted })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`✅ गट क्र. ${surveyNo} ची फेरफार स्थिती बदलून "${formatted}" करण्यात आली आहे!`);
+      handleSearch712();
+    } else {
+      alert(`त्रुटी: ${data.message}`);
+    }
+  } catch (err) {
+    alert(`नेटवर्क त्रुटी: ${err.message}`);
+  }
 }
