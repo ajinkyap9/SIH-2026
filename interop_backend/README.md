@@ -24,7 +24,7 @@
                                │ parallel async
             ┌──────────────────┼──────────────────┐
             ▼                  ▼                   ▼
-    LAND API :4000    ELECTRICITY API :8000   POLLUTION API :4002
+    LAND API :4000    ELECTRICITY API :8001   POLLUTION API :4002
     (Node.js)         (FastAPI)               (Node.js)
 ```
 
@@ -63,7 +63,7 @@
 | `/api/departments/health` | GET | Public | Check all 3 department connectivity |
 | `/api/audit` | GET | JWT | Platform audit trail |
 
-Interactive docs: **`http://localhost:5000/docs`**
+Interactive docs: **`http://localhost:8000/docs`**
 
 ---
 
@@ -80,7 +80,7 @@ Interactive docs: **`http://localhost:5000/docs`**
 cd land_api && npm install && node server.js
 
 # Terminal 2 — Electricity API
-cd electricity_department_api && pip install -r requirements.txt && uvicorn app.main:app --port 8000
+cd electricity_department_api && pip install -r requirements.txt && python run_dev.py  # port 8001
 
 # Terminal 3 — Pollution API
 cd pollution_api/pollution_api && npm install && node server.js
@@ -92,7 +92,7 @@ cd pollution_api/pollution_api && npm install && node server.js
 cd interop_backend
 pip install -r requirements.txt
 cp .env.example .env
-uvicorn app.main:app --host 0.0.0.0 --port 5000 --reload
+python run_dev.py  # port 8000 — reads from ports.json
 ```
 
 ### 3. Run Tests
@@ -113,9 +113,9 @@ docker-compose up --build
 ```
 
 Services will start at:
-- Interop Backend: http://localhost:5000
+- Interop Backend: http://localhost:8000
 - Land API: http://localhost:4000
-- Electricity API: http://localhost:8000
+- Electricity API: http://localhost:8001
 - Pollution API: http://localhost:4002
 
 ---
@@ -124,7 +124,7 @@ Services will start at:
 
 ### 1. Login
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"applicant@abcindustries.com","password":"SecretPass123"}'
 ```

@@ -1,4 +1,4 @@
-﻿# 🏗️ Technical Architecture Diagram
+# 🏗️ Technical Architecture Diagram
 ### Government Interoperability Platform & RAG Decision Engine
 **Smart India Hackathon (SIH) 2026 — Problem Statement SIH26129**
 
@@ -88,7 +88,7 @@
 
 ---
 
-### B. Electricity Department API — Port `8000`
+### B. Electricity Department API — Port `8001`
 
 **Technology:** Python 3.12 · FastAPI · SQLAlchemy 2.0 · SQLite
 
@@ -176,17 +176,15 @@ python -m pytest interop_backend/tests/ -v
 |---|---|
 | Containerization | Docker (Dockerfile per microservice) |
 | Orchestration | docker-compose.yml |
-| RAG Intake Engine | Port 8001 |
-| Interoperability Gateway | Port 5000 |
-| Electricity Department API | Port 8000 |
+| Interoperability Backend (interop_backend) | Port 8000 |
+| Electricity Department API | Port 8001 |
 | Land Records API | Port 4000 |
 | Pollution Department API | Port 4002 |
 | Static Web Portal | Express.js — Port 5000 (server/public/) |
 
 **Swagger Documentation:**
-- Interop Gateway: `http://localhost:5000/docs`
-- Electricity Department: `http://localhost:8000/docs`
-- RAG Intake Engine: `http://localhost:8001/docs`
+- Interop Backend: `http://localhost:8000/docs`
+- Electricity Department: `http://localhost:8001/docs`
 
 ---
 
@@ -196,7 +194,7 @@ python -m pytest interop_backend/tests/ -v
 APPLICANT
     │
     ▼
-RAG Intake & Decision Engine (:8001)
+Interop Backend (:8000)
     │  Conversational Q&A → Regulatory decision → Wave plan
     │
     ▼
@@ -205,7 +203,7 @@ Interoperability Gateway (:5000)
     │
     ├──────────────────┬──────────────────┐
     ▼                  ▼                  ▼
-Land API (:4000)  Electricity API (:8000)  Pollution API (:4002)
+Land API (:4000)  Electricity API (:8001)  Pollution API (:4002)
 [Marathi Schema]  [Discom/MSEDCL Schema]   [MPCB Schema]
     │                  │                  │
     └──────────────────┴──────────────────┘

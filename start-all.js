@@ -33,6 +33,39 @@ const only = opt('--only');
 const selected = ORDER.filter((n) => PORTS.services[n] && (!only || only.split(',').map((s) => s.trim()).includes(n)));
 const LOG_DIR = path.join(ROOT, 'logs', 'start-all');
 const isWin = process.platform === 'win32';
+const PIDS_FILE = path.join(LOG_DIR, 'pids.json');
+
+// ── Kill previously-launched services (reload-cycle cleanup) ─────────────────
+function isProcessAlive(pid) {
+  try {
+    if (isWin) {
+      const out = execSync(`tasklist /FI "PID eq ${pid}" /FO CSV /NH`, { encoding: 'utf8' }).trim();
+      return out.length > 0 && !out.startsWith('INFO:');
+    }
+    process.kill(pid, 0);   // signal 0 = probe only
+    return true;
+  } catch (e) { return false; }
+}
+function stopPreviousRun() {
+  if (!fs.existsSync(PIDS_FILE)) return;
+  let prev;
+  try { prev = JSON.parse(fs.readFileSync(PIDS_FILE, 'utf8')); } catch (e) { return; }
+  const alive = Object.entries(prev).filter(([, pid]) => isProcessAlive(pid));
+  if (!alive.length) return;
+  console.log(`\nStopping ${alive.length} service(s) from previous run…`);
+  for (const [svcName, pid] of alive) {
+    try {
+      if (isWin) spawnSync('taskkill', ['/PID', String(pid), '/T', '/F']);
+      else process.kill(pid, 'SIGTERM');
+      ok(`  stopped ${svcName.padEnd(12)} pid ${pid}`);
+    } catch (e) {
+      info(`  (${svcName} pid ${pid} already gone)`);
+    }
+  }
+  // Give OS a moment to release ports after kill
+  const t = Date.now() + 1500;
+  while (Date.now() < t) { /* spin-wait */ }
+}
 
 // ── output helpers ──────────────────────────────────────────────────────────────
 const RED = '\x1b[31m', GRN = '\x1b[32m', YEL = '\x1b[33m', BLD = '\x1b[1m', RST = '\x1b[0m';
@@ -133,6 +166,9 @@ function tail(file, n = 12) { try { return fs.readFileSync(file, 'utf8').trim().
 (async () => {
   console.log(`${BLD}Samanvay local services${RST} — ports from ${path.relative(ROOT, PORTS_FILE) || PORTS_FILE}, bind address ${HOST}\n`);
 
+  // 0) Kill services from any previous start-all.js run (reload-cycle cleanup).
+  if (!has('--check') && !has('--verify')) stopPreviousRun();
+
   if (has('--verify')) {
     const bad = [];
     for (const name of selected) {
@@ -175,7 +211,7 @@ function tail(file, n = 12) { try { return fs.readFileSync(file, 'utf8').trim().
     children.push(child);
     info(`started ${name.padEnd(12)} pid ${child.pid}  (${path.basename(cmd)} ${argv.join(' ')})  log: ${path.relative(ROOT, logFile)}`);
   }
-  fs.writeFileSync(path.join(LOG_DIR, 'pids.json'), JSON.stringify(Object.fromEntries(children.map((c) => [c.serviceName, c.pid])), null, 2));
+  fs.writeFileSync(PIDS_FILE, JSON.stringify(Object.fromEntries(children.map((c) => [c.serviceName, c.pid])), null, 2));
 
   // 3) Each service must answer on its port with the expected identity.
   for (const child of children) {
@@ -206,7 +242,12 @@ function tail(file, n = 12) { try { return fs.readFileSync(file, 'utf8').trim().
   ok(`Every port has exactly one listener, bound to ${HOST} only.`);
 
   console.log(`\n${GRN}${BLD}All ${children.length} services are up.${RST} Press Ctrl+C to stop them all.`);
-  const stop = () => { console.log('\nStopping all services…'); stopChildren(); process.exit(0); };
+  const stop = () => {
+    console.log('\nStopping all services…');
+    stopChildren();
+    try { fs.writeFileSync(PIDS_FILE, '{}'); } catch (e) { /* best-effort */ }
+    process.exit(0);
+  };
   process.on('SIGINT', stop); process.on('SIGTERM', stop);
   for (const c of children) c.on('exit', (code) => { if (!c.stopping) { console.error(`${YEL}! ${c.serviceName} exited (code ${code}). See ${path.relative(ROOT, c.logFile)}${RST}`); } });
   setInterval(() => {}, 1 << 30);   // keep the parent alive while services run

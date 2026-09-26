@@ -193,7 +193,7 @@ router.post('/evaluate-project', async (req, res) => {
 });
 
 // ─── POST /api/interop/verify-electricity ────────────────────────────────────
-// Proxy to the real Electricity Department API at port 8000
+// Proxy to the real Electricity Department API at port 8001 (from ports.json)
 router.post('/verify-electricity', async (req, res) => {
   const { applicationNumber, pan } = req.body;
 

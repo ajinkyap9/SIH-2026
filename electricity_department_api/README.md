@@ -87,7 +87,7 @@ In enterprise government interoperability architectures:
 | `POST` | `/api/admin/set-state` | Yes | `/api/admin/*` | **Demo Only:** Mutate departmental application states |
 | `GET` | `/api/audit` | Yes | `/api/audit` | Retrieve access logs with masked PANs |
 
-Interactive Swagger documentation is available at `http://localhost:8000/docs` and OpenAPI JSON at `http://localhost:8000/openapi.json`.
+Interactive Swagger documentation is available at `http://localhost:8001/docs` and OpenAPI JSON at `http://localhost:8001/openapi.json`.
 
 ---
 
@@ -227,7 +227,7 @@ Configured via environment variables to simulate transport-level failures and de
 
 ### Scenario 1: Successful Verification
 ```bash
-curl -X POST http://localhost:8000/api/electricity/verify \
+curl -X POST http://localhost:8001/api/electricity/verify \
   -H "X-API-Key: elec_live_interop_key_991" \
   -H "Content-Type: application/json" \
   -d '{"application_number": "ELEC-2026-00101", "pan": "ABCDE1234F"}'
@@ -237,14 +237,14 @@ curl -X POST http://localhost:8000/api/electricity/verify \
 ### Scenario 2: Asynchronous Workflow & Admin State Transition
 1. Initial verification of `ELEC-2026-00102`:
 ```bash
-curl -X GET http://localhost:8000/api/electricity/status/ELEC-2026-00102 \
+curl -X GET http://localhost:8001/api/electricity/status/ELEC-2026-00102 \
   -H "X-API-Key: elec_live_interop_key_991"
 ```
 **Response:** `appl_stat: "PENDING"`, `retryable: true`.
 
 2. Admin state mutation:
 ```bash
-curl -X POST http://localhost:8000/api/admin/set-state \
+curl -X POST http://localhost:8001/api/admin/set-state \
   -H "X-API-Key: elec_admin_secret_key_888" \
   -H "Content-Type: application/json" \
   -d '{
@@ -258,14 +258,14 @@ curl -X POST http://localhost:8000/api/admin/set-state \
 
 3. Polling status again:
 ```bash
-curl -X GET http://localhost:8000/api/electricity/status/ELEC-2026-00102 \
+curl -X GET http://localhost:8001/api/electricity/status/ELEC-2026-00102 \
   -H "X-API-Key: elec_live_interop_key_991"
 ```
 **Response:** `appl_stat: "APPROVED"`, `conn_stat: "ENERGIZED"`, `retryable: false`.
 
 ### Scenario 3: Rejected Application
 ```bash
-curl -X POST http://localhost:8000/api/electricity/verify \
+curl -X POST http://localhost:8001/api/electricity/verify \
   -H "X-API-Key: elec_live_interop_key_991" \
   -H "Content-Type: application/json" \
   -d '{"application_number": "ELEC-2026-00104", "pan": "RSTUV3456W"}'
@@ -274,7 +274,7 @@ curl -X POST http://localhost:8000/api/electricity/verify \
 
 ### Scenario 4: Identity Mismatch (Wrong PAN)
 ```bash
-curl -X POST http://localhost:8000/api/electricity/verify \
+curl -X POST http://localhost:8001/api/electricity/verify \
   -H "X-API-Key: elec_live_interop_key_991" \
   -H "Content-Type: application/json" \
   -d '{"application_number": "ELEC-2026-00101", "pan": "ZZZZZ9999Z"}'
@@ -290,7 +290,7 @@ curl -X POST http://localhost:8000/api/electricity/verify \
 - API keys are never stored in log records.
 - Retrieve audit trails:
 ```bash
-curl -X GET "http://localhost:8000/api/audit?limit=10" \
+curl -X GET "http://localhost:8001/api/audit?limit=10" \
   -H "X-API-Key: elec_live_interop_key_991"
 ```
 
@@ -325,7 +325,7 @@ cd electricity_department_api
 docker compose up --build -d
 ```
 
-Open Swagger UI at `http://localhost:8000/docs`.
+Open Swagger UI at `http://localhost:8001/docs`.
 
 ---
 

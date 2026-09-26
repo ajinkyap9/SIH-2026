@@ -1072,7 +1072,7 @@
               <button class="btn btn-outline" onclick="toggleCircuit('Land')" style="font-size: 0.75rem; padding: 4px 8px;" data-i18n="dash.rs.timeout">Simulate a time-out</button>
             </div>
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px;">
-              <strong style="font-size: 0.85rem;" data-i18n="dash.rs.elec">Electricity system (port 8000)</strong>
+              <strong style="font-size: 0.85rem;" data-i18n="dash.rs.elec">Electricity system (port 8001)</strong>
               <div id="cbElec" style="color: #166534; font-weight: 700; margin: 6px 0;" translate="no">ONLINE (Circuit CLOSED)</div>
               <button class="btn btn-outline" onclick="toggleCircuit('Elec')" style="font-size: 0.75rem; padding: 4px 8px;" data-i18n="dash.rs.timeout">Simulate a time-out</button>
             </div>
@@ -1320,7 +1320,7 @@
         <h2 data-i18n="footer.depts">Department websites</h2>
         <ul class="footer-links-list">
           <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
-          <li><a href="http://localhost:8000/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
+          <li><a href="http://localhost:8001/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
           <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
         </ul>
       </nav>
@@ -1361,7 +1361,7 @@
     // This citizen portal (Node, port 5000) is a separate service from
     // interop_backend. Run interop_backend on its own port for this
     // integration (its README's own default of 5000 collides with this
-    // server): `uvicorn app.main:app --host 0.0.0.0 --port 8001`.
+    // server): `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
     const INTEROP_BACKEND_URL = (window.SAMANVAY_CONFIG || {}).interopBackendUrl;   // published by the Node server from ports.json (/config.js)
 
     // interop_backend has its own JWT auth against its own `users` table --
@@ -1604,7 +1604,7 @@
         console.error('Permission form error:', err);
         alert(
           `Could not reach the interoperability decision engine at ${INTEROP_BACKEND_URL}.\n` +
-          `Make sure interop_backend is running (uvicorn app.main:app --port 8001).\n\n${err.message}`
+          `Make sure interop_backend is running (uvicorn app.main:app --port 8000).\n\n${err.message}`
         );
       } finally {
         btn.disabled = false;
@@ -1915,7 +1915,7 @@
       const applicantName = citizen?.organizationName || citizen?.fullName || '';
       const applicantEmail = citizen?.email || '';
       const applicantMobile = citizen?.mobile || '';
-      const electricityPortalUrl = `http://localhost:8000/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&req_load=300`;
+      const electricityPortalUrl = `http://localhost:8001/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&req_load=300`;
       window.open(electricityPortalUrl, '_blank');
     }
 

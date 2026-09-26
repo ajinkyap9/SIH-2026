@@ -26,7 +26,7 @@ This platform solves this problem by:
                                   │
                                   ▼
      ┌─────────────────────────────────────────────────────────┐
-     │           RAG INTAKE & DECISION ENGINE (:8001)          │
+     │          INTEROP BACKEND GATEWAY (:8000)                 │
      │  • Interactive question sequence (MCQ-first)           │
      │  • Regulatory explanation retrieval                     │
      │  • Deterministic service decision logic                 │
@@ -49,7 +49,7 @@ This platform solves this problem by:
        ▼                          ▼                          ▼
 ┌──────────────┐          ┌──────────────┐          ┌──────────────┐
 │   LAND API   │          │ ELECTRICITY  │          │  POLLUTION   │
-│   (:4000)    │          │  API (:8000) │          │  API (:4002) │
+│   (:4000)    │          │  API (:8001) │          │  API (:4002) │
 │ (Node Express│          │  (FastAPI +  │          │ (Node Express│
 │   Legacy     │          │    SQLite)   │          │   Legacy     │
 │   Marathi    │          │  Discom/MSEDCL│         │    MPCB      │
@@ -61,7 +61,8 @@ This platform solves this problem by:
 
 ## 3. Microservice Breakdown
 
-### A. RAG Intake & Decision Engine (`rag-service` — Port `8001`)
+### A. RAG Intake & Decision Engine (`rag-service` — Port `8001`) [legacy]
+> ⚠️ Note: rag-service is not part of the active `ports.json` setup. The interop_backend runs on **port 8000** and electricity on **8001**.
 - **Technology**: Python 3.12, FastAPI, Pydantic v2.
 - **Role**: Conducts a structured conversational interview to collect project requirements (industry type, location, land area, power load, hazardous waste/emissions).
 - **Key Guarantee**: The LLM / RAG layer **never** makes regulatory approval decisions hallucinating services. It collects profile attributes, while pure deterministic code computes required services and execution waves.
@@ -89,7 +90,7 @@ This platform solves this problem by:
   - `POST /api/land/verify`
   - `GET /api/land/status/:surveyNumber`
 
-### D. Electricity Department API (`electricity_department_api` — Port `8000`)
+### D. Electricity Department API (`electricity_department_api` — Port `8001`)
 - **Technology**: Python 3.12, FastAPI, SQLAlchemy 2.0, SQLite.
 - **Data Model**: Legacy Discom attributes (`appl_no`, `cust_pan`, `load_sanc`, `appl_stat`, `meter_stat`, `conn_stat`, `dues_flag`).
 - **Features**: Includes machine-to-machine API key scope enforcement and an Admin State Mutation endpoint (`/api/admin/set-state`) to simulate application status progression.
@@ -150,19 +151,18 @@ cd land_api && node server.js                     # Port 4000
 cd pollution_api && node server.js                # Port 4002
 
 # Terminal 3 - Electricity API
-cd electricity_department_api && uvicorn app.main:app --port 8000
+cd electricity_department_api && python run_dev.py    # Port 8001 (from ports.json)
 
 # Terminal 4 - Interoperability Gateway
-cd interop_backend && uvicorn app.main:app --host 0.0.0.0 --port 5000
+cd interop_backend && python run_dev.py               # Port 8000 (from ports.json)
 
 # Terminal 5 - RAG Intake Service
 cd rag-service && uvicorn app.main:app --host 0.0.0.0 --port 8001
 ```
 
 ### Swagger Documentation:
-- Interop Gateway: `http://localhost:5000/docs`
-- Electricity Department: `http://localhost:8000/docs`
-- RAG Intake Engine: `http://localhost:8001/docs`
+- Interop Backend: `http://localhost:8000/docs`
+- Electricity Department: `http://localhost:8001/docs`
 
 ### Automated Test Suite:
 ```bash

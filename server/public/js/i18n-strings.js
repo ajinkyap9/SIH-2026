@@ -301,7 +301,7 @@ window.SAMANVAY_STRINGS = {
     "dash.res.thWhy": { en: "Why you need it", mr: "हे का लागते" },
     "dash.res.title": { en: "✓ Here is what you need", mr: "✓ तुम्हाला हे लागेल" },
     // ---- dash.rs
-    "dash.rs.elec": { en: "Electricity system (port 8000)", mr: "वीज प्रणाली (पोर्ट 8000)" },
+    "dash.rs.elec": { en: "Electricity system (port 8001)", mr: "वीज प्रणाली (पोर्ट 8001)" },
     "dash.rs.intro": { en: "Shows that Samanvay keeps working when one department’s system is down.", mr: "एखाद्या विभागाची प्रणाली बंद पडली तरी समन्वय काम करत राहते, हे यातून दिसते." },
     "dash.rs.land": { en: "Land records system (port 4000)", mr: "जमिनीच्या नोंदींची प्रणाली (पोर्ट 4000)" },
     "dash.rs.outage": { en: "Simulate an outage", mr: "सेवा बंद पडल्याची चाचणी करा" },
