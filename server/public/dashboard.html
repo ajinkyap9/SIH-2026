@@ -169,6 +169,117 @@
       -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>") center / contain no-repeat;
       mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/></svg>") center / contain no-repeat;
     }
+    /* ── Overview (dashboard-only): step cards, task blocks, latest application ── */
+    .ov-full[hidden], .ov-compact[hidden], .ov-latest[hidden] { display: none; }
+    .ov-steps {
+      list-style: none; margin: 0 0 28px; padding: 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
+    }
+    .ov-step {
+      position: relative; padding: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid #dbe2ea; border-top: 3px solid #1e3a8a; border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+    .ov-step__num {
+      display: inline-grid; place-items: center; width: 30px; height: 30px; margin-bottom: 10px;
+      border-radius: 4px; background: #1e3a8a; color: #fff; font-weight: 800; font-size: 0.9rem;
+    }
+    .ov-step strong { display: block; color: #0f172a; font-size: 0.97rem; line-height: 1.35; }
+    .ov-step p { margin: 6px 0 0; color: #475569; font-size: 0.86rem; line-height: 1.5; }
+
+    .ov-compact__title { margin: 0 0 18px; font-size: 1.3rem; font-weight: 700; color: #0f172a; }
+    .ov-compact__sub { font-weight: 500; color: #475569; font-size: 1.05rem; }
+    .ov-tasks { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .ov-task {
+      display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 18px;
+      text-align: left; font: inherit; cursor: pointer; color: #0f172a;
+      background: #fff; border: 1px solid #dbe2ea; border-top: 3px solid #1e3a8a; border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .ov-task--primary { border-top-color: #f97316; }
+    .ov-task:hover { box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14); border-color: #b8c2d1; }
+    .ov-task:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .ov-task__icon {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 6px; position: relative;
+      background: #eff6ff;
+    }
+    .ov-task--primary .ov-task__icon { background: #fff7ed; }
+    .ov-task__icon::before {
+      content: ""; position: absolute; inset: 9px; background-color: #1e3a8a;
+    }
+    .ov-task--primary .ov-task__icon::before { background-color: #c2410c; }
+    .ov-ico--start::before { -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/><path d='M12 18v-6'/><path d='M9 15h6'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6'/><path d='M12 18v-6'/><path d='M9 15h6'/></svg>") center / contain no-repeat; }
+    .ov-ico--track::before { -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>") center / contain no-repeat; mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>") center / contain no-repeat; }
+    .ov-task__text strong { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+    .ov-task__text span { display: block; color: #475569; font-size: 0.9rem; line-height: 1.45; }
+
+    .ov-latest {
+      margin-top: 16px; padding: 14px 16px;
+      background: #f8fafc; border: 1px solid #dbe2ea; border-left: 4px solid #1e3a8a; border-radius: 6px;
+    }
+    .ov-latest h3 { margin: 0 0 8px; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #1e3a8a; }
+    .ov-latest__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .ov-latest__name { font-size: 1rem; color: #0f172a; }
+    .ov-latest__status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; background: #e2e8f0; color: #334155; }
+    .ov-latest__status[data-state="RESOLVED"] { background: #dcfce7; color: #166534; }
+    .ov-latest__status[data-state="WAITING"], .ov-latest__status[data-state="IN_PROGRESS"] { background: #fef3c7; color: #92400e; }
+    .ov-latest__status[data-state="ACTION_REQUIRED"], .ov-latest__status[data-state="FAILED"] { background: #fee2e2; color: #991b1b; }
+    .ov-latest__meta { margin: 8px 0 0; font-size: 0.85rem; color: #475569; }
+
+    .ov-how {
+      margin-top: 14px; padding: 6px 2px; background: none; border: 0; cursor: pointer;
+      font: inherit; font-size: 0.9rem; font-weight: 600; color: #1e3a8a; text-decoration: underline;
+    }
+    .ov-how:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+    .ov-compact:not([hidden]) + .ov-full:not([hidden]) { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    /* ── Step 1 · "Your reference numbers" (dashboard-only) ── */
+    .rf { margin: 28px 0 20px; }
+    .rf-head { margin-bottom: 18px; }
+    .rf-title { margin: 0 0 6px; font-size: 1.15rem; font-weight: 800; color: #1e3a8a; }
+    .rf-intro { margin: 0 0 12px; font-size: 0.95rem; color: #334155; line-height: 1.55; }
+    .rf-demo {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0;
+      padding: 10px 14px; border-radius: 6px;
+      background: #fffbeb; border: 1px solid #fcd34d; color: #78350f; font-size: 0.9rem; font-weight: 600;
+    }
+    .rf-demo__tag {
+      padding: 2px 8px; border-radius: 4px; background: #b45309; color: #fff;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .rf-group { margin: 0 0 18px; padding: 18px 20px 20px; border: 1px solid #dbe2ea; border-radius: 8px; background: #fff; }
+    .rf-group__title { padding: 0 6px; margin-left: -6px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; }
+    .rf-group__help { margin: 2px 0 14px; font-size: 0.88rem; color: #475569; }
+    .rf-grid { display: grid; gap: 16px 20px; }
+    .rf-grid--project { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+    .rf-grid--dept { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 900px) { .rf-grid--project, .rf-grid--dept { grid-template-columns: 1fr; } }
+    .rf-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .rf-label { font-size: 0.95rem; font-weight: 700; color: #0f172a; line-height: 1.35; }
+    .rf-input { min-height: 46px; font-size: 1rem !important; }
+    .rf-input--code { font-weight: 700; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+    .rf-help { font-size: 0.84rem; color: #64748b; line-height: 1.4; }
+    .rf-dept {
+      padding: 14px 16px 16px; border-radius: 8px; background: #f8fafc;
+      border: 1px solid #e2e8f0; border-top: 3px solid var(--rf-acc, #1e3a8a);
+    }
+    .rf-dept--land { --rf-acc: #15803d; } .rf-dept--elec { --rf-acc: #0369a1; } .rf-dept--poll { --rf-acc: #c2410c; }
+    .rf-dept__tag {
+      align-self: flex-start; margin-bottom: 2px; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--rf-acc); background: #fff; border: 1px solid currentColor;
+    }
+    /* keep the three department boxes level even when a label wraps */
+    .rf-grid--dept .rf-label { min-height: 2.7em; display: flex; align-items: flex-end; }
+    @media (max-width: 900px) { .rf-grid--dept .rf-label { min-height: 0; } }
+    .rf-cta {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+      padding: 20px 24px; border-radius: 8px; background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #1e3a8a;
+    }
+    .rf-cta__text { flex: 1 1 320px; }
+    .rf-cta__text h3 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 800; color: #1e3a8a; }
+    .rf-cta__text p { margin: 0; font-size: 0.92rem; color: #1e40af; line-height: 1.5; }
   </style>
 </head>
 
@@ -352,107 +463,100 @@
       <!-- ======================================================== -->
       <div id="section-dashboard" class="content-section">
 
-        <div class="dashboard-panel" style="margin-bottom: 24px; padding: 32px 24px; border-top: 4px solid #1e3a8a;">
-          <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 12px; font-weight: 700;"
-            data-i18n="dash.ov.title">Welcome to Samanvay</h2>
-          <p style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 28px;"
-            data-i18n="dash.ov.intro">Use this dashboard to get the approvals your project needs from the Land Revenue,
-            Electricity and Pollution Control departments. Answer a few questions once. We work out which approvals you
-            need and send your details to each department, so you do not have to fill in the same information again.</p>
+        <div class="dashboard-panel ov-panel" style="margin-bottom: 24px; padding: 32px 24px; border-top: 4px solid #1e3a8a;">
 
-          <h3
-            style="font-size: 1.05rem; color: #1e3a8a; margin-bottom: 16px; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;"
-            data-i18n="dash.ov.howTitle">How your application works</h3>
+          <!-- Returning visit: short welcome + task blocks. Shown by the Overview script
+               below once this user has seen the full explainer; hidden otherwise. -->
+          <div id="ovCompact" class="ov-compact" hidden data-ui-added>
+            <h2 class="ov-compact__title"><span data-i18n="dash.ov.backTitle">Welcome back.</span> <span class="ov-compact__sub" data-i18n="dash.ov.backSub">What would you like to do today?</span></h2>
 
-          <div style="display: flex; flex-direction: column; margin-bottom: 32px;">
-            <!-- Step 1 -->
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
-                <div
-                  style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                  1</div>
-                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
-              </div>
-              <div style="padding-top: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;" data-i18n="dash.ov.s1t">Tell us about your
-                  project</strong>
-                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;"
-                  data-i18n="dash.ov.s1p">Answer 10 short questions. We work out which department approvals you need.
-                </p>
-              </div>
+            <div class="ov-tasks">
+              <button type="button" class="ov-task ov-task--primary" onclick="switchSection('process')">
+                <span class="ov-task__icon ov-ico--start" aria-hidden="true"></span>
+                <span class="ov-task__text">
+                  <strong data-i18n="dash.ov.startTask">Start my application</strong>
+                  <span data-i18n="dash.ov.startDesc">Answer 10 questions and see which approvals your project needs.</span>
+                </span>
+              </button>
+              <button type="button" class="ov-task" onclick="switchSection('status')">
+                <span class="ov-task__icon ov-ico--track" aria-hidden="true"></span>
+                <span class="ov-task__text">
+                  <strong data-i18n="dash.ov.track">Track an existing application</strong>
+                  <span data-i18n="dash.ov.trackDesc">See the latest status of an application you have already made.</span>
+                </span>
+              </button>
             </div>
 
-            <!-- Step 2 -->
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
-                <div
-                  style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                  2</div>
-                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
+            <!-- Latest application: filled from the approvals service's own record of
+                 this organisation's submissions (GET /api/projects/transactions).
+                 Stays hidden when there is none or it can't be reached. -->
+            <section id="ovLatest" class="ov-latest" hidden aria-labelledby="ovLatestTitle">
+              <h3 id="ovLatestTitle" data-i18n="dash.ov.latestTitle">Your latest application</h3>
+              <div class="ov-latest__row">
+                <strong id="ovLatestName" class="ov-latest__name"></strong>
+                <span id="ovLatestStatus" class="ov-latest__status"></span>
               </div>
-              <div style="padding-top: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;" data-i18n="dash.ov.s2t">We check your records with
-                  each department</strong>
-                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;"
-                  data-i18n="dash.ov.s2p">We check your land records, electricity application and pollution application
-                  for you.</p>
-              </div>
-            </div>
+              <p class="ov-latest__meta">
+                <span data-i18n="dash.ov.latestRef">Reference:</span> <span id="ovLatestRef" translate="no"></span>
+                · <span data-i18n="dash.ov.latestSent">Sent for checking:</span> <span id="ovLatestDate"></span>
+              </p>
+            </section>
 
-            <!-- Step 3 -->
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
-                <div
-                  style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                  3</div>
-                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
-              </div>
-              <div style="padding-top: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;" data-i18n="dash.ov.s3t">See what is ready</strong>
-                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;"
-                  data-i18n="dash.ov.s3p">You see which approvals are ready and what still needs to be done.</p>
-              </div>
-            </div>
-
-            <!-- Step 4 -->
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
-                <div
-                  style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                  4</div>
-                <div style="width: 2px; height: 32px; background: #cbd5e1; margin: 4px 0;"></div>
-              </div>
-              <div style="padding-top: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;" data-i18n="dash.ov.s4t">Finish on the department
-                  websites</strong>
-                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;"
-                  data-i18n="dash.ov.s4p">Sign, pay fees and submit your final application on each department’s official
-                  website. Your details are filled in for you.</p>
-              </div>
-            </div>
-
-            <!-- Step 5 -->
-            <div style="display: flex; align-items: flex-start; gap: 16px;">
-              <div style="display: flex; flex-direction: column; align-items: center; width: 24px;">
-                <div
-                  style="background: #1e3a8a; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                  5</div>
-              </div>
-              <div style="padding-top: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;" data-i18n="dash.ov.s5t">Track your
-                  application</strong>
-                <p style="color: #64748b; font-size: 0.85rem; margin-top: 4px; margin-bottom: 8px;"
-                  data-i18n="dash.ov.s5p">See the latest status of your applications at any time.</p>
-              </div>
-            </div>
+            <button type="button" id="ovHowBtn" class="ov-how" aria-expanded="false" aria-controls="ovFull">
+              <span class="ov-how__show" data-i18n="dash.ov.howLink">How this works</span>
+              <span class="ov-how__hide" data-i18n="dash.ov.howHide" hidden>Hide how this works</span>
+            </button>
           </div>
 
-          <div class="action-row" style="display: flex; gap: 16px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-            <button class="btn btn-primary" onclick="switchSection('process')"
-              style="padding: 10px 20px; font-size: 0.95rem;" data-i18n="dash.ov.start">Start my application ➔</button>
-            <button class="btn btn-outline" onclick="switchSection('status')"
-              style="padding: 10px 20px; font-size: 0.95rem;" data-i18n="dash.ov.track">Track an existing
-              application</button>
+          <!-- Full explainer: shown on a user's first visit, and on demand from
+               "How this works" afterwards. -->
+          <div id="ovFull" class="ov-full" data-ui-added>
+            <h2 style="font-size: 1.4rem; color: #0f172a; margin-bottom: 12px; font-weight: 700;"
+              data-i18n="dash.ov.title">Welcome to Samanvay</h2>
+            <p style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 28px;"
+              data-i18n="dash.ov.intro">Use this dashboard to get the approvals your project needs from the Land Revenue,
+              Electricity and Pollution Control departments. Answer a few questions once. We work out which approvals you
+              need and send your details to each department, so you do not have to fill in the same information again.</p>
+
+            <h3
+              style="font-size: 1.05rem; color: #1e3a8a; margin-bottom: 16px; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;"
+              data-i18n="dash.ov.howTitle">How your application works</h3>
+
+            <ol class="ov-steps">
+              <li class="ov-step">
+                <span class="ov-step__num" aria-hidden="true">1</span>
+                <strong data-i18n="dash.ov.s1t">Tell us about your project</strong>
+                <p data-i18n="dash.ov.s1p">Answer 10 short questions. We work out which department approvals you need.</p>
+              </li>
+              <li class="ov-step">
+                <span class="ov-step__num" aria-hidden="true">2</span>
+                <strong data-i18n="dash.ov.s2t">We check your records with each department</strong>
+                <p data-i18n="dash.ov.s2p">We check your land records, electricity application and pollution application for you.</p>
+              </li>
+              <li class="ov-step">
+                <span class="ov-step__num" aria-hidden="true">3</span>
+                <strong data-i18n="dash.ov.s3t">See what is ready</strong>
+                <p data-i18n="dash.ov.s3p">You see which approvals are ready and what still needs to be done.</p>
+              </li>
+              <li class="ov-step">
+                <span class="ov-step__num" aria-hidden="true">4</span>
+                <strong data-i18n="dash.ov.s4t">Finish on the department websites</strong>
+                <p data-i18n="dash.ov.s4p">Sign, pay fees and submit your final application on each department’s official website. Your details are filled in for you.</p>
+              </li>
+              <li class="ov-step">
+                <span class="ov-step__num" aria-hidden="true">5</span>
+                <strong data-i18n="dash.ov.s5t">Track your application</strong>
+                <p data-i18n="dash.ov.s5p">See the latest status of your applications at any time.</p>
+              </li>
+            </ol>
+
+            <div class="action-row" style="display: flex; gap: 16px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+              <button class="btn btn-primary" onclick="switchSection('process')"
+                style="padding: 10px 20px; font-size: 0.95rem;" data-i18n="dash.ov.start">Start my application ➔</button>
+              <button class="btn btn-outline" onclick="switchSection('status')"
+                style="padding: 10px 20px; font-size: 0.95rem;" data-i18n="dash.ov.track">Track an existing
+                application</button>
+            </div>
           </div>
         </div>
       </div>
@@ -862,54 +966,65 @@
               <tbody id="permServicesBody"></tbody>
             </table>
 
-            <!-- Reference numbers required by the real verify-plant endpoint -->
-            <h3 style="font-size:0.88rem; color:#1e3a8a; font-weight:700; margin-bottom:4px;"
-              data-i18n="dash.res.refsTitle">Your reference numbers</h3>
-            <p style="font-size:0.76rem; color:#64748b; margin-bottom:12px;" data-i18n="dash.res.refsHelp">We use these
-              numbers to find your records at each department. Sample numbers for ABC Industries (PAN ABCDE1234F) are
-              filled in for this demo.</p>
-            <div
-              style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:20px;">
-              <div class="form-group">
-                <label class="form-label" style="font-size:0.78rem;" for="refProjectName"><span data-ui-added
-                    data-i18n="dash.ref.project">Project name</span></label>
-                <input type="text" id="refProjectName" class="form-input" value="Chemical Manufacturing Unit">
+            <!-- Reference numbers required by the real verify-plant endpoint.
+                 Layout only: the five inputs and the send button keep their ids,
+                 values and handlers (read by confirmChecklistAndSubmit). -->
+            <section class="rf" aria-labelledby="rfTitle" data-ui-added>
+              <div class="rf-head">
+                <h3 id="rfTitle" class="rf-title" data-i18n="dash.res.refsTitle">Your reference numbers</h3>
+                <p class="rf-intro" data-i18n="dash.ref.introShort">We use these numbers to find your records at each department.</p>
+                <p class="rf-demo" role="note">
+                  <span class="rf-demo__tag" data-i18n="dash.ref.demoTag">Demo</span>
+                  <span data-i18n="dash.ref.demoNote">Sample numbers for ABC Industries (PAN ABCDE1234F) are filled in.</span>
+                </p>
               </div>
-              <div class="form-group">
-                <label class="form-label" style="font-size:0.78rem;" for="refOrgPan"><span data-ui-added
-                    data-i18n="dash.ref.pan">Your company’s PAN</span><span class="field-help" data-ui-added
-                    data-i18n="dash.ref.panHelp">10 characters, for example ABCDE1234F</span></label>
-                <input type="text" id="refOrgPan" class="form-input" value="ABCDE1234F">
-              </div>
-              <div class="form-group">
-                <label class="form-label" style="font-size:0.78rem;" for="refLandSurvey"><span data-ui-added
-                    data-i18n="dash.ref.survey">Land survey number</span><span class="field-help" data-ui-added
-                    data-i18n="dash.ref.surveyHelp">Printed on your 7/12 land record</span></label>
-                <input type="text" id="refLandSurvey" class="form-input" value="101">
-              </div>
-              <div class="form-group">
-                <label class="form-label" style="font-size:0.78rem;" for="refElecAppNo"><span data-ui-added
-                    data-i18n="dash.ref.elec">Electricity application number</span><span class="field-help"
-                    data-ui-added data-i18n="dash.ref.elecHelp">From your MSEDCL (Mahavitaran)
-                    application</span></label>
-                <input type="text" id="refElecAppNo" class="form-input" value="ELEC-2026-00101">
-              </div>
-              <div class="form-group">
-                <label class="form-label" style="font-size:0.78rem;" for="refPollAppNo"><span data-ui-added
-                    data-i18n="dash.ref.poll">Pollution Control Board application number</span><span class="field-help"
-                    data-ui-added data-i18n="dash.ref.pollHelp">From your MPCB consent application</span></label>
-                <input type="text" id="refPollAppNo" class="form-input" value="MPCB-8821">
-              </div>
-            </div>
+
+              <fieldset class="rf-group">
+                <legend class="rf-group__title" data-i18n="dash.ref.grpProject">About your project</legend>
+                <div class="rf-grid rf-grid--project">
+                  <div class="rf-field">
+                    <label class="rf-label" for="refProjectName" data-i18n="dash.ref.project">Project name</label>
+                    <input type="text" id="refProjectName" class="form-input rf-input" value="Chemical Manufacturing Unit">
+                  </div>
+                  <div class="rf-field">
+                    <label class="rf-label" for="refOrgPan" data-i18n="dash.ref.pan">Your company’s PAN</label>
+                    <input type="text" id="refOrgPan" class="form-input rf-input rf-input--code" value="ABCDE1234F" aria-describedby="rfPanHelp">
+                    <span id="rfPanHelp" class="rf-help" data-i18n="dash.ref.panHelp">10 characters, for example ABCDE1234F</span>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="rf-group">
+                <legend class="rf-group__title" data-i18n="dash.ref.grpDept">Department reference numbers</legend>
+                <p class="rf-group__help" data-i18n="dash.ref.grpDeptHelp">One number for each department. You will find it on the application you made with that department.</p>
+                <div class="rf-grid rf-grid--dept">
+                  <div class="rf-field rf-dept rf-dept--land">
+                    <span class="rf-dept__tag" data-i18n="index.svcLandTag">Revenue Department</span>
+                    <label class="rf-label" for="refLandSurvey" data-i18n="dash.ref.survey">Land survey number</label>
+                    <input type="text" id="refLandSurvey" class="form-input rf-input rf-input--code" value="101" aria-describedby="rfSurveyHelp">
+                    <span id="rfSurveyHelp" class="rf-help" data-i18n="dash.ref.surveyHelp">Printed on your 7/12 land record</span>
+                  </div>
+                  <div class="rf-field rf-dept rf-dept--elec">
+                    <span class="rf-dept__tag" data-i18n="index.svcElecTag">MSEDCL (Mahavitaran)</span>
+                    <label class="rf-label" for="refElecAppNo" data-i18n="dash.ref.elec">Electricity application number</label>
+                    <input type="text" id="refElecAppNo" class="form-input rf-input rf-input--code" value="ELEC-2026-00101" aria-describedby="rfElecHelp">
+                    <span id="rfElecHelp" class="rf-help" data-i18n="dash.ref.elecHelp">From your MSEDCL (Mahavitaran) application</span>
+                  </div>
+                  <div class="rf-field rf-dept rf-dept--poll">
+                    <span class="rf-dept__tag" data-i18n="index.svcPollTag">Pollution Control Board</span>
+                    <label class="rf-label" for="refPollAppNo" data-i18n="dash.ref.poll">Pollution Control Board application number</label>
+                    <input type="text" id="refPollAppNo" class="form-input rf-input rf-input--code" value="MPCB-8821" aria-describedby="rfPollHelp">
+                    <span id="rfPollHelp" class="rf-help" data-i18n="dash.ref.pollHelp">From your MPCB consent application</span>
+                  </div>
+                </div>
+              </fieldset>
+            </section>
 
             <!-- CTA: Start Multiple Department Workflow -->
-            <div
-              style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-              <div>
-                <h3 style="color: #1e3a8a; font-size: 1rem; font-weight: 700; margin-bottom: 4px;"
-                  data-i18n="dash.res.ctaTitle">Send your details to the departments</h3>
-                <p style="color: #1e40af; font-size: 0.8rem;" data-i18n="dash.res.ctaHelp">Check the list and numbers
-                  above, then send them. We will check your records with each department.</p>
+            <div class="rf-cta" data-ui-added>
+              <div class="rf-cta__text">
+                <h3 data-i18n="dash.res.ctaTitle">Send your details to the departments</h3>
+                <p data-i18n="dash.res.ctaHelp">Check the list and numbers above, then send them. We will check your records with each department.</p>
               </div>
               <button type="button" id="btnStartMultiWorkflow" onclick="confirmChecklistAndSubmit();"
                 class="btn btn-primary"
@@ -2782,6 +2897,93 @@
 
     // Initialize 10-question wizard on startup
     initQuiz();
+  </script>
+  <script data-ui-added>
+    /* Overview: first visit shows the full "How your application works" explainer;
+       later visits open on a short welcome with task blocks, and "How this works"
+       re-opens the explainer. Remembered per user (PAN) in localStorage under
+       "samanvay_overview_seen:<PAN>". Only marked as seen once the explainer has
+       actually been on screen. Additive only: existing functions are called or
+       read, never changed. */
+    (function () {
+      var sec = document.getElementById('section-dashboard');
+      var full = document.getElementById('ovFull');
+      var compact = document.getElementById('ovCompact');
+      var how = document.getElementById('ovHowBtn');
+      if (!sec || !full || !compact || !how) return;
+
+      var who = null;
+      try { who = JSON.parse(sessionStorage.getItem('gov_citizen') || 'null'); } catch (e) { /* ignore */ }
+      var pan = who && who.pan ? String(who.pan).trim().toUpperCase() : '';
+      var KEY = 'samanvay_overview_seen:' + (pan || 'guest');
+      function seen() { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; } }
+      function markSeen() { try { localStorage.setItem(KEY, '1'); } catch (e) { /* storage blocked */ } }
+
+      function setExplainer(open) {
+        full.hidden = !open;
+        how.setAttribute('aria-expanded', open ? 'true' : 'false');
+        how.querySelector('.ov-how__show').hidden = open;
+        how.querySelector('.ov-how__hide').hidden = !open;
+      }
+      how.addEventListener('click', function () { setExplainer(full.hidden); });
+
+      if (seen()) {
+        compact.hidden = false;
+        setExplainer(false);
+        loadLatest();
+      } else {
+        compact.hidden = true;
+        full.hidden = false;
+        var watch = new MutationObserver(check);
+        function check() {
+          if (sec.style.display !== 'none' && sec.offsetParent !== null) { markSeen(); watch.disconnect(); }
+        }
+        watch.observe(sec, { attributes: true, attributeFilter: ['style'] });
+        check();
+      }
+
+      /* Latest application from the approvals service (this organisation only).
+         Reuses this session's token if the dashboard already has one; otherwise
+         signs in without storing anything, so the Apply flow's own token handling
+         is untouched. Any failure simply leaves the card hidden. */
+      async function loadLatest() {
+        var card = document.getElementById('ovLatest');
+        try {
+          if (!card || !pan || typeof INTEROP_BACKEND_URL !== 'string' || !INTEROP_BACKEND_URL) return;
+          var token = sessionStorage.getItem('interop_jwt_pan') === pan ? sessionStorage.getItem('interop_jwt') : null;
+          if (!token) {
+            var acct = (typeof INTEROP_DEMO_ACCOUNTS === 'object' && INTEROP_DEMO_ACCOUNTS) ? INTEROP_DEMO_ACCOUNTS[pan] : null;
+            if (!acct) return;
+            var login = await fetch(INTEROP_BACKEND_URL + '/api/auth/login', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: acct.email, password: acct.password })
+            });
+            if (!login.ok) return;
+            token = (await login.json()).access_token;
+          }
+          var res = await fetch(INTEROP_BACKEND_URL + '/api/projects/transactions', { headers: { Authorization: 'Bearer ' + token } });
+          if (!res.ok) return;
+          var list = await res.json();
+          if (!Array.isArray(list) || !list.length) return;
+          var t = list[0];
+          var KEYS = { RESOLVED: 'status.overall.resolved', WAITING: 'status.overall.waiting', ACTION_REQUIRED: 'status.overall.action',
+                       FAILED: 'status.overall.failed', IN_PROGRESS: 'dash.ov.latestInProgress' };
+          document.getElementById('ovLatestName').textContent = t.project_name || t.transaction_id;
+          document.getElementById('ovLatestRef').textContent = t.transaction_id || '';
+          var d = t.created_at ? new Date(t.created_at) : null;
+          var lang = (window.I18N && I18N.lang && I18N.lang()) === 'mr' ? 'mr-IN' : 'en-IN';
+          document.getElementById('ovLatestDate').textContent = d && !isNaN(d) ? d.toLocaleDateString(lang, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+          var st = document.getElementById('ovLatestStatus');
+          st.setAttribute('data-state', t.overall_status || '');
+          var label = document.createElement('span');
+          var key = KEYS[t.overall_status];
+          if (key) { label.setAttribute('data-i18n', key); label.textContent = window.I18N ? I18N.t(key, 'en') : t.overall_status; }
+          else label.textContent = t.overall_status || '';
+          st.textContent = ''; st.appendChild(label);
+          card.hidden = false;
+        } catch (e) { /* leave the card hidden */ }
+      }
+    })();
   </script>
 </body>
 
