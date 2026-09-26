@@ -6,12 +6,23 @@ const landRoutes = require('./routes/land');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+// Port and bind address come from the repo-root ports.json (single source of truth).
+const PORTS = require('../ports.json');
+const HOST = PORTS.host;
+const PORT = PORTS.services.land.port;
 
 app.use(morgan('dev'));
 app.use(express.json());
 
 // Serve the independent Land Department website
+// Where Samanvay's portal runs (port from ports.json), for the Land website's
+// "Return to Samanvay" button when the page was not opened from Samanvay.
+app.get('/samanvay-config.js', (req, res) => {
+  res.type('application/javascript').set('Cache-Control', 'no-store');
+  res.send(`window.SAMANVAY_PORTAL_PORT = ${Number(PORTS.services.portal.port)};
+`);
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS for frontend
@@ -46,7 +57,17 @@ app.use('/api/land', landRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Land Department API (simulated) listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Land Department API (simulated) listening on http://${HOST}:${PORT}`);
   console.log('See README.md for demo API keys and example requests.');
+});
+
+// Fail loudly if the port from ports.json is taken (never drift to another port).
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Land Department API must run on the port in ports.json — stop the other process and try again.`);
+  } else {
+    console.error('Server error:', err);
+  }
+  process.exit(1);
 });

@@ -1,4 +1,17 @@
+import json
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+# Department addresses come from the repo-root ports.json (single source of truth),
+# so interop_backend can never point a department URL at the wrong service.
+_PORTS = json.loads((Path(__file__).resolve().parents[2] / "ports.json").read_text(encoding="utf-8"))
+
+
+def _service_url(name: str) -> str:
+    return f"http://{_PORTS['host']}:{_PORTS['services'][name]['port']}"
+
 
 
 class Settings(BaseSettings):
@@ -12,13 +25,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     # Department Connectors
-    LAND_API_URL: str = "http://localhost:4000"
+    LAND_API_URL: str = _service_url("land")
     LAND_API_KEY: str = "interop-demo-key-001"
 
-    ELECTRICITY_API_URL: str = "http://localhost:8000"
+    ELECTRICITY_API_URL: str = _service_url("electricity")
     ELECTRICITY_API_KEY: str = "elec_live_interop_key_991"
 
-    POLLUTION_API_URL: str = "http://localhost:4002"
+    POLLUTION_API_URL: str = _service_url("pollution")
     POLLUTION_API_KEY: str = "interop-demo-key-001"
 
     # Circuit Breakers & Resilience

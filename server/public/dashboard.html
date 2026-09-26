@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/gov-style.css">
   <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
   <link rel="stylesheet" href="/css/samanvay-design.css" data-ui-added>
+  <script src="/config.js"></script>
   <script src="/js/i18n-strings.js" defer data-ui-added></script>
   <script src="/js/i18n.js" defer data-ui-added></script>
 </head>
@@ -1361,7 +1362,7 @@
     // interop_backend. Run interop_backend on its own port for this
     // integration (its README's own default of 5000 collides with this
     // server): `uvicorn app.main:app --host 0.0.0.0 --port 8001`.
-    const INTEROP_BACKEND_URL = 'http://localhost:8001';
+    const INTEROP_BACKEND_URL = (window.SAMANVAY_CONFIG || {}).interopBackendUrl;   // published by the Node server from ports.json (/config.js)
 
     // interop_backend has its own JWT auth against its own `users` table --
     // entirely separate from this portal's citizen/OTP session (gov_token).
@@ -1890,7 +1891,7 @@
     // ==========================================
     // EXTERNAL GOV PORTAL ROADMAP & INTEGRATION
     // ==========================================
-    const EXTERNAL_PORTAL_APP_ID = 'MAITRI-' + Date.now().toString().slice(-6);
+    const EXTERNAL_PORTAL_APP_ID = 'SAMANVAY-' + Date.now().toString().slice(-6);
 
     function openExternalPortalLandService() {
       const currentUrl = window.location.origin + window.location.pathname;

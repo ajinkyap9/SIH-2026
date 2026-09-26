@@ -44,7 +44,7 @@
 
   <!-- Navigation Tabs -->
   <nav class="mb-nav no-print">
-    <a href="#" id="nav-7-12" class="active" onclick="switchTab('7-12'); return false;">
+    <a href="#" id="nav-7-12" onclick="switchTab('7-12'); return false;">
       📄 गाव नमुना ७/१२ (7/12 Extract)
     </a>
     <a href="#" id="nav-8-a" onclick="switchTab('8-a'); return false;">
@@ -56,7 +56,7 @@
     <a href="#" id="nav-aapli-chawadi" onclick="switchTab('aapli-chawadi'); return false;">
       📢 आपली चावडी (Aapli Chawadi)
     </a>
-    <a href="#" id="nav-apply" onclick="switchTab('apply'); return false;">
+    <a href="#" id="nav-apply" class="active" onclick="switchTab('apply'); return false;">
       ✍️ नवीन फेरफार अर्ज (Apply)
     </a>
     <a href="#" id="nav-all-records" onclick="switchTab('all-records'); return false;">
@@ -85,7 +85,7 @@
     <!-- =========================================================================
          TAB 1: 7/12 EXTRACT (सातबारा उतारा)
          ========================================================================= -->
-    <section id="section-7-12">
+    <section id="section-7-12" style="display: none;">
       <!-- Search Filter Card -->
       <div class="mb-card no-print" id="searchCard">
         <div class="mb-card-header">
@@ -248,7 +248,7 @@
     <!-- =========================================================================
          TAB 5: APPLY (नवीन फेरफार / अकृषिक अर्ज)
          ========================================================================= -->
-    <section id="section-apply" style="display: none;">
+    <section id="section-apply">
       <!-- Samanvay hand-off banner: shown only when opened from the Samanvay dashboard (?app_id=…) -->
       <div id="samanvayHandoff" class="mb-handoff" hidden>
         <div class="mb-handoff-title">🔗 समन्वय मधून आलात (Opened from Samanvay)</div>
@@ -364,6 +364,7 @@
     </p>
   </footer>
 
+  <script src="/samanvay-config.js"></script>
   <script src="/js/land-app.js"></script>
 </body>
 </html>

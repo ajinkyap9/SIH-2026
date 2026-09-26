@@ -3,15 +3,18 @@ End-to-end verification sequence:
   1. Register citizen on port 5000 gateway
   2. Login (request OTP) via gateway
   3. Verify OTP
-  4. Quick-decision via interop_backend (port 8000)
+  4. Quick-decision via interop_backend (port from ports.json)
   5. Login to interop_backend (ensureInteropAuth equivalent)
   6. Submit verify-plant on interop_backend
 """
 import requests
 import json
 
-GW = "http://localhost:5000"
-INTEROP = "http://localhost:8000"
+# Addresses come from the repo-root ports.json (single source of truth).
+import pathlib
+_P = json.loads((pathlib.Path(__file__).resolve().parent / "ports.json").read_text(encoding="utf-8"))
+GW = f"http://{_P['host']}:{_P['services']['portal']['port']}"
+INTEROP = f"http://{_P['host']}:{_P['services']['interop']['port']}"
 
 def step(n, label):
     print(f"\n{'='*60}")
@@ -56,7 +59,7 @@ gw_token = d3.get("token", "")
 print(f"  Gateway token obtained: {'YES' if gw_token else 'NO'}")
 
 # ── STEP 4: Quick Decision via interop_backend ──
-step(4, "Quick Decision (interop_backend port 8000)")
+step(4, f"Quick Decision (interop_backend {INTEROP})")
 r = requests.post(f"{INTEROP}/api/interview/quick-decision", json={
     "project_type": "MANUFACTURING",
     "industry_type": "CHEMICAL",

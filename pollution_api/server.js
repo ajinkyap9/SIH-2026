@@ -5,7 +5,10 @@ const pollutionRoutes = require('./routes/pollution');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 4002;
+// Port and bind address come from the repo-root ports.json (single source of truth).
+const PORTS = require('../ports.json');
+const HOST = PORTS.host;
+const PORT = PORTS.services.pollution.port;
 
 const path = require('path');
 
@@ -45,7 +48,17 @@ app.use('/api/pollution', pollutionRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Pollution Department API (simulated) listening on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Pollution Department API (simulated) listening on http://${HOST}:${PORT}`);
   console.log('See README.md for demo API keys and example requests.');
+});
+
+// Fail loudly if the port from ports.json is taken (never drift to another port).
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Pollution Department API must run on the port in ports.json — stop the other process and try again.`);
+  } else {
+    console.error('Server error:', err);
+  }
+  process.exit(1);
 });

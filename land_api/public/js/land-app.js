@@ -13,7 +13,6 @@ let currentLanguage = 'mr'; // 'mr' (मराठी) or 'en' (English)
 // &applicant=…&email=…&mobile=… . We pre-fill the application, and after it is
 // submitted we send the citizen back with land_status=COMPLETED so Samanvay
 // unlocks the next step (Electricity).
-const SAMANVAY_PORTAL_API = 'http://localhost:5000/api/portal';
 const handoff = (() => {
   const p = new URLSearchParams(window.location.search);
   return {
@@ -24,11 +23,18 @@ const handoff = (() => {
     applicant: p.get('applicant') || '',
   };
 })();
+// Where Samanvay is: the exact address that opened us (callback) if there is one;
+// otherwise this page's own hostname + the portal port published from ports.json.
+// Never a hard-coded port.
+const SAMANVAY_ORIGIN = (() => {
+  try { if (handoff.callback) return new URL(handoff.callback).origin; } catch (e) { /* bad callback */ }
+  return window.SAMANVAY_PORTAL_PORT ? `${window.location.protocol}//${window.location.hostname}:${window.SAMANVAY_PORTAL_PORT}` : null;
+})();
 let lastApplicationRef = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadDivisions();
-  switchTab('7-12');
+  switchTab('apply');
   presetLookup('101', 'Pune', 'Haveli', 'Wagholi');
   // Start the hand-off whenever we were opened from Samanvay. (Samanvay may
   // send an empty survey number, so app_id alone is enough.)
@@ -49,9 +55,10 @@ function startSamanvayHandoff() {
 // Same lookup the previous portal used: the citizen's verified profile in Samanvay's database.
 async function fillProfileFromSamanvay(pan) {
   const msg = document.getElementById('samanvayProfileMsg');
+  if (!SAMANVAY_ORIGIN) { if (msg) msg.textContent = '⚠️ समन्वयचा पत्ता मिळाला नाही — कृपया माहिती स्वतः भरा. (Samanvay address missing — please fill in manually.)'; return; }
   if (msg) msg.textContent = '🔄 समन्वय मधून प्रोफाइल आणत आहे… (Fetching your profile from Samanvay…)';
   try {
-    const res = await fetch(`${SAMANVAY_PORTAL_API}/user-profile?pan=${encodeURIComponent(pan)}`);
+    const res = await fetch(`${SAMANVAY_ORIGIN}/api/portal/user-profile?pan=${encodeURIComponent(pan)}`);
     const data = await res.json();
     if (data.success && data.found && data.profile) {
       const p = data.profile;
@@ -70,9 +77,18 @@ async function fillProfileFromSamanvay(pan) {
 
 function returnToSamanvay() {
   const ref = lastApplicationRef || ('LND-' + Date.now().toString().slice(-8));
-  if (!handoff.callback) { window.location.href = 'http://localhost:5000/dashboard.html?tab=flowchart'; return; }
-  const sep = handoff.callback.includes('?') ? '&' : '?';
-  const url = `${handoff.callback}${sep}app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
+  // Back to Samanvay's dashboard with the Land result; the dashboard then opens the
+  // Department checks step, marks Land complete and unlocks the next department.
+  let url;
+  if (handoff.callback) {
+    const sep = handoff.callback.includes('?') ? '&' : '?';
+    url = `${handoff.callback}${sep}app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
+  } else if (SAMANVAY_ORIGIN) {
+    url = `${SAMANVAY_ORIGIN}/dashboard.html?land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
+  } else {
+    alert('समन्वयचा पत्ता मिळाला नाही. कृपया समन्वय टॅबवर परत जा. (Samanvay address not available — please switch back to your Samanvay tab.)');
+    return;
+  }
   if (window.opener && !window.opener.closed) {
     window.opener.location.href = url;
     window.close();
@@ -692,16 +708,10 @@ async function handleApplySubmit(e) {
         `;
       }
       lastApplicationRef = data.application_ref || '';
-      if (handoff.appId) {
-        // Opened from Samanvay: stay here and offer the way back to the next step.
-        const back = document.getElementById('returnToSamanvay');
-        if (back) { back.hidden = false; back.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-      } else {
-        setTimeout(() => {
-          switchTab('7-12');
-          presetLookup(surveyNumber, district, taluka, village);
-        }, 2000);
-      }
+      // Always offer the way back to Samanvay to continue with the next department
+      // (whether or not this page was opened from Samanvay's button).
+      const back = document.getElementById('returnToSamanvay');
+      if (back) { back.hidden = false; back.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
     } else {
       if (msgEl) {
         msgEl.innerHTML = `<div style="color: #dc3545; padding: 12px;">❌ त्रुटी: ${data.message || 'अर्ज दाखल करता आला नाही.'}</div>`;

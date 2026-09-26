@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { initDatabase } from './db/database.js';
 import authRoutes from './routes/authRoutes.js';
@@ -11,11 +12,23 @@ import portalRoutes from './routes/portalRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Ports and addresses come from the repo-root ports.json (single source of truth).
+const PORTS = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ports.json'), 'utf8'));
+const HOST = PORTS.host;
+const PORT = PORTS.services.portal.port;
+
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Runtime config for the browser, generated from ports.json so the dashboard
+// never hard-codes a backend address (it loads this before its own script).
+app.get('/config.js', (req, res) => {
+  const config = { interopBackendUrl: `http://${HOST}:${PORTS.services.interop.port}` };
+  res.type('application/javascript').set('Cache-Control', 'no-store');
+  res.send(`window.SAMANVAY_CONFIG = ${JSON.stringify(config)};\n`);
+});
 
 // Serve static frontend files directly
 app.use(express.static(path.join(__dirname, '../public')));
@@ -44,28 +57,23 @@ app.get('/api/health', (req, res) => {
 
 // Initialize database and start listening
 initDatabase().then(() => {
-  function listenOnPort(port) {
-    const server = app.listen(port, () => {
-      console.log(`=======================================================`);
-      console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
-      console.log(`📡 URL: http://localhost:${port}`);
-      console.log(`💾 SQLite Database initialized and ready.`);
-      console.log(`=======================================================`);
-    });
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`=======================================================`);
+    console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
+    console.log(`📡 URL: http://${HOST}:${PORT}  (from ports.json)`);
+    console.log(`💾 SQLite Database initialized and ready.`);
+    console.log(`=======================================================`);
+  });
 
-    server.on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        console.warn(`⚠️  Port ${port} is currently in use (e.g., macOS AirPlay Receiver on port 5000).`);
-        const nextPort = Number(port) + 1;
-        console.log(`🔄 Automatically retrying on port ${nextPort}...`);
-        listenOnPort(nextPort);
-      } else {
-        console.error('Server error:', err);
-      }
-    });
-  }
-
-  listenOnPort(Number(PORT));
+  // Fail loudly instead of drifting to another port: the port is fixed in ports.json.
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} on ${HOST} is already in use. The portal must run on the port in ports.json — stop the other process and try again.`);
+    } else {
+      console.error('Server error:', err);
+    }
+    process.exit(1);
+  });
 }).catch(err => {
   console.error('Failed to initialize database:', err);
 });

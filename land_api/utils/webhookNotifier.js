@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 
 // Must match WEBHOOK_SECRET in interop_backend/app/routers/webhooks.py
-const GATEWAY_WEBHOOK_URL = process.env.GATEWAY_WEBHOOK_URL || 'http://localhost:5000/api/webhooks/land-status-changed';
+// Portal address from the repo-root ports.json (single source of truth).
+const PORTS = require('../../ports.json');
+const GATEWAY_WEBHOOK_URL = `http://${PORTS.host}:${PORTS.services.portal.port}/api/webhooks/land-status-changed`;
 const WEBHOOK_SECRET = process.env.GATEWAY_WEBHOOK_SECRET || 'GOV-INTEROP-SECRET-KEY';
 
 function signPayload(payloadString) {
@@ -25,12 +27,7 @@ async function notifyGatewayOfMutationChange(record) {
   const payloadString = JSON.stringify(payload);
   const signature = signPayload(payloadString);
 
-  const targetUrls = [
-    process.env.GATEWAY_WEBHOOK_URL,
-    'http://localhost:5003/api/webhooks/land-status-changed',
-    'http://localhost:5000/api/webhooks/land-status-changed',
-    'http://localhost:5001/api/webhooks/land-status-changed'
-  ].filter(Boolean);
+  const targetUrls = [GATEWAY_WEBHOOK_URL];
 
   for (const url of targetUrls) {
     try {

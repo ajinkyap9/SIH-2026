@@ -21,6 +21,7 @@ venv/
 
 # Logs & OS
 *.log
+logs/
 .DS_Store
 
 # Testing artifacts
