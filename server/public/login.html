@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <script src="/js/i18n-strings.js" defer data-ui-added></script>
   <script src="/js/i18n.js" defer data-ui-added></script>
 </head>
+
 <body>
   <div class="tricolor-stripe" aria-hidden="true" data-ui-added></div>
 
@@ -17,13 +19,17 @@
   <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
   <div class="gigw-bar" data-ui-added>
     <div class="gigw-bar__inner">
-      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and Pollution approvals</span>
+      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and
+        Pollution approvals</span>
       <div class="gigw-bar__controls">
         <div class="gigw-group" role="group" aria-label="Text size" data-i18n-aria-label="common.textSize">
           <span class="gigw-group__label" data-i18n="common.textSize">Text size</span>
-          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text" data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
-          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text" data-i18n-aria-label="common.textNormal" translate="no">A</button>
-          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text" data-i18n-aria-label="common.textLarger" translate="no">A+</button>
+          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text"
+            data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
+          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text"
+            data-i18n-aria-label="common.textNormal" translate="no">A</button>
+          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text"
+            data-i18n-aria-label="common.textLarger" translate="no">A+</button>
         </div>
         <div class="gigw-group" role="group" aria-label="Language" data-i18n-aria-label="common.language">
           <button type="button" data-lang="en" lang="en" aria-pressed="true" translate="no">English</button>
@@ -39,20 +45,22 @@
       <strong translate="no">Samanvay</strong> • <span data-i18n="login.topbar">Log in</span>
     </div>
     <div>
-      <a href="/" data-i18n="common.home">Home</a> | <a href="/register.html" data-i18n="common.register">New user? Register</a>
+      <a href="/" data-i18n="common.home">Home</a> | <a href="/register.html" data-i18n="common.register">New user?
+        Register</a>
     </div>
   </div>
 
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
-          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933"/>
-          <rect x="11" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="26" y="19" width="3" height="10" fill="#ffffff"/>
-          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808"/>
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true">
+          <rect width="40" height="40" rx="8" fill="#1e3a8a" />
+          <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933" />
+          <rect x="11" y="19" width="3" height="10" fill="#ffffff" />
+          <rect x="18.5" y="19" width="3" height="10" fill="#ffffff" />
+          <rect x="26" y="19" width="3" height="10" fill="#ffffff" />
+          <rect x="8" y="30" width="24" height="3" rx="1" fill="#138808" />
         </svg>
       </div>
       <div class="brand-title">
@@ -74,7 +82,8 @@
         <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
         <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
       </ul>
-      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service" data-i18n-aria-label="nav.find">
+      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service"
+        data-i18n-aria-label="nav.find">
         <label for="svFindService" class="sv-search__label" data-i18n="nav.find">Find a service</label>
         <select id="svFindService" name="tab" class="sv-search__select" required>
           <option value="" data-i18n="nav.findPh">— Choose a service —</option>
@@ -95,17 +104,21 @@
     <div class="auth-box">
       <div class="auth-header">
         <h2 data-i18n="login.title">Log in to your account</h2>
-        <p data-i18n="login.intro">Log in with the Aadhaar or PAN number you registered with. We will send a one-time password (OTP) to your registered mobile number.</p>
+        <p data-i18n="login.intro">Log in with the Aadhaar or PAN number you registered with. We will send a one-time
+          password (OTP) to your registered mobile number.</p>
       </div>
 
       <div class="auth-body">
         <!-- Login Method Tabs -->
         <div class="auth-tabs">
-          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')" data-i18n="login.tabAadhaar">Log in with Aadhaar</button>
-          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')" data-i18n="login.tabPan">Log in with PAN</button>
+          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')"
+            data-i18n="login.tabAadhaar">Log in with Aadhaar</button>
+          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')"
+            data-i18n="login.tabPan">Log in with PAN</button>
         </div>
 
-        <div id="loginAlert" role="alert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+        <div id="loginAlert" role="alert"
+          style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
 
         <!-- Step 1: Identifier Input -->
         <form id="step1Form">
@@ -113,37 +126,53 @@
             <label id="inputLabel" class="form-label" for="loginIdentifier">
               <span data-i18n="login.aadhaarLabel">Your 12-digit Aadhaar number</span> <span class="req-star">*</span>
             </label>
-            <input type="text" id="loginIdentifier" class="form-input" placeholder="Enter your registered Aadhaar number" autocomplete="off" required>
-            <div id="inputHint" style="font-size: 0.85rem; color: var(--gov-text-muted); margin-top: 4px;" data-i18n="login.hint">We will send a 6-digit OTP to the mobile number linked to your account.</div>
+            <input type="text" id="loginIdentifier" class="form-input"
+              placeholder="Enter your registered Aadhaar number" autocomplete="off" required>
+            <div id="inputHint" style="font-size: 0.85rem; color: var(--gov-text-muted); margin-top: 4px;"
+              data-i18n="login.hint">We will send a 6-digit OTP to the mobile number linked to your account.</div>
           </div>
 
-          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;" data-i18n="login.sendOtp">Send OTP ➔</button>
+          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;"
+            data-i18n="login.sendOtp">Send OTP ➔</button>
         </form>
 
         <!-- Step 2: OTP Verification (hidden initially) -->
-        <form id="step2Form" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
-          <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
-            <span data-i18n="login.otpSent">OTP sent to your registered mobile number</span> <strong id="maskedPhoneSpan" translate="no">*****</strong>.
+        <form id="step2Form"
+          style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+          <div
+            style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
+            <span data-i18n="login.otpSent">OTP sent to your registered mobile number</span> <strong
+              id="maskedPhoneSpan" translate="no">*****</strong>.
             <span data-i18n="login.checkSms">Please check your SMS messages.</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="otpInput"><span data-i18n="login.otpLabel">Enter the 6-digit OTP</span> <span class="req-star">*</span></label>
-            <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP" data-i18n-placeholder="login.otpPh" inputmode="numeric" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
+            <label class="form-label" for="otpInput"><span data-i18n="login.otpLabel">Enter the 6-digit OTP</span> <span
+                class="req-star">*</span></label>
+            <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP"
+              data-i18n-placeholder="login.otpPh" inputmode="numeric" maxlength="6"
+              style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
           </div>
 
           <div class="action-row" style="display: flex; gap: 10px;">
-            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;" data-i18n="common.cancel">Cancel</button>
-            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;" data-i18n="login.verify">Verify and log in ➔</button>
+            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;"
+              data-i18n="common.cancel">Cancel</button>
+            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;"
+              data-i18n="login.verify">Verify and log in ➔</button>
           </div>
         </form>
 
         <div style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: #64748b;">
-          <span data-i18n="login.noAccount">Don’t have an account?</span> <a href="/register.html" style="color: var(--gov-primary); font-weight: 600;" data-i18n="login.registerHere">Register here</a>
+          <span data-i18n="login.noAccount">Don’t have an account?</span> <a href="/register.html"
+            style="color: var(--gov-primary); font-weight: 600;" data-i18n="login.registerHere">Register here</a>
         </div>
       </div>
     </div>
-    <p class="auth-credit" data-ui-added><span data-i18n="index.heroCaption">Gateway of India, Mumbai</span> · <span data-i18n="index.heroPhoto">Photo:</span> <a href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin, Wikipedia</a> · <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art License</a></p>
+    <p class="auth-credit" data-ui-added><span data-i18n="index.heroCaption">Gateway of India, Mumbai</span> · <span
+        data-i18n="index.heroPhoto">Photo:</span> <a
+        href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin,
+        Wikipedia</a> · <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art
+        License</a></p>
   </main>
 
   <!-- Samanvay shared footer (multi-column, same on every page) -->
@@ -179,7 +208,7 @@
           <a class="footer-helpline" href="tel:18001208040" translate="no">1800-120-8040</a><br>
           <span data-i18n="footer.hours">9:30 AM – 6:00 PM, working days</span>
         </p>
-        <p><a href="mailto:maitri-support@gov.in" translate="no">maitri-support@gov.in</a></p>
+        <p><a href="mailto:samanvay-support@gov.in" translate="no">samanvay-support@gov.in</a></p>
         <p data-i18n="footer.a11y">Text size and English / मराठी controls are at the top of every page.</p>
       </div>
     </div>
@@ -350,4 +379,5 @@
     }
   </script>
 </body>
+
 </html>
