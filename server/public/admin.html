@@ -274,6 +274,7 @@
   <div class="admin-topbar__right">
     <span class="admin-topbar__badge" id="livePendingBadge">0 PENDING</span>
     <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+    <a href="/add-department.html" class="theme-toggle-btn" style="background:#15803d;color:#fff;text-decoration:none;font-weight:700;">➕ Onboard Department</a>
     <a href="/" style="color:#93c5fd;text-decoration:none;font-weight:600;" target="_blank">Portal Home ↗</a>
     <a href="#" onclick="doAdminLogout()" style="color:#fca5a5;text-decoration:none;font-weight:600;">Sign out</a>
   </div>
@@ -503,6 +504,7 @@
   async function loadApplications() {
     const url = `${PORTAL_BASE}/api/admin/applications`;
     try {
+      await loadDynamicDeptTabs();
       const r = await fetch(url, { headers: { 'x-admin-token': adminToken } });
       const data = await r.json();
       if (!data.success) return;
@@ -529,9 +531,43 @@
 
     // Tab counts
     document.getElementById('cntALL').textContent = apps.length;
-    document.getElementById('cntLAND').textContent = apps.filter(a => a.department === 'LAND').length;
-    document.getElementById('cntELECTRICITY').textContent = apps.filter(a => a.department === 'ELECTRICITY').length;
-    document.getElementById('cntPOLLUTION').textContent = apps.filter(a => a.department === 'POLLUTION').length;
+    document.querySelectorAll('.dept-tab').forEach(t => {
+      const d = t.getAttribute('data-dept');
+      if (d && d !== 'ALL') {
+        const badge = document.getElementById(`cnt${d}`);
+        if (badge) badge.textContent = apps.filter(a => a.department === d).length;
+      }
+    });
+  }
+
+  async function loadDynamicDeptTabs() {
+    try {
+      const res = await fetch(`${PORTAL_BASE}/api/admin/departments`);
+      const data = await res.json();
+      if (data.success && data.departments) {
+        const tabsContainer = document.querySelector('.dept-tabs');
+        if (!tabsContainer) return;
+        
+        let html = `
+          <button class="dept-tab ${currentDept === 'ALL' ? 'active' : ''}" data-dept="ALL" onclick="switchDept('ALL', this)">
+            📋 All Departments <span class="cnt-badge" id="cntALL">0</span>
+          </button>
+        `;
+        
+        data.departments.forEach(d => {
+          const code = d.dept_code.toUpperCase();
+          const icon = code === 'LAND' ? '🏞️' : (code === 'ELECTRICITY' ? '⚡' : (code === 'POLLUTION' ? '🌿' : '🏛️'));
+          html += `
+            <button class="dept-tab ${currentDept === code ? 'active' : ''}" data-dept="${code}" onclick="switchDept('${code}', this)">
+              ${icon} ${d.dept_name} <span class="cnt-badge" id="cnt${code}">0</span>
+            </button>
+          `;
+        });
+        
+        tabsContainer.innerHTML = html;
+        updateTabCounts();
+      }
+    } catch(e) {}
   }
 
   function switchDept(dept, btn) {

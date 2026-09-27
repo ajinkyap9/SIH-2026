@@ -102,6 +102,64 @@ export async function initDatabase() {
     );
   `);
 
+  sqliteDb.run(`
+    CREATE TABLE IF NOT EXISTS custom_departments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dept_code TEXT NOT NULL UNIQUE,
+      dept_name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      endpoint_url TEXT NOT NULL,
+      api_port INTEGER,
+      service_name TEXT NOT NULL,
+      description TEXT,
+      status TEXT DEFAULT 'ACTIVE',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  sqliteDb.run(`
+    CREATE TABLE IF NOT EXISTS schema_mappings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dept_code TEXT NOT NULL,
+      dept_field TEXT NOT NULL,
+      samanvay_field TEXT NOT NULL,
+      transformation_rule TEXT NOT NULL,
+      confidence INTEGER DEFAULT 95,
+      status TEXT DEFAULT 'ACTIVE',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Seed default departments if custom_departments table is empty
+  const deptCountRes = sqliteDb.exec('SELECT COUNT(*) FROM custom_departments');
+  const dCount = deptCountRes.length > 0 && deptCountRes[0].values.length > 0 ? deptCountRes[0].values[0][0] : 0;
+  if (dCount === 0) {
+    const defaults = [
+      ['LAND', 'Land Revenue Department (महाभूलेख)', 'Land & Revenue', 'http://localhost:4000', 4000, '7/12 Land Mutation & NA Clearance', 'Handles land 7/12 extract, ownership verification and NA clearance.'],
+      ['ELECTRICITY', 'MSEDCL Electricity Department (महावितरण)', 'Utilities & Power', 'http://localhost:8001', 8001, 'Industrial Power Sanction & Load Clearance', 'Handles new industrial electricity connection and power load clearance.'],
+      ['POLLUTION', 'State Pollution Control Board (MPCB)', 'Environment & Pollution', 'http://localhost:4002', 4002, 'Consent to Establish (CTE) Clearance', 'Handles environmental consent and industrial pollution category clearance.']
+    ];
+    for (const d of defaults) {
+      sqliteDb.run(`INSERT INTO custom_departments (dept_code, dept_name, category, endpoint_url, api_port, service_name, description) VALUES (?, ?, ?, ?, ?, ?, ?)`, d);
+    }
+
+    const defaultMappings = [
+      ['LAND', 'owner_pan', 'organization_pan', 'Exact text match', 98],
+      ['LAND', 'gtn', 'survey_number', 'Exact text match', 96],
+      ['LAND', 'jamabandi', 'clearance_status', 'Status translation', 95],
+      ['ELECTRICITY', 'applicant_pan', 'organization_pan', 'Exact text match', 98],
+      ['ELECTRICITY', 'sanctioned_load_kva', 'sanctioned_load_kw', 'Converted to a number', 96],
+      ['ELECTRICITY', 'connection_status', 'clearance_status', 'Status translation', 95],
+      ['POLLUTION', 'industry_pan', 'organization_pan', 'Exact text match', 98],
+      ['POLLUTION', 'consent_validity', 'valid_until', 'Converted to a standard date', 95],
+      ['POLLUTION', 'consent_type', 'clearance_type', 'Exact text match', 95]
+    ];
+    for (const m of defaultMappings) {
+      sqliteDb.run(`INSERT INTO schema_mappings (dept_code, dept_field, samanvay_field, transformation_rule, confidence) VALUES (?, ?, ?, ?, ?)`, m);
+    }
+    saveDb();
+  }
+
   // 2. Initialize PostgreSQL tables & connect
   try {
     const client = await poolInterop.connect();
@@ -642,5 +700,118 @@ export function updateDeptApplicationStatus(refNo, status, adminRemarks, reviewe
   if (stmtResult.step()) updatedRow = stmtResult.getAsObject();
   stmtResult.free();
   return updatedRow;
+}
+
+export function autoMapDepartmentSchema(samplePayload, deptCode) {
+  const code = (deptCode || 'NEW_DEPT').toUpperCase();
+  let keys = [];
+
+  if (typeof samplePayload === 'string') {
+    try {
+      const parsed = JSON.parse(samplePayload);
+      keys = Object.keys(parsed);
+    } catch (e) {
+      keys = samplePayload.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+    }
+  } else if (typeof samplePayload === 'object' && samplePayload !== null) {
+    keys = Object.keys(samplePayload);
+  }
+
+  const suggestions = [];
+  const processedKeys = new Set();
+
+  for (const key of keys) {
+    const k = key.toLowerCase();
+    let samanvayField = 'additional_metadata';
+    let rule = 'Exact text match';
+    let confidence = 90;
+
+    if (k.includes('pan') || k.includes('tax_id') || k.includes('gstin') || k.includes('registration_no')) {
+      samanvayField = 'organization_pan';
+      rule = 'Exact text match';
+      confidence = 98;
+    } else if (k.includes('name') || k.includes('applicant') || k.includes('company') || k.includes('owner') || k.includes('firm')) {
+      samanvayField = 'applicant_name';
+      rule = 'Exact text match';
+      confidence = 95;
+    } else if (k.includes('status') || k.includes('state') || k.includes('approval') || k.includes('clearance') || k.includes('sanction')) {
+      samanvayField = 'clearance_status';
+      rule = 'Status translation';
+      confidence = 96;
+    } else if (k.includes('date') || k.includes('valid') || k.includes('expiry') || k.includes('until') || k.includes('issue')) {
+      samanvayField = 'valid_until';
+      rule = 'Converted to a standard date';
+      confidence = 94;
+    } else if (k.includes('load') || k.includes('capacity') || k.includes('area') || k.includes('quota') || k.includes('kw') || k.includes('kl') || k.includes('volume')) {
+      samanvayField = 'sanctioned_capacity';
+      rule = 'Converted to a number';
+      confidence = 92;
+    } else if (k.includes('survey') || k.includes('gat') || k.includes('plot') || k.includes('survey_no') || k.includes('land')) {
+      samanvayField = 'survey_number';
+      rule = 'Exact text match';
+      confidence = 96;
+    } else if (k.includes('district') || k.includes('city') || k.includes('location') || k.includes('taluka') || k.includes('village')) {
+      samanvayField = 'location_district';
+      rule = 'Exact text match';
+      confidence = 95;
+    }
+
+    if (!processedKeys.has(key)) {
+      processedKeys.add(key);
+      suggestions.push({
+        dept_code: code,
+        dept_field: key,
+        samanvay_field: samanvayField,
+        transformation_rule: rule,
+        confidence: confidence
+      });
+    }
+  }
+
+  return suggestions;
+}
+
+export function getAllDepartments() {
+  const stmt = sqliteDb.prepare(`SELECT * FROM custom_departments ORDER BY id ASC`);
+  const results = [];
+  while (stmt.step()) results.push(stmt.getAsObject());
+  stmt.free();
+  return results;
+}
+
+export function registerNewDepartment({ deptCode, deptName, category, endpointUrl, apiPort, serviceName, description, mappings }) {
+  const code = (deptCode || '').trim().toUpperCase();
+  if (!code || !deptName || !endpointUrl) {
+    throw new Error('deptCode, deptName and endpointUrl are required.');
+  }
+
+  sqliteDb.run(
+    `INSERT INTO custom_departments (dept_code, dept_name, category, endpoint_url, api_port, service_name, description)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(dept_code) DO UPDATE SET
+     dept_name=excluded.dept_name, category=excluded.category, endpoint_url=excluded.endpoint_url, api_port=excluded.api_port, service_name=excluded.service_name, description=excluded.description`,
+    [code, deptName.trim(), category || 'General', endpointUrl.trim(), parseInt(apiPort) || 8000, serviceName || 'Clearance Service', description || '']
+  );
+
+  if (Array.isArray(mappings) && mappings.length > 0) {
+    sqliteDb.run(`DELETE FROM schema_mappings WHERE UPPER(dept_code) = ?`, [code]);
+    for (const m of mappings) {
+      sqliteDb.run(
+        `INSERT INTO schema_mappings (dept_code, dept_field, samanvay_field, transformation_rule, confidence) VALUES (?, ?, ?, ?, ?)`,
+        [code, m.dept_field, m.samanvay_field, m.transformation_rule || 'Exact text match', m.confidence || 95]
+      );
+    }
+  }
+
+  saveDb();
+  return { success: true, deptCode: code };
+}
+
+export function getAllSchemaMappings() {
+  const stmt = sqliteDb.prepare(`SELECT * FROM schema_mappings ORDER BY id ASC`);
+  const results = [];
+  while (stmt.step()) results.push(stmt.getAsObject());
+  stmt.free();
+  return results;
 }
 

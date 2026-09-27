@@ -3,7 +3,11 @@ import {
   submitDeptApplication,
   getDeptApplicationsByPan,
   getAllDeptApplications,
-  updateDeptApplicationStatus
+  updateDeptApplicationStatus,
+  getAllDepartments,
+  registerNewDepartment,
+  getAllSchemaMappings,
+  autoMapDepartmentSchema
 } from '../db/database.js';
 
 const router = express.Router();
@@ -27,9 +31,10 @@ router.post('/submit', (req, res) => {
     return res.status(400).json({ success: false, message: 'department, citizenName, citizenPan, projectName and projectType are required.' });
   }
 
-  const validDepts = ['LAND', 'ELECTRICITY', 'POLLUTION'];
+  const registeredDepts = getAllDepartments().map(d => d.dept_code.toUpperCase());
+  const validDepts = Array.from(new Set(['LAND', 'ELECTRICITY', 'POLLUTION', ...registeredDepts]));
   if (!validDepts.includes(department.toUpperCase())) {
-    return res.status(400).json({ success: false, message: 'department must be LAND, ELECTRICITY, or POLLUTION.' });
+    return res.status(400).json({ success: false, message: `Invalid department. Registered options: ${validDepts.join(', ')}` });
   }
 
   try {
@@ -200,6 +205,77 @@ router.post('/login', (req, res) => {
     return res.json({ success: true, token: ADMIN_PASSWORD, message: 'Admin authenticated.' });
   }
   return res.status(401).json({ success: false, message: 'Invalid admin password.' });
+});
+
+// ─────────────────────────────────────────────────────────────
+// DYNAMIC DEPARTMENTS & AUTO SCHEMA MAPPER
+// ─────────────────────────────────────────────────────────────
+
+// GET /api/admin/departments (Public / Admin department list & schema mappings)
+router.get('/departments', (req, res) => {
+  try {
+    const depts = getAllDepartments();
+    const mappings = getAllSchemaMappings();
+    return res.json({ success: true, departments: depts, mappings: mappings });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch departments.' });
+  }
+});
+
+// POST /api/admin/departments/auto-map-schema
+router.post('/departments/auto-map-schema', (req, res) => {
+  const { samplePayload, deptCode } = req.body;
+  if (!samplePayload) {
+    return res.status(400).json({ success: false, message: 'samplePayload is required.' });
+  }
+
+  try {
+    const suggestions = autoMapDepartmentSchema(samplePayload, deptCode);
+    return res.json({ success: true, suggestions: suggestions, total: suggestions.length });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Auto schema mapping failed.' });
+  }
+});
+
+// POST /api/admin/departments/register
+router.post('/departments/register', (req, res) => {
+  const { deptCode, deptName, category, endpointUrl, apiPort, serviceName, description, mappings } = req.body;
+
+  if (!deptCode || !deptName || !endpointUrl) {
+    return res.status(400).json({ success: false, message: 'deptCode, deptName, and endpointUrl are required.' });
+  }
+
+  try {
+    const result = registerNewDepartment({
+      deptCode,
+      deptName,
+      category,
+      endpointUrl,
+      apiPort,
+      serviceName,
+      description,
+      mappings
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('departmentRegistered', {
+        deptCode: deptCode.toUpperCase(),
+        deptName,
+        category,
+        endpointUrl
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Department '${deptName}' (${deptCode.toUpperCase()}) successfully registered and schema mapped!`,
+      deptCode: deptCode.toUpperCase()
+    });
+  } catch (err) {
+    console.error('Department registration error:', err.message);
+    return res.status(500).json({ success: false, message: err.message || 'Department registration failed.' });
+  }
 });
 
 export default router;

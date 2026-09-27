@@ -435,6 +435,7 @@
           style="font-size: 0.8rem; padding: 7px 10px;" data-i18n="dash.nav.resilience">Outage testing</button>
         <button type="button" class="sidebar-item" id="menu-audit" onclick="switchSection('audit')"
           style="font-size: 0.8rem; padding: 7px 10px;" data-i18n="dash.nav.audit">Privacy audit log</button>
+        <a href="/add-department.html" class="sidebar-item" style="font-size: 0.8rem; padding: 7px 10px; color: #166534; font-weight: 700; display: block;">➕ Onboard New Department ➔</a>
         <a href="/admin.html" target="_blank" class="sidebar-item" style="font-size: 0.8rem; padding: 7px 10px; color: #b45309; font-weight: 700; display: block;">⚙️ Department Admin Panel ↗</a>
       </div>
 
@@ -2074,6 +2075,7 @@
     if (initialTab) switchSection(initialTab);
     checkExternalServiceCallbacks();
     fetchSelectedAppStatus();
+    loadLiveSchemaRegistry();
 
     // Sidebar navigation & subgroup toggle
     function toggleSubgroup(id) {
@@ -3139,6 +3141,33 @@
       document.getElementById('driftAlertBox').style.display = 'none';
       document.getElementById('noDriftText').style.display = 'block';
       document.getElementById('noDriftText').innerText = 'Drift mapping rejected by administrator.';
+    }
+
+    async function loadLiveSchemaRegistry() {
+      const tbody = document.getElementById('schemaRegistryBody');
+      if (!tbody) return;
+      try {
+        const res = await fetch('/api/admin/departments');
+        const data = await res.json();
+        if (data.success && data.mappings) {
+          const mappings = data.mappings;
+          const depts = data.departments || [];
+          const deptNameMap = {};
+          depts.forEach(d => { deptNameMap[d.dept_code.toUpperCase()] = d.dept_name; });
+
+          tbody.innerHTML = mappings.map(m => `
+            <tr>
+              <td><strong>${deptNameMap[m.dept_code.toUpperCase()] || m.dept_code}</strong></td>
+              <td><code translate="no" style="color: #c2410c;">${m.dept_field}</code></td>
+              <td><code translate="no" style="color: #15803d;">${m.samanvay_field}</code></td>
+              <td>${m.transformation_rule}</td>
+              <td><span class="status-tag status-approved">Active</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.warn('Schema registry load notice:', err.message);
+      }
     }
 
     // ==========================================
