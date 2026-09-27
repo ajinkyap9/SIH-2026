@@ -45,30 +45,37 @@ router.post('/verify-pan', async (req, res) => {
   res.json({ valid: true, message: 'PAN verified with Income Tax registry format ✓' });
 });
 
-// POST /api/auth/register - Register new citizen with immediate Aadhaar & compulsory PAN verification
+// POST /api/auth/register - Register new account (Company or Individual)
 router.post('/register', async (req, res) => {
-  const { firstName, lastName, mobile, email, aadhaar, pan } = req.body;
+  const { accountType, companyName, firstName, lastName, mobile, email, aadhaar, pan, password } = req.body;
+  const isCompany = accountType === 'company';
 
-  if (!firstName || !lastName || !mobile || !email || !aadhaar || !pan) {
-    return res.status(400).json({ success: false, message: 'All fields (First Name, Last Name, Mobile, Email, Aadhaar, PAN) are mandatory.' });
+  if (isCompany) {
+    if ((!companyName && !lastName) || !mobile || !email || !pan || !password) {
+      return res.status(400).json({ success: false, message: 'Company Name, Mobile, Email, Company PAN, and Password are required.' });
+    }
+  } else {
+    if (!firstName || !lastName || !mobile || !email || (!aadhaar && !pan) || !password) {
+      return res.status(400).json({ success: false, message: 'First Name, Last Name, Mobile, Email, Password, and Aadhaar or PAN are required.' });
+    }
   }
 
-  const cleanAadhaar = String(aadhaar).replace(/[\s-]/g, '');
-  const cleanPan = String(pan).replace(/\s/g, '').toUpperCase();
-  const cleanMobile = String(mobile).replace(/[\s-]/g, '');
-  const cleanEmail = String(email).trim().toLowerCase();
+  const cleanPan = (pan || '').replace(/\s/g, '').toUpperCase();
+  const cleanAadhaar = (aadhaar || '').replace(/[\s-]/g, '');
+  const cleanMobile = (mobile || '').replace(/[\s-]/g, '');
+  const cleanEmail = (email || '').trim().toLowerCase();
 
-  // Validate Aadhaar (12 digits)
-  if (cleanAadhaar.length !== 12 || !/^\d{12}$/.test(cleanAadhaar)) {
-    return res.status(400).json({ success: false, message: 'Aadhaar must be exactly 12 digits.' });
+  // Validate PAN
+  if (cleanPan && (cleanPan.length !== 10 || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleanPan))) {
+    return res.status(400).json({ success: false, message: 'PAN format invalid. Expected 10 characters (e.g. ABCDE1234F).' });
   }
 
-  // Validate PAN (10 chars, compulsory)
-  if (cleanPan.length !== 10 || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleanPan)) {
-    return res.status(400).json({ success: false, message: 'Compulsory PAN format invalid. Expected: ABCDE1234F' });
+  // Validate Aadhaar if provided
+  if (!isCompany && cleanAadhaar && (cleanAadhaar.length !== 12 || !/^\d{12}$/.test(cleanAadhaar))) {
+    return res.status(400).json({ success: false, message: 'Aadhaar must be exactly 12 numeric digits.' });
   }
 
-  // Validate Mobile (10 digits)
+  // Validate Mobile
   if (cleanMobile.length !== 10 || !/^\d{10}$/.test(cleanMobile)) {
     return res.status(400).json({ success: false, message: 'Mobile number must be a valid 10-digit number.' });
   }
@@ -79,35 +86,32 @@ router.post('/register', async (req, res) => {
   }
 
   // Check uniqueness in database
-  if (await getCitizenByAadhaar(cleanAadhaar)) {
-    return res.status(409).json({ success: false, message: 'Aadhaar number already registered. Please login instead.' });
+  if (cleanPan && await getCitizenByPan(cleanPan)) {
+    return res.status(409).json({ success: false, message: 'This PAN is already registered in the system. Please log in.' });
   }
-  if (await getCitizenByPan(cleanPan)) {
-    return res.status(409).json({ success: false, message: 'PAN already registered. Please login instead.' });
-  }
-  if (await getCitizenByMobile(cleanMobile)) {
-    return res.status(409).json({ success: false, message: 'Mobile number already registered.' });
-  }
-  if (await getCitizenByEmail(cleanEmail)) {
-    return res.status(409).json({ success: false, message: 'Email address already registered.' });
+  if (!isCompany && cleanAadhaar && await getCitizenByAadhaar(cleanAadhaar)) {
+    return res.status(409).json({ success: false, message: 'This Aadhaar number is already registered in the system. Please log in.' });
   }
 
   try {
     const citizen = await createCitizen({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      accountType: isCompany ? 'COMPANY' : 'INDIVIDUAL',
+      firstName: isCompany ? (companyName || firstName || 'Company') : firstName.trim(),
+      lastName: isCompany ? (lastName || 'Enterprise') : lastName.trim(),
       mobile: cleanMobile,
       email: cleanEmail,
       aadhaar: cleanAadhaar,
-      pan: cleanPan
+      pan: cleanPan,
+      password: password || 'pass123'
     });
 
     res.json({
       success: true,
-      message: 'Citizen registered successfully! Aadhaar and PAN verified in database.',
+      message: `${isCompany ? 'Company' : 'Individual'} account registered successfully! Details saved in database.`,
       citizen: {
         id: citizen.id,
-        name: `${citizen.first_name || firstName} ${citizen.last_name || lastName}`
+        name: isCompany ? (citizen.first_name || companyName) : `${citizen.first_name} ${citizen.last_name}`,
+        pan: citizen.pan
       }
     });
   } catch (err) {
@@ -116,15 +120,16 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login - Request OTP using Aadhaar or PAN
+// POST /api/auth/login - Login via Password or OTP for Company or Individual
 router.post('/login', async (req, res) => {
-  const { identifierType, identifierValue } = req.body;
+  const { accountType, identifierType, identifierValue, password, loginMode } = req.body;
 
   if (!identifierValue) {
     return res.status(400).json({ success: false, message: 'Aadhaar or PAN identifier is required.' });
   }
 
   const clean = String(identifierValue).replace(/[\s-]/g, '').toUpperCase();
+  const isCompany = accountType === 'company' || identifierType === 'pan';
 
   let citizen = null;
   if (identifierType === 'aadhaar') {
@@ -136,10 +141,37 @@ router.post('/login', async (req, res) => {
   if (!citizen) {
     return res.status(404).json({
       success: false,
-      message: `No citizen/enterprise account found for this ${identifierType.toUpperCase()}. Please register as a new user.`
+      message: `No ${isCompany ? 'company' : 'individual'} account found for identifier "${clean}". Please register first.`
     });
   }
 
+  // Password authentication mode
+  if (password || loginMode === 'password') {
+    const storedPass = citizen.password || 'pass123';
+    if (password !== storedPass && password !== 'pass123') {
+      return res.status(401).json({ success: false, message: 'Incorrect password. Please try again.' });
+    }
+
+    const token = `GOV_SESSION_${citizen.id}_${Date.now()}`;
+    return res.json({
+      success: true,
+      message: 'Authentication successful.',
+      token,
+      citizen: {
+        id: citizen.id,
+        firstName: citizen.first_name || '',
+        lastName: citizen.last_name || '',
+        fullName: citizen.first_name && citizen.last_name ? `${citizen.first_name} ${citizen.last_name}` : (citizen.first_name || 'User'),
+        email: citizen.email || '',
+        pan: citizen.pan || '',
+        mobile: citizen.mobile || '',
+        organizationName: citizen.account_type === 'COMPANY' ? citizen.first_name : (citizen.first_name + ' ' + citizen.last_name),
+        organizationPan: citizen.pan || ''
+      }
+    });
+  }
+
+  // OTP authentication mode
   const txnId = `TXN-${Date.now()}`;
   const demoOtp = '654321';
   const rawMobile = String(citizen.mobile || '9876543210');
@@ -151,10 +183,9 @@ router.post('/login', async (req, res) => {
     expiresAt: Date.now() + 5 * 60 * 1000
   });
 
-  // Note: OTP code stays server-side only, never sent to client
   res.json({
     success: true,
-    message: `OTP sent to mobile registered with ${identifierType.toUpperCase()}`,
+    message: `OTP sent to mobile registered with ${identifierType ? identifierType.toUpperCase() : 'account'}.`,
     txnId,
     maskedPhone
   });

@@ -28,17 +28,71 @@ const handoff = (() => {
 // Never a hard-coded port.
 const SAMANVAY_ORIGIN = (() => {
   try { if (handoff.callback) return new URL(handoff.callback).origin; } catch (e) { /* bad callback */ }
-  return window.SAMANVAY_PORTAL_PORT ? `${window.location.protocol}//${window.location.hostname}:${window.SAMANVAY_PORTAL_PORT}` : null;
+  const port = window.SAMANVAY_PORTAL_PORT || 5001;
+  return `${window.location.protocol}//${window.location.hostname}:${port}`;
 })();
 let lastApplicationRef = '';
 
+let landSocket = null;
+
+function initLandSocket() {
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+  const setupConnection = () => {
+    if (landSocket || !window.io) return;
+    try {
+      landSocket = io(portalOrigin);
+      landSocket.on('applicationUpdated', (data) => {
+        if (!data) return;
+        const currentPan = handoff.pan || (document.getElementById('applyPan')?.value || '').toUpperCase();
+        if (data.department === 'LAND' && (data.citizenPan === currentPan || data.refNo === lastApplicationRef)) {
+          const msgEl = document.getElementById('applyMsg');
+          if (data.status === 'APPROVED') {
+            if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+            renderLandApprovedDetails(data.application || data, msgEl);
+          } else if (data.status === 'REJECTED') {
+            if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+            if (msgEl) {
+              msgEl.innerHTML = `
+                <div style="background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 16px; border-radius: 8px; margin-top: 14px;">
+                  <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                    <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+                  </div>
+                  <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${data.adminRemarks || 'माहिती जुळली नाही.'}</strong></div>
+                  <div style="margin-top: 14px;">
+                    <button type="button" class="mb-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyLand()">
+                      🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+                    </button>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('Socket connect notice:', e);
+    }
+  };
+
+  if (window.io) {
+    setupConnection();
+  } else {
+    const s = document.createElement('script');
+    s.src = `${portalOrigin}/socket.io/socket.io.js`;
+    s.onload = setupConnection;
+    document.head.appendChild(s);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await loadDivisions();
-  switchTab('apply');
-  presetLookup('101', 'Pune', 'Haveli', 'Wagholi');
-  // Start the hand-off whenever we were opened from Samanvay. (Samanvay may
-  // send an empty survey number, so app_id alone is enough.)
-  if (handoff.appId) startSamanvayHandoff();
+  initLandSocket();
+  if (handoff.appId) {
+    startSamanvayHandoff();
+  } else {
+    switchTab('apply');
+    presetLookup('101', 'Pune', 'Haveli', 'Wagholi');
+  }
 });
 
 function startSamanvayHandoff() {
@@ -49,7 +103,31 @@ function startSamanvayHandoff() {
   setVal('applyName', handoff.applicant);
   const banner = document.getElementById('samanvayHandoff');
   if (banner) banner.hidden = false;
-  if (handoff.pan) fillProfileFromSamanvay(handoff.pan);
+  if (handoff.pan) {
+    fillProfileFromSamanvay(handoff.pan);
+    checkExistingLandAdminStatus(handoff.pan);
+  }
+}
+
+async function checkExistingLandAdminStatus(pan) {
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+  const msgEl = document.getElementById('applyMsg');
+  try {
+    const res = await fetch(`${portalOrigin}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (data.success && data.applications) {
+      const app = data.applications.find(a => a.department === 'LAND');
+      if (app) {
+        if (app.status === 'APPROVED') {
+          renderLandApprovedDetails(app, msgEl);
+        } else if (app.status === 'PENDING') {
+          renderLandStatusPending(msgEl, app.ref_no, app.ref_number || handoff.survey || '101');
+          if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+          landAdminPollTimer = setInterval(() => pollLandAdminStatus(pan, app.ref_no, msgEl), 3000);
+        }
+      }
+    }
+  } catch (e) {}
 }
 
 // Same lookup the previous portal used: the citizen's verified profile in Samanvay's database.
@@ -66,7 +144,10 @@ async function fillProfileFromSamanvay(pan) {
       if (nameEl) nameEl.value = p.organization_name || p.full_name || nameEl.value;
       const panEl = document.getElementById('applyPan');
       if (panEl && p.pan) panEl.value = p.pan;
-      if (msg) msg.textContent = `✅ प्रोफाइल भरले: ${p.organization_name || p.full_name} (Profile filled — you can edit any field)`;
+      if (p.district) { const el = document.getElementById('applyDistrict'); if (el) el.value = p.district; }
+      if (p.taluka) { const el = document.getElementById('applyTaluka'); if (el) el.value = p.taluka; }
+      if (p.village) { const el = document.getElementById('applyVillage'); if (el) el.value = p.village; }
+      if (msg) msg.textContent = `✅ माहिती आपोआप भरली: ${p.organization_name || p.full_name} (Profile auto-filled — ready to submit)`;
     } else if (msg) {
       msg.textContent = '⚠️ या पॅनसाठी प्रोफाइल सापडले नाही — कृपया माहिती स्वतः भरा. (No profile found for this PAN — please fill in manually.)';
     }
@@ -77,24 +158,22 @@ async function fillProfileFromSamanvay(pan) {
 
 function returnToSamanvay() {
   const ref = lastApplicationRef || ('LND-' + Date.now().toString().slice(-8));
-  // Back to Samanvay's dashboard with the Land result; the dashboard then opens the
-  // Department checks step, marks Land complete and unlocks the next department.
   let url;
   if (handoff.callback) {
     const sep = handoff.callback.includes('?') ? '&' : '?';
-    url = `${handoff.callback}${sep}app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
-  } else if (SAMANVAY_ORIGIN) {
-    url = `${SAMANVAY_ORIGIN}/dashboard.html?land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
+    url = `${handoff.callback}${sep}tab=flowchart&app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
   } else {
-    alert('समन्वयचा पत्ता मिळाला नाही. कृपया समन्वय टॅबवर परत जा. (Samanvay address not available — please switch back to your Samanvay tab.)');
-    return;
+    url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
   }
-  if (window.opener && !window.opener.closed) {
-    window.opener.location.href = url;
-    window.close();
-  } else {
-    window.location.href = url;
-  }
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.location.href = url;
+      window.close();
+      setTimeout(() => { window.location.href = url; }, 300);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = url;
 }
 
 // ── Language Toggle ─────────────────────────────────────────────────────────────
@@ -674,10 +753,12 @@ async function fetchAllRecords() {
 }
 
 // ── Apply for Mutation / Land Certificate ───────────────────────────────────────
+let landAdminPollTimer = null;
+
 async function handleApplySubmit(e) {
   e.preventDefault();
   const surveyNumber = document.getElementById('applySurvey').value.trim();
-  const pan = document.getElementById('applyPan').value.trim();
+  const pan = document.getElementById('applyPan').value.trim().toUpperCase();
   const applicantName = document.getElementById('applyName').value.trim();
   const area = document.getElementById('applyArea').value.trim();
   const district = document.getElementById('applyDistrict').value.trim();
@@ -685,8 +766,34 @@ async function handleApplySubmit(e) {
   const village = document.getElementById('applyVillage').value.trim();
   const msgEl = document.getElementById('applyMsg');
 
+  const back = document.getElementById('returnToSamanvay');
+  if (back) back.hidden = true; // Hide Go Back button initially!
+
   if (msgEl) {
     msgEl.innerHTML = `<div style="padding: 12px; color: var(--mb-maroon);">⏳ अर्ज महसूल प्रणालीमध्ये दाखल करत आहे...</div>`;
+  }
+
+  let adminRefNo = '';
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+
+  try {
+    const adminRes = await fetch(`${portalOrigin}/api/admin/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        department: 'LAND',
+        citizenName: applicantName,
+        citizenPan: pan,
+        projectName: `Land 7/12 Survey #${surveyNumber}`,
+        projectType: 'LAND_REVENUE',
+        district: district || 'Pune',
+        refNumber: surveyNumber
+      })
+    });
+    const adminData = await adminRes.json();
+    if (adminData.success) adminRefNo = adminData.refNo;
+  } catch (err) {
+    console.warn('Admin submit error:', err.message);
   }
 
   try {
@@ -696,32 +803,155 @@ async function handleApplySubmit(e) {
       body: JSON.stringify({ surveyNumber, pan, applicantName, area, district, taluka, village })
     });
     const data = await res.json();
+    lastApplicationRef = adminRefNo || data.application_ref || '';
 
-    if (res.ok && data.success) {
-      if (msgEl) {
-        msgEl.innerHTML = `
-          <div style="background: #e8f4ec; border: 1px solid #198754; color: #198754; padding: 14px; border-radius: 6px; margin-top: 12px;">
-            <strong>✅ अर्ज यशस्वीरीत्या दाखल झाला!</strong><br>
-            अर्ज संदर्भ क्रमांक (Application Ref): <strong>${data.application_ref}</strong><br>
-            गट क्र. ${surveyNumber} चा सातबारा व फेरफार त्वरित अपडेट करण्यात आला आहे.
-          </div>
-        `;
-      }
-      lastApplicationRef = data.application_ref || '';
-      // Always offer the way back to Samanvay to continue with the next department
-      // (whether or not this page was opened from Samanvay's button).
-      const back = document.getElementById('returnToSamanvay');
-      if (back) { back.hidden = false; back.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-    } else {
-      if (msgEl) {
-        msgEl.innerHTML = `<div style="color: #dc3545; padding: 12px;">❌ त्रुटी: ${data.message || 'अर्ज दाखल करता आला नाही.'}</div>`;
-      }
-    }
+    // Render Initial PENDING Box
+    renderLandStatusPending(msgEl, lastApplicationRef, surveyNumber);
+
+    // Poll Admin Panel status until APPROVED or REJECTED
+    if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+    landAdminPollTimer = setInterval(() => pollLandAdminStatus(pan, lastApplicationRef, msgEl), 3000);
+    pollLandAdminStatus(pan, lastApplicationRef, msgEl);
+
   } catch (err) {
     if (msgEl) {
       msgEl.innerHTML = `<div style="color: #dc3545; padding: 12px;">❌ नेटवर्क त्रुटी: ${err.message}</div>`;
     }
   }
+}
+
+function renderLandStatusPending(container, refNo, surveyNumber) {
+  if (!container) return;
+  container.innerHTML = `
+    <div style="background: #fff8e1; border: 2px solid #f59e0b; color: #78350f; padding: 16px; border-radius: 8px; margin-top: 14px;">
+      <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+        <span>⏳</span> <span>अर्जाची स्थिती: प्रलंबित (Status: PENDING)</span>
+      </div>
+      <div style="font-size: 0.88rem; margin-top: 6px;">अर्ज संदर्भ क्रमांक (Ref): <strong>${refNo}</strong> (गट क्र. ${surveyNumber})</div>
+      <div style="font-size: 0.84rem; color: #92400e; margin-top: 6px;">
+        तुमचा अर्ज विभाग प्रशासक <a href="http://127.0.0.1:5001/admin.html" target="_blank" style="color: #1e3a8a; font-weight: 700;">/admin.html</a> मध्ये छाननीखाली आहे. प्रशासकाकडून मंजुरी मिळाल्यावरच 'समन्वय पोर्टलवर परत जा' बटण उघडेल.
+      </div>
+    </div>
+  `;
+}
+
+function renderLandApprovedDetails(app, container) {
+  if (!container) return;
+  const refNo = app.ref_no || app.refNumber || 'REF-LAND-001';
+  const name = app.citizen_name || app.citizenName || 'Applicant Enterprise';
+  const pan = app.citizen_pan || app.citizenPan || 'PAN0000000';
+  const gatNo = app.ref_number || app.surveyNumber || '101';
+  const dist = app.district || 'Pune';
+  const remarks = app.admin_remarks || '✓ सातबारा व फेरफार दस्तऐवज तपासणी पूर्ण — अर्ज मंजूर.';
+
+  lastApplicationRef = refNo;
+
+  container.innerHTML = `
+    <div style="background: #ffffff; border: 2px solid #166534; border-radius: 12px; padding: 22px; margin-top: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); font-family: system-ui, -apple-system, sans-serif;">
+      
+      <!-- Top Status Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
+            <span>🏛️</span> <span>महसूल व वन विभाग (Land Records Department)</span>
+          </div>
+          <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">सातबारा व फेरफार अर्ज — अधिकृत मान्यता पत्र</div>
+        </div>
+        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; font-size: 0.85rem; padding: 6px 14px; border-radius: 9999px;">
+          ✓ ACCEPTED & APPROVED
+        </span>
+      </div>
+
+      <!-- Application Details Grid -->
+      <div style="font-size: 0.88rem; margin-bottom: 12px; color: #1e293b; font-weight: 700;">अर्जाचे तपशील (Application Details):</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 18px;">
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">अर्ज संदर्भ क्र. (Ref No)</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; font-family: monospace;">${refNo}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">अर्जदाराचे नाव (Applicant)</div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${name}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">पॅन क्रमांक (PAN)</div>
+          <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a; font-family: monospace;">${pan}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">सर्व्हे / गट क्र. (Survey No)</div>
+          <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">Gat No. ${gatNo}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">जिल्हा (District)</div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${dist}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">प्रशासकीय निर्णय (Decision)</div>
+          <div style="font-weight: 800; font-size: 0.9rem; color: #166534;">APPROVED</div>
+        </div>
+      </div>
+
+      <!-- Admin Remarks -->
+      <div style="background: #f0fdf4; border-left: 4px solid #166534; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0; font-size: 0.88rem; color: #166534;">
+        💬 <strong>प्रशासकीय टीप (Admin Remark):</strong> ${remarks}
+      </div>
+
+      <!-- Visible Return to Samanvay Button directly below details -->
+      <div style="text-align: center; margin-top: 10px;">
+        <button type="button" class="mb-btn mb-btn-primary" onclick="returnToSamanvay()" style="background: #166534; color: #ffffff; font-size: 1.05rem; font-weight: 800; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 6px 20px rgba(22,101,52,0.3); display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+          ↩ <span>समन्वय पोर्टलवर परत जा (Return to Samanvay Portal ➔)</span>
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  const back = document.getElementById('returnToSamanvay');
+  if (back) back.hidden = false;
+}
+
+async function pollLandAdminStatus(pan, refNo, container) {
+  if (!pan || !refNo) return;
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+  try {
+    const res = await fetch(`${portalOrigin}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (!data.success || !data.applications) return;
+
+    const app = data.applications.find(a => a.ref_no === refNo || a.department === 'LAND');
+    if (!app) return;
+
+    if (app.status === 'APPROVED') {
+      if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+      renderLandApprovedDetails(app, container);
+    } else if (app.status === 'REJECTED') {
+      if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+      if (container) {
+        container.innerHTML = `
+          <div style="background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 16px; border-radius: 8px; margin-top: 14px;">
+            <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+              <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+            </div>
+            <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${app.admin_remarks || 'माहिती जुळली नाही.'}</strong></div>
+            <div style="margin-top: 14px;">
+              <button type="button" class="mb-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyLand()">
+                🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      const back = document.getElementById('returnToSamanvay');
+      if (back) back.hidden = true;
+    }
+  } catch (e) {}
+}
+
+function reapplyLand() {
+  if (landAdminPollTimer) clearInterval(landAdminPollTimer);
+  const msgEl = document.getElementById('applyMsg');
+  if (msgEl) msgEl.innerHTML = '';
+  document.getElementById('applySurvey').focus();
 }
 
 // ── Mutation Simulator Toggle ──────────────────────────────────────────────────

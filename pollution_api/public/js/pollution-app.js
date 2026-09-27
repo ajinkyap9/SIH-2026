@@ -1,5 +1,21 @@
-const SAMANVAY_API = `http://${window.location.hostname}:5000/api/portal`;
-let currentCallbackUrl = null;
+const handoff = (() => {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    appId: p.get('app_id'),
+    callback: p.get('callback'),
+    pan: (p.get('pan') || '').toUpperCase(),
+    applicant: p.get('applicant') || p.get('company') || '',
+  };
+})();
+
+const SAMANVAY_PORTAL_PORT = window.SAMANVAY_PORTAL_PORT || 5001;
+const SAMANVAY_ORIGIN = (() => {
+  try { if (handoff.callback) return new URL(handoff.callback).origin; } catch (e) { /* bad callback */ }
+  return `${window.location.protocol}//${window.location.hostname}:${SAMANVAY_PORTAL_PORT}`;
+})();
+const SAMANVAY_API = `${SAMANVAY_ORIGIN}/api/portal`;
+let currentCallbackUrl = handoff.callback;
+let lastApplicationRef = '';
 
 function switchTab(tabId) {
   const tabs = ['status', 'category', 'apply', 'notice', 'database'];
@@ -16,8 +32,7 @@ function switchTab(tabId) {
 
 async function fetchPollProfile() {
   const panEl = document.getElementById('pan');
-  const urlParams = new URLSearchParams(window.location.search);
-  const panFromUrl = urlParams.get('pan') || '';
+  const panFromUrl = handoff.pan || '';
   const pan = (panEl?.value || panFromUrl || '').trim().toUpperCase();
 
   if (!pan || pan.length < 10) {
@@ -163,6 +178,8 @@ function renderPollSheet(data) {
   `;
 }
 
+let pollAdminPollTimer = null;
+
 async function handleApplyPollSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('companyName').value.trim();
@@ -172,6 +189,29 @@ async function handleApplyPollSubmit(e) {
   const location = document.getElementById('location').value.trim();
 
   const refNumber = `MPCB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  let adminRefNo = '';
+  const portalOrigin = SAMANVAY_ORIGIN;
+
+  try {
+    const adminRes = await fetch(`${portalOrigin}/api/admin/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        department: 'POLLUTION',
+        citizenName: name,
+        citizenPan: pan,
+        projectName: `Consent to Establish (${consentType}) - ${category}`,
+        projectType: 'POLLUTION_CONSENT',
+        district: 'Pune',
+        refNumber: refNumber
+      })
+    });
+    const adminData = await adminRes.json();
+    if (adminData.success) adminRefNo = adminData.refNo;
+  } catch (err) {
+    console.warn('Admin queue submit error:', err);
+  }
 
   try {
     await fetch('/api/pollution/apply', {
@@ -190,41 +230,204 @@ async function handleApplyPollSubmit(e) {
     console.warn('Pollution backend apply notice:', err);
   }
 
-  // Show Banner Message
+  const activeRef = adminRefNo || refNumber;
+  lastApplicationRef = activeRef;
+
   const banner = document.getElementById('submissionSuccessBanner');
-  const bannerMsg = document.getElementById('submissionSuccessMsg');
-  if (banner && bannerMsg) {
-    bannerMsg.innerHTML = `Environmental Consent Application <strong>${refNumber}</strong> submitted successfully! Displaying your approved consent certificate below.`;
-    banner.style.display = 'block';
-  }
+  renderPollStatusPending(banner, activeRef);
 
-  // Handle Return to SAMANVAY Button
-  const returnBtn = document.getElementById('returnBtn');
-  const targetUrl = currentCallbackUrl || `http://${window.location.hostname}:5000/dashboard.html?tab=flowchart`;
-  if (returnBtn) {
-    returnBtn.style.display = 'inline-flex';
-    returnBtn.onclick = (e) => {
-      e.preventDefault();
-      const sep = targetUrl.includes('?') ? '&' : '?';
-      const url = `${targetUrl}${sep}mpcb_status=APPROVED&mpcb_ref=${encodeURIComponent(refNumber)}`;
-      try {
-        window.opener.location.href = url;
-        window.close();
-      } catch (err) {
-        window.location.href = url;
+  if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+  pollAdminPollTimer = setInterval(() => pollPollAdminStatus(pan, activeRef), 3000);
+  pollPollAdminStatus(pan, activeRef);
+}
+
+function renderPollStatusPending(banner, refNo) {
+  if (!banner) return;
+  lastApplicationRef = refNo;
+  banner.style.background = '#fff8e1';
+  banner.style.borderColor = '#f59e0b';
+  banner.style.color = '#78350f';
+  banner.style.padding = '18px';
+  banner.style.borderRadius = '10px';
+  banner.style.display = 'block';
+
+  banner.innerHTML = `
+    <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+      <span>⏳</span> <span>अर्जाची स्थिती: प्रलंबित (Status: PENDING ADMIN APPROVAL)</span>
+    </div>
+    <div style="font-size: 0.88rem; margin-top: 6px;">अर्ज संदर्भ क्रमांक (Ref): <strong>${refNo}</strong></div>
+    <div style="font-size: 0.84rem; color: #92400e; margin-top: 6px;">
+      तुमचा पर्यावरण संमती अर्ज <a href="${SAMANVAY_ORIGIN}/admin.html" target="_blank" style="color: #1e3a8a; font-weight: 700;">/admin.html</a> मध्ये तपासणीखाली आहे. प्रशासकाकडून मंजुरी मिळाल्यावरच 'समन्वय पोर्टलवर परत जा' बटण उघडेल.
+    </div>
+  `;
+}
+
+function renderPollApprovedDetails(app, banner) {
+  if (!banner) return;
+  const refNo = app.ref_no || app.refNumber || 'MPCB-2026-001';
+  const name = app.citizen_name || app.citizenName || 'Applicant Enterprise';
+  const pan = app.citizen_pan || app.citizenPan || 'PAN0000000';
+  const dist = app.district || 'Pune';
+  const remarks = app.admin_remarks || '✓ Environmental Consent (CTE) granted with zero effluent discharge compliance.';
+
+  lastApplicationRef = refNo;
+
+  banner.style.background = '#ffffff';
+  banner.style.border = '2px solid #166534';
+  banner.style.display = 'block';
+  banner.style.padding = '22px';
+  banner.style.borderRadius = '12px';
+  banner.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
+
+  banner.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
+          <span>🌿</span> <span>प्रदूषण नियंत्रण मंडळ (State Pollution Control Board)</span>
+        </div>
+        <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">पर्यावरणीय संमती (Consent to Establish/Operate) — अधिकृत मान्यता पत्र</div>
+      </div>
+      <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; font-size: 0.85rem; padding: 6px 14px; border-radius: 9999px;">
+        ✓ ACCEPTED & APPROVED
+      </span>
+    </div>
+
+    <div style="font-size: 0.88rem; margin-bottom: 12px; color: #1e293b; font-weight: 700;">अर्जाचे तपशील (Application Details):</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 18px;">
+      <div>
+        <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">अर्ज संदर्भ क्र. (Ref No)</div>
+        <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; font-family: monospace;">${refNo}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">उद्योगाचे नाव (Enterprise)</div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${name}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">पॅन क्रमांक (PAN)</div>
+        <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a; font-family: monospace;">${pan}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">जिल्हा / क्षेत्र (District)</div>
+        <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${dist}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">प्रशासकीय निर्णय (Decision)</div>
+        <div style="font-weight: 800; font-size: 0.9rem; color: #166534;">APPROVED</div>
+      </div>
+    </div>
+
+    <div style="background: #f0fdf4; border-left: 4px solid #166534; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0; font-size: 0.88rem; color: #166534;">
+      💬 <strong>प्रशासकीय टीप (Admin Remark):</strong> ${remarks}
+    </div>
+
+    <div style="text-align: center; margin-top: 10px;">
+      <button type="button" class="pol-btn pol-btn-primary" onclick="returnToSamanvay()" style="background: #166534; color: #ffffff; font-size: 1.05rem; font-weight: 800; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 6px 20px rgba(22,101,52,0.3); display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+        ↩ <span>समन्वय पोर्टलवर परत जा (Return to Samanvay Portal ➔)</span>
+      </button>
+    </div>
+  `;
+}
+
+function returnToSamanvay() {
+  const ref = lastApplicationRef || ('MPCB-' + Date.now().toString().slice(-6));
+  let url;
+  if (handoff.callback) {
+    const sep = handoff.callback.includes('?') ? '&' : '?';
+    url = `${handoff.callback}${sep}tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&pollution_status=COMPLETED&pollution_ref=${encodeURIComponent(ref)}`;
+  } else {
+    url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&pollution_status=COMPLETED&pollution_ref=${encodeURIComponent(ref)}`;
+  }
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.location.href = url;
+      window.close();
+      setTimeout(() => { window.location.href = url; }, 300);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = url;
+}
+
+async function pollPollAdminStatus(pan, refNo) {
+  if (!pan || !refNo) return;
+  const portalOrigin = SAMANVAY_ORIGIN;
+  try {
+    const res = await fetch(`${portalOrigin}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (!data.success || !data.applications) return;
+
+    const app = data.applications.find(a => a.ref_no === refNo || a.department === 'POLLUTION');
+    if (!app) return;
+
+    const banner = document.getElementById('submissionSuccessBanner');
+
+    if (app.status === 'APPROVED') {
+      if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+      renderPollApprovedDetails(app, banner);
+    } else if (app.status === 'REJECTED') {
+      if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+      if (banner) {
+        banner.style.background = '#fef2f2';
+        banner.style.borderColor = '#ef4444';
+        banner.style.color = '#991b1b';
+        banner.style.display = 'block';
+        banner.style.padding = '18px';
+        banner.style.borderRadius = '10px';
+        banner.innerHTML = `
+          <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+            <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+          </div>
+          <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${app.admin_remarks || 'पर्यावरणीय मापदंड जुळले नाहीत.'}</strong></div>
+          <div style="margin-top: 14px;">
+            <button type="button" class="pol-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyPoll()">
+              🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+            </button>
+          </div>
+        `;
       }
-    };
-  }
+    }
+  } catch (e) {}
+}
 
-  // REDIRECT / TAKE USER BACK TO HOME PAGE (STATUS TAB)
-  switchTab('status');
+function reapplyPoll() {
+  if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+  const banner = document.getElementById('submissionSuccessBanner');
+  if (banner) banner.style.display = 'none';
+  switchTab('apply');
+  document.getElementById('companyName').focus();
+}
 
-  // Populate search input with the new reference and auto-render!
-  const pollInput = document.getElementById('pollQuery');
-  if (pollInput) {
-    pollInput.value = refNumber;
+async function checkExistingPollAdminStatus(pan) {
+  const banner = document.getElementById('submissionSuccessBanner');
+  try {
+    const res = await fetch(`${SAMANVAY_ORIGIN}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (data.success && data.applications) {
+      const app = data.applications.find(a => a.department === 'POLLUTION');
+      if (app) {
+        if (app.status === 'APPROVED') {
+          renderPollApprovedDetails(app, banner);
+        } else if (app.status === 'PENDING') {
+          renderPollStatusPending(banner, app.ref_no);
+          if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+          pollAdminPollTimer = setInterval(() => pollPollAdminStatus(pan, app.ref_no), 3000);
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+function startSamanvayHandoff() {
+  switchTab('apply');
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  if (handoff.appId) setVal('appId', handoff.appId);
+  if (handoff.pan) setVal('pan', handoff.pan);
+  if (handoff.applicant) setVal('companyName', handoff.applicant);
+
+  if (handoff.pan) {
+    fetchPollProfile();
+    checkExistingPollAdminStatus(handoff.pan);
   }
-  handleSearchPoll(null);
 }
 
 function renderNoticeTab() {
@@ -255,47 +458,77 @@ POST /api/pollution/apply
   `;
 }
 
+let pollSocket = null;
+
+function initPollSocket() {
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+  const setupConnection = () => {
+    if (pollSocket || !window.io) return;
+    try {
+      pollSocket = io(portalOrigin);
+      pollSocket.on('applicationUpdated', (data) => {
+        if (!data) return;
+        const currentPan = handoff.pan || (document.getElementById('pan')?.value || '').toUpperCase();
+        if (data.department === 'POLLUTION' && (data.citizenPan === currentPan || data.refNo === lastApplicationRef)) {
+          const banner = document.getElementById('submissionSuccessBanner');
+          if (data.status === 'APPROVED') {
+            if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+            renderPollApprovedDetails(data.application || data, banner);
+          } else if (data.status === 'REJECTED') {
+            if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
+            if (banner) {
+              banner.style.background = '#fef2f2';
+              banner.style.borderColor = '#ef4444';
+              banner.style.color = '#991b1b';
+              banner.style.display = 'block';
+              banner.style.padding = '18px';
+              banner.style.borderRadius = '10px';
+              banner.innerHTML = `
+                <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                  <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+                </div>
+                <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${data.adminRemarks || 'पर्यावरणीय मापदंड जुळले नाहीत.'}</strong></div>
+                <div style="margin-top: 14px;">
+                  <button type="button" class="pol-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyPoll()">
+                    🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+                  </button>
+                </div>
+              `;
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('Socket connect notice:', e);
+    }
+  };
+
+  if (window.io) {
+    setupConnection();
+  } else {
+    const s = document.createElement('script');
+    s.src = `${portalOrigin}/socket.io/socket.io.js`;
+    s.onload = setupConnection;
+    document.head.appendChild(s);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const appId = urlParams.get('app_id');
-  const pan = urlParams.get('pan');
-  const applicant = urlParams.get('applicant');
-  currentCallbackUrl = urlParams.get('callback');
-
-  if (appId) {
-    const el = document.getElementById('appId');
-    if (el) el.value = appId;
+  initPollSocket();
+  if (handoff.appId || handoff.pan || handoff.applicant) {
+    startSamanvayHandoff();
+  } else {
+    switchTab('apply');
   }
-  if (pan) {
-    const el = document.getElementById('pan');
-    if (el) el.value = pan.toUpperCase();
-    fetchPollProfile();
-  }
-  if (applicant) {
-    const el = document.getElementById('companyName');
-    if (el) el.value = applicant;
-  }
-
-  // Default initial tab
-  switchTab('apply');
 });
 
-// Ensure every static "return to Samanvay" link uses the current device's
-// hostname rather than a hardcoded value, so this page works correctly whether
-// accessed via localhost or a LAN IP.
 window.addEventListener('DOMContentLoaded', () => {
-  const portalUrl = currentCallbackUrl || `http://${window.location.hostname}:5000/dashboard.html?tab=flowchart`;
   ['topSamanvayBtn', 'navSamanvayBtn', 'footerSamanvayBtn'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
       el.onclick = (e) => {
         e.preventDefault();
-        try {
-          window.opener.location.href = portalUrl;
-          window.close();
-        } catch (err) {
-          window.location.href = portalUrl;
-        }
+        returnToSamanvay();
       };
     }
   });

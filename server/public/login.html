@@ -4,12 +4,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="login.pageTitle">Log in — Samanvay</title>
+  <title data-i18n="login.pageTitle">Log in — Samanvay Portal</title>
   <link rel="stylesheet" href="/css/gov-style.css">
   <link rel="stylesheet" href="/css/samanvay-theme.css" data-ui-added>
   <link rel="stylesheet" href="/css/samanvay-design.css" data-ui-added>
   <script src="/js/i18n-strings.js" defer data-ui-added></script>
   <script src="/js/i18n.js" defer data-ui-added></script>
+  <style>
+    .account-type-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .account-type-btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .account-type-btn.active {
+      background: #ffffff;
+      color: #1e3a8a;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+  </style>
 </head>
 
 <body>
@@ -19,17 +47,13 @@
   <a class="skip-link" href="#main-content" data-ui-added data-i18n="common.skip">Skip to main content</a>
   <div class="gigw-bar" data-ui-added>
     <div class="gigw-bar__inner">
-      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and
-        Pollution approvals</span>
+      <span class="gigw-bar__gov" data-i18n="common.govLine">Samanvay — one application for Land, Electricity and Pollution approvals</span>
       <div class="gigw-bar__controls">
         <div class="gigw-group" role="group" aria-label="Text size" data-i18n-aria-label="common.textSize">
           <span class="gigw-group__label" data-i18n="common.textSize">Text size</span>
-          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text"
-            data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
-          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text"
-            data-i18n-aria-label="common.textNormal" translate="no">A</button>
-          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text"
-            data-i18n-aria-label="common.textLarger" translate="no">A+</button>
+          <button type="button" data-text-size="small" aria-pressed="false" aria-label="Smaller text" data-i18n-aria-label="common.textSmaller" translate="no">A−</button>
+          <button type="button" data-text-size="normal" aria-pressed="true" aria-label="Normal text" data-i18n-aria-label="common.textNormal" translate="no">A</button>
+          <button type="button" data-text-size="large" aria-pressed="false" aria-label="Larger text" data-i18n-aria-label="common.textLarger" translate="no">A+</button>
         </div>
         <div class="gigw-group" role="group" aria-label="Language" data-i18n-aria-label="common.language">
           <button type="button" data-lang="en" lang="en" aria-pressed="true" translate="no">English</button>
@@ -39,22 +63,19 @@
     </div>
   </div>
 
-
   <div class="gov-top-bar">
     <div>
-      <strong translate="no">Samanvay</strong> • <span data-i18n="login.topbar">Log in</span>
+      <strong translate="no">Samanvay</strong> • <span>Log in</span>
     </div>
     <div>
-      <a href="/" data-i18n="common.home">Home</a> | <a href="/register.html" data-i18n="common.register">New user?
-        Register</a>
+      <a href="/" data-i18n="common.home">Home</a> | <a href="/register.html" data-i18n="common.register">New user? Register</a>
     </div>
   </div>
 
   <header class="main-header">
     <div class="brand-wrapper">
       <div class="emblem-icon">
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect width="40" height="40" rx="8" fill="#1e3a8a" />
           <path d="M20 7L8 14V17H32V14L20 7Z" fill="#ff9933" />
           <rect x="11" y="19" width="3" height="10" fill="#ffffff" />
@@ -72,8 +93,7 @@
       <a href="/register.html" class="btn btn-outline" data-i18n="login.registerBtn">Register a new account</a>
     </div>
   </header>
-  <!-- Samanvay main navigation (GIGW pattern): short top-level menu + "Find a service".
-       The finder is a plain GET form; dashboard.html already opens ?tab=<section>. -->
+
   <nav class="sv-nav" aria-label="Main menu" data-i18n-aria-label="nav.label" data-ui-added>
     <div class="sv-nav__inner">
       <ul class="sv-nav__list">
@@ -82,20 +102,6 @@
         <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
         <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
       </ul>
-      <form class="sv-search" role="search" action="/dashboard.html" method="get" aria-label="Find a service"
-        data-i18n-aria-label="nav.find">
-        <label for="svFindService" class="sv-search__label" data-i18n="nav.find">Find a service</label>
-        <select id="svFindService" name="tab" class="sv-search__select" required>
-          <option value="" data-i18n="nav.findPh">— Choose a service —</option>
-          <option value="process" data-i18n="dash.wz.title">Check what permissions you need</option>
-          <option value="flowchart" data-i18n="dash.fc.title">Department checks</option>
-          <option value="status" data-i18n="dash.st.title">Track my application</option>
-          <option value="query" data-i18n="dash.nav.query">Ask a question</option>
-          <option value="grievance" data-i18n="dash.nav.grievance">Make a complaint</option>
-          <option value="feedback" data-i18n="dash.nav.feedback">Give feedback</option>
-        </select>
-        <button type="submit" class="btn sv-search__btn" data-i18n="nav.go">Go</button>
-      </form>
     </div>
   </nav>
 
@@ -103,227 +109,241 @@
     <span id="main-content" class="skip-target" tabindex="-1"></span>
     <div class="auth-box">
       <div class="auth-header">
-        <h2 data-i18n="login.title">Log in to your account</h2>
-        <p data-i18n="login.intro">Log in with the Aadhaar or PAN number you registered with. We will send a one-time
-          password (OTP) to your registered mobile number.</p>
+        <h2>Log in to Samanvay Portal</h2>
+        <p>Select account type (Company or Individual) and enter your credentials to access your dashboard.</p>
       </div>
 
       <div class="auth-body">
-        <!-- Login Method Tabs -->
-        <div class="auth-tabs">
-          <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchLoginTab('aadhaar')"
-            data-i18n="login.tabAadhaar">Log in with Aadhaar</button>
-          <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchLoginTab('pan')"
-            data-i18n="login.tabPan">Log in with PAN</button>
+
+        <!-- ACCOUNT TYPE SELECTION -->
+        <div class="account-type-tabs">
+          <button type="button" id="typeCompany" class="account-type-btn active" onclick="setAccountType('company')">
+            🏢 Company Account
+          </button>
+          <button type="button" id="typeIndividual" class="account-type-btn" onclick="setAccountType('individual')">
+            👤 Individual Account
+          </button>
         </div>
 
-        <div id="loginAlert" role="alert"
-          style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
+        <div id="loginAlert" role="alert" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 16px;"></div>
 
-        <!-- Step 1: Identifier Input -->
-        <form id="step1Form">
+        <!-- MAIN LOGIN FORM -->
+        <form id="loginForm">
+          
+          <!-- Individual Sub-Tabs (Aadhaar vs PAN) -->
+          <div id="individualSubTabs" class="auth-tabs" style="display: none; margin-bottom: 16px;">
+            <button type="button" id="tabAadhaar" class="auth-tab-btn active" onclick="switchIndividualIdType('aadhaar')">Aadhaar Number</button>
+            <button type="button" id="tabPan" class="auth-tab-btn" onclick="switchIndividualIdType('pan')">PAN Number</button>
+          </div>
+
+          <!-- Identifier Input Field -->
           <div class="form-group">
             <label id="inputLabel" class="form-label" for="loginIdentifier">
-              <span data-i18n="login.aadhaarLabel">Your 12-digit Aadhaar number</span> <span class="req-star">*</span>
+              Company PAN Number <span class="req-star">*</span>
             </label>
-            <input type="text" id="loginIdentifier" class="form-input"
-              placeholder="Enter your registered Aadhaar number" autocomplete="off" required>
-            <div id="inputHint" style="font-size: 0.85rem; color: var(--gov-text-muted); margin-top: 4px;"
-              data-i18n="login.hint">We will send a 6-digit OTP to the mobile number linked to your account.</div>
+            <input type="text" id="loginIdentifier" class="form-input" placeholder="Enter Company PAN (e.g. ABCDE1234F)" style="text-transform: uppercase;" required>
           </div>
 
-          <button type="submit" id="btnGetOtp" class="btn btn-primary" style="width: 100%; padding: 12px;"
-            data-i18n="login.sendOtp">Send OTP ➔</button>
+          <!-- Password Field -->
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">
+              Account Password <span class="req-star">*</span>
+            </label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="flex: 2; padding: 12px;">
+              Log In to Portal ➔
+            </button>
+            <button type="button" id="btnRequestOtp" onclick="requestOtpLogin()" class="btn btn-outline" style="flex: 1; padding: 12px; font-size: 0.82rem;">
+              🔑 Request OTP
+            </button>
+          </div>
+
         </form>
 
-        <!-- Step 2: OTP Verification (hidden initially) -->
-        <form id="step2Form"
-          style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
-          <div
-            style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
-            <span data-i18n="login.otpSent">OTP sent to your registered mobile number</span> <strong
-              id="maskedPhoneSpan" translate="no">*****</strong>.
-            <span data-i18n="login.checkSms">Please check your SMS messages.</span>
+        <!-- OTP Step 2 Form (Hidden Initially) -->
+        <form id="otpForm" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1e40af; margin-bottom: 14px;">
+            OTP sent to registered mobile <strong id="maskedPhoneSpan">*****</strong>. Demo OTP: <code>654321</code>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="otpInput"><span data-i18n="login.otpLabel">Enter the 6-digit OTP</span> <span
-                class="req-star">*</span></label>
-            <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP"
-              data-i18n-placeholder="login.otpPh" inputmode="numeric" maxlength="6"
-              style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
+            <label class="form-label" for="otpInput">Enter 6-digit OTP <span class="req-star">*</span></label>
+            <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP" inputmode="numeric" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700;" required>
           </div>
 
           <div class="action-row" style="display: flex; gap: 10px;">
-            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;"
-              data-i18n="common.cancel">Cancel</button>
-            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;"
-              data-i18n="login.verify">Verify and log in ➔</button>
+            <button type="button" onclick="cancelOtp()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+            <button type="submit" id="btnVerifyOtp" class="btn btn-primary" style="flex: 2;">Verify & Log In ➔</button>
           </div>
         </form>
 
         <div style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: #64748b;">
-          <span data-i18n="login.noAccount">Don’t have an account?</span> <a href="/register.html"
-            style="color: var(--gov-primary); font-weight: 600;" data-i18n="login.registerHere">Register here</a>
+          Don’t have an account? <a href="/register.html" style="color: var(--gov-primary); font-weight: 600;">Register here</a>
         </div>
       </div>
     </div>
-    <p class="auth-credit" data-ui-added><span data-i18n="index.heroCaption">Gateway of India, Mumbai</span> · <span
-        data-i18n="index.heroPhoto">Photo:</span> <a
-        href="https://commons.wikimedia.org/wiki/File:Mumbai_03-2016_30_Gateway_of_India.jpg" translate="no">A.Savin,
-        Wikipedia</a> · <a href="https://artlibre.org/licence/lal/en/" data-i18n="index.heroLicence">Free Art
-        License</a></p>
   </main>
 
-  <!-- Samanvay shared footer (multi-column, same on every page) -->
-  <footer class="gov-footer" data-ui-added>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h2 translate="no">Samanvay</h2>
-        <p data-i18n="footer.about">One application for Land, Electricity and Pollution approvals in Maharashtra.</p>
-        <p data-i18n="footer.proto">Prototype for Smart India Hackathon 2026. Department records are sample data.</p>
-      </div>
-      <nav class="footer-col" aria-label="Quick links" data-i18n-aria-label="footer.quick">
-        <h2 data-i18n="footer.quick">Quick links</h2>
-        <ul class="footer-links-list">
-          <li><a href="/" data-i18n="common.home">Home</a></li>
-          <li><a href="/dashboard.html?tab=process" data-i18n="nav.apply">Apply for approvals</a></li>
-          <li><a href="/dashboard.html?tab=status" data-i18n="dash.st.title">Track my application</a></li>
-          <li><a href="/dashboard.html?tab=query" data-i18n="dash.nav.groupHelp">Help and complaints</a></li>
-          <li><a href="/register.html" data-i18n="common.register">New user? Register</a></li>
-        </ul>
-      </nav>
-      <nav class="footer-col" aria-label="Department websites" data-i18n-aria-label="footer.depts">
-        <h2 data-i18n="footer.depts">Department websites</h2>
-        <ul class="footer-links-list">
-          <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
-          <li><a href="http://localhost:8001/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
-          <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
-        </ul>
-      </nav>
-      <div class="footer-col">
-        <h2 data-i18n="footer.help">Help and support</h2>
-        <p>
-          <span data-i18n="footer.helpline">Free helpline</span><br>
-          <a class="footer-helpline" href="tel:18001208040" translate="no">1800-120-8040</a><br>
-          <span data-i18n="footer.hours">9:30 AM – 6:00 PM, working days</span>
-        </p>
-        <p><a href="mailto:samanvay-support@gov.in" translate="no">samanvay-support@gov.in</a></p>
-        <p data-i18n="footer.a11y">Text size and English / मराठी controls are at the top of every page.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span data-i18n="common.footerMeta">© 2026 Samanvay · Single-window approvals · SIH 2026</span>
-      <a href="#main-content" data-i18n="footer.top">Back to top ↑</a>
-    </div>
-  </footer>
-
   <script>
-    let activeTab = 'aadhaar';
+    let currentAccountType = 'company'; // 'company' or 'individual'
+    let currentIndividualIdType = 'aadhaar'; // 'aadhaar' or 'pan'
     let currentTxnId = null;
 
     const loginIdentifier = document.getElementById('loginIdentifier');
+    const loginPassword = document.getElementById('loginPassword');
     const inputLabel = document.getElementById('inputLabel');
     const loginAlert = document.getElementById('loginAlert');
-    const step1Form = document.getElementById('step1Form');
-    const step2Form = document.getElementById('step2Form');
+    const loginForm = document.getElementById('loginForm');
+    const otpForm = document.getElementById('otpForm');
 
-    // Check if redirected from registration
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('registered')) {
-      loginAlert.style.background = '#dcfce7';
-      loginAlert.style.color = '#15803d';
-      loginAlert.style.border = '1px solid #86efac';
-      loginAlert.innerHTML = '<span class="sv-alert-icon" aria-hidden="true">✓</span>Your account has been created. Please log in with your Aadhaar or PAN number.';
-      loginAlert.style.display = 'block';
-    }
-
-    function switchLoginTab(type) {
-      activeTab = type;
+    function setAccountType(type) {
+      currentAccountType = type;
       loginAlert.style.display = 'none';
-      step2Form.style.display = 'none';
-      step1Form.style.display = 'block';
-      loginIdentifier.value = '';
+      otpForm.style.display = 'none';
+      loginForm.style.display = 'block';
 
-      if (type === 'aadhaar') {
-        document.getElementById('tabAadhaar').classList.add('active');
-        document.getElementById('tabPan').classList.remove('active');
-        inputLabel.innerHTML = '<span data-i18n="login.aadhaarLabel">Your 12-digit Aadhaar number</span> <span class="req-star">*</span>';
-        loginIdentifier.placeholder = 'Enter your registered Aadhaar number';
+      const compBtn = document.getElementById('typeCompany');
+      const indBtn = document.getElementById('typeIndividual');
+      const indTabs = document.getElementById('individualSubTabs');
+
+      loginIdentifier.value = '';
+      loginPassword.value = '';
+
+      if (type === 'company') {
+        compBtn.classList.add('active');
+        indBtn.classList.remove('active');
+        indTabs.style.display = 'none';
+        inputLabel.innerHTML = 'Company PAN Number <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter Company PAN (e.g. ABCDE1234F)';
       } else {
-        document.getElementById('tabPan').classList.add('active');
-        document.getElementById('tabAadhaar').classList.remove('active');
-        inputLabel.innerHTML = '<span data-i18n="login.panLabel">Your 10-character PAN</span> <span class="req-star">*</span>';
-        loginIdentifier.placeholder = 'Enter your registered PAN, e.g. ABCDE1234F';
+        indBtn.classList.add('active');
+        compBtn.classList.remove('active');
+        indTabs.style.display = 'flex';
+        switchIndividualIdType(currentIndividualIdType);
       }
     }
 
-    // Auto format input
-    loginIdentifier.addEventListener('input', (e) => {
-      let val = e.target.value;
-      if (activeTab === 'aadhaar') {
-        const digits = val.replace(/\D/g, '').slice(0, 12);
-        e.target.value = digits.replace(/(\d{4})(?=\d)/g, '$1-');
-      } else {
-        e.target.value = val.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10).toUpperCase();
-      }
-    });
+    function switchIndividualIdType(idType) {
+      currentIndividualIdType = idType;
+      const tabAadh = document.getElementById('tabAadhaar');
+      const tabPan = document.getElementById('tabPan');
 
-    // Step 1: Request OTP
-    step1Form.addEventListener('submit', async (e) => {
+      loginIdentifier.value = '';
+      loginPassword.value = '';
+
+      if (idType === 'aadhaar') {
+        tabAadh.classList.add('active');
+        tabPan.classList.remove('active');
+        inputLabel.innerHTML = '12-Digit Aadhaar Number <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter registered Aadhaar (e.g. 1234-5678-9012)';
+      } else {
+        tabPan.classList.add('active');
+        tabAadh.classList.remove('active');
+        inputLabel.innerHTML = '10-Character PAN Number <span class="req-star">*</span>';
+        loginIdentifier.placeholder = 'Enter registered PAN (e.g. RMPTL1234F)';
+      }
+    }
+
+    // Password Login Handler
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginAlert.style.display = 'none';
 
-      const val = loginIdentifier.value.replace(/[\s-]/g, '');
-      const btn = document.getElementById('btnGetOtp');
+      const identifierValue = loginIdentifier.value.replace(/[\s-]/g, '');
+      const password = loginPassword.value.trim();
+      const btn = document.getElementById('btnLoginSubmit');
+
       btn.disabled = true;
-      btn.innerText = 'Checking your details…';
+      btn.innerText = 'Authenticating…';
 
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            identifierType: activeTab,
-            identifierValue: val
+            accountType: currentAccountType,
+            identifierType: currentAccountType === 'company' ? 'pan' : currentIndividualIdType,
+            identifierValue: identifierValue,
+            password: password,
+            loginMode: 'password'
           })
         });
 
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = 'Send OTP ➔';
+        btn.innerText = 'Log In to Portal ➔';
 
         if (data.success) {
-          currentTxnId = data.txnId;
-          document.getElementById('maskedPhoneSpan').innerText = data.maskedPhone;
-          document.getElementById('otpInput').value = '';
+          sessionStorage.setItem('gov_citizen', JSON.stringify(data.citizen));
+          sessionStorage.setItem('gov_token', data.token);
 
-          step1Form.style.display = 'none';
-          step2Form.style.display = 'block';
+          showAlert('success', 'Authentication successful! Taking you to your dashboard…');
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
         } else {
           showAlert('error', data.message);
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Send OTP ➔';
-        showAlert('error', 'Could not connect to the server. Please try again in a few minutes.');
+        btn.innerText = 'Log In to Portal ➔';
+        showAlert('error', 'Could not connect to the authentication server.');
       }
     });
 
-    function cancelOtp() {
-      step2Form.style.display = 'none';
-      step1Form.style.display = 'block';
+    // Request OTP Option
+    async function requestOtpLogin() {
+      loginAlert.style.display = 'none';
+      const identifierValue = loginIdentifier.value.replace(/[\s-]/g, '');
+      const btn = document.getElementById('btnRequestOtp');
+
+      btn.disabled = true;
+      btn.innerText = 'Sending OTP…';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            accountType: currentAccountType,
+            identifierType: currentAccountType === 'company' ? 'pan' : currentIndividualIdType,
+            identifierValue: identifierValue,
+            loginMode: 'otp'
+          })
+        });
+
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerText = '🔑 Request OTP';
+
+        if (data.success) {
+          currentTxnId = data.txnId;
+          document.getElementById('maskedPhoneSpan').innerText = data.maskedPhone;
+          loginForm.style.display = 'none';
+          otpForm.style.display = 'block';
+        } else {
+          showAlert('error', data.message);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = '🔑 Request OTP';
+        showAlert('error', 'Could not send OTP.');
+      }
     }
 
-    // Step 2: Verify OTP
-    step2Form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      loginAlert.style.display = 'none';
+    function cancelOtp() {
+      otpForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    }
 
+    // OTP Verify Handler
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
       const otp = document.getElementById('otpInput').value.trim();
       const btn = document.getElementById('btnVerifyOtp');
       btn.disabled = true;
-      btn.innerText = 'Logging you in…';
+      btn.innerText = 'Verifying…';
 
       try {
         const res = await fetch('/api/auth/verify-otp', {
@@ -334,32 +354,21 @@
 
         const data = await res.json();
         btn.disabled = false;
-        btn.innerText = 'Verify and log in ➔';
+        btn.innerText = 'Verify & Log In ➔';
 
         if (data.success) {
-          // Store session with full citizen & enterprise context for cross-department SSO
-          sessionStorage.setItem('gov_citizen', JSON.stringify({
-            id: data.citizen.id,
-            firstName: data.citizen.firstName,
-            lastName: data.citizen.lastName,
-            fullName: data.citizen.fullName,
-            email: data.citizen.email,
-            pan: data.citizen.pan,
-            mobile: data.citizen.mobile,
-            organizationName: data.citizen.organizationName,
-            organizationPan: data.citizen.organizationPan
-          }));
+          sessionStorage.setItem('gov_citizen', JSON.stringify(data.citizen));
           sessionStorage.setItem('gov_token', data.token);
 
-          showAlert('success', 'You are logged in. Taking you to your dashboard…');
-          setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+          showAlert('success', 'Logged in via OTP! Redirecting…');
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
         } else {
           showAlert('error', data.message);
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerText = 'Verify and log in ➔';
-        showAlert('error', 'Something went wrong while checking your OTP. Please try again.');
+        btn.innerText = 'Verify & Log In ➔';
+        showAlert('error', 'OTP verification failed.');
       }
     });
 
@@ -369,14 +378,17 @@
         loginAlert.style.background = '#dcfce7';
         loginAlert.style.color = '#15803d';
         loginAlert.style.border = '1px solid #86efac';
+        loginAlert.innerHTML = '✓ ' + msg;
       } else {
         loginAlert.style.background = '#fee2e2';
         loginAlert.style.color = '#991b1b';
         loginAlert.style.border = '1px solid #fca5a5';
+        loginAlert.innerHTML = '⚠️ ' + msg;
       }
-      // Colour is never the only signal: every alert also gets an icon.
-      loginAlert.innerHTML = '<span class="sv-alert-icon" aria-hidden="true">' + (type === 'success' ? '✓' : '⚠') + '</span>' + msg;
     }
+
+    // Set default on load
+    setAccountType('company');
   </script>
 </body>
 

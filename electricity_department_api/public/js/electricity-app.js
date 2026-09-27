@@ -9,7 +9,9 @@
  */
 
 const API = '/api/electricity';
-const SAMANVAY_PORTAL_API = 'http://localhost:5000/api/portal';
+const SAMANVAY_PORTAL_PORT = window.SAMANVAY_PORTAL_PORT || 5001;
+const SAMANVAY_ORIGIN = `${window.location.protocol}//${window.location.hostname}:${SAMANVAY_PORTAL_PORT}`;
+const SAMANVAY_PORTAL_API = `${SAMANVAY_ORIGIN}/api/portal`;
 
 let zones = [];
 let currentZone = 'pune';
@@ -68,9 +70,61 @@ async function getJSON(url, opts) {
   return data;
 }
 
+let elecSocket = null;
+
+function initElecSocket() {
+  const portalOrigin = SAMANVAY_ORIGIN || 'http://127.0.0.1:5001';
+  const setupConnection = () => {
+    if (elecSocket || !window.io) return;
+    try {
+      elecSocket = io(portalOrigin);
+      elecSocket.on('applicationUpdated', (data) => {
+        if (!data) return;
+        const currentPan = handoff.pan || ($('applyPan')?.value || '').toUpperCase();
+        if (data.department === 'ELECTRICITY' && (data.citizenPan === currentPan || data.refNo === lastApplicationRef)) {
+          const msg = $('applyMsg');
+          if (data.status === 'APPROVED') {
+            if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+            renderElecApprovedDetails(data.application || data, msg);
+          } else if (data.status === 'REJECTED') {
+            if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+            if (msg) {
+              msg.innerHTML = `
+                <div style="background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 16px; border-radius: 8px; margin-top: 14px;">
+                  <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                    <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+                  </div>
+                  <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${data.adminRemarks || 'अटींची पूर्तता न झाल्यामुळे नामंजूर.'}</strong></div>
+                  <div style="margin-top: 14px;">
+                    <button type="button" class="mb-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyElec()">
+                      🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+                    </button>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('Socket connect notice:', e);
+    }
+  };
+
+  if (window.io) {
+    setupConnection();
+  } else {
+    const s = document.createElement('script');
+    s.src = `${portalOrigin}/socket.io/socket.io.js`;
+    s.onload = setupConnection;
+    document.head.appendChild(s);
+  }
+}
+
 // ── Init ────────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   await loadZones();
+  initElecSocket();
   switchTab('track');
   presetTrack('ELEC-2026-00101');
   showApplyCategory();
@@ -318,41 +372,198 @@ function showApplyCategory() {
     : `🔌 <strong>लघु दाब (LT) जोडणी</strong> — १०० kW पेक्षा कमी भार. (Low-tension connection.)`;
 }
 
+let elecAdminPollTimer = null;
+
 async function handleApply(e) {
   e.preventDefault();
   const btn = $('btnApply');
   const msg = $('applyMsg');
+  const back = $('returnToSamanvay');
+  if (back) back.hidden = true; // Hide Go Back button initially!
+
   btn.disabled = true;
   msg.innerHTML = `<div class="pt-msg pt-msg--info">⏳ अर्ज दाखल करत आहे… (Submitting…)</div>`;
+
+  const pan = $('applyPan').value.trim().toUpperCase();
+  const applicantName = $('applyName').value.trim();
+  const requestedLoad = $('applyLoad').value;
+  const district = $('applyDistrict').value.trim() || 'Pune';
+
+  let adminRefNo = '';
+  const portalOrigin = SAMANVAY_ORIGIN;
+
+  try {
+    const adminRes = await fetch(`${portalOrigin}/api/admin/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        department: 'ELECTRICITY',
+        citizenName: applicantName,
+        citizenPan: pan,
+        projectName: `Electricity Connection ${requestedLoad}kW`,
+        projectType: 'ELECTRICITY_SANCTION',
+        district: district,
+        refNumber: `ELEC-2026-${Math.floor(100 + Math.random() * 900)}`
+      })
+    });
+    const adminData = await adminRes.json();
+    if (adminData.success) adminRefNo = adminData.refNo;
+  } catch (err) {
+    console.warn('Admin submit error:', err.message);
+  }
+
   try {
     const data = await getJSON(`${API}/public-apply`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        applicant_name: $('applyName').value.trim(),
-        applicant_pan: $('applyPan').value.trim().toUpperCase(),
-        district: $('applyDistrict').value.trim(),
+        applicant_name: applicantName,
+        applicant_pan: pan,
+        district: district,
         taluka: $('applyTaluka').value.trim(),
         village: $('applyVillage').value.trim(),
         address: $('applyAddress').value.trim() || undefined,
-        requested_load: $('applyLoad').value,
+        requested_load: requestedLoad,
       }),
     });
-    lastApplicationRef = data.application_number || '';
-    msg.innerHTML = `<div class="pt-msg pt-msg--ok"><strong>✅ अर्ज दाखल झाला (Application submitted)</strong><br>
-      अर्ज क्र. (Application No): <strong class="pt-mono">${esc(data.application_number)}</strong> ·
-      विभागाने नोंदवलेली स्थिती (Status recorded by the department): ${chip(data.status)}
-      <br><button type="button" class="pt-link-btn" style="margin-top:8px" onclick="switchTab('track'); showTracker('${esc(data.application_number)}')">प्रगती पहा (View progress)</button></div>`;
-    if (handoff.appId) {
-      const back = $('returnToSamanvay');
-      back.hidden = false;
-      back.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    lastApplicationRef = adminRefNo || data.application_number || '';
+
+    // Render Initial PENDING Box
+    renderElecStatusPending(msg, lastApplicationRef);
+
+    // Poll Admin Panel status until APPROVED or REJECTED
+    if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+    elecAdminPollTimer = setInterval(() => pollElecAdminStatus(pan, lastApplicationRef, msg), 3000);
+    pollElecAdminStatus(pan, lastApplicationRef, msg);
+
   } catch (err) {
     msg.innerHTML = `<div class="pt-msg pt-msg--bad">❌ अर्ज दाखल झाला नाही (Could not submit): ${esc(err.message)}</div>`;
   } finally {
     btn.disabled = false;
   }
+}
+
+function renderElecStatusPending(container, refNo) {
+  if (!container) return;
+  container.innerHTML = `
+    <div style="background: #fff8e1; border: 2px solid #f59e0b; color: #78350f; padding: 16px; border-radius: 8px; margin-top: 14px;">
+      <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+        <span>⏳</span> <span>अर्जाची स्थिती: प्रलंबित (Status: PENDING)</span>
+      </div>
+      <div style="font-size: 0.88rem; margin-top: 6px;">अर्ज संदर्भ क्रमांक (Ref): <strong>${refNo}</strong></div>
+      <div style="font-size: 0.84rem; color: #92400e; margin-top: 6px;">
+        तुमचा वीज जोडणी अर्ज महावितरण प्रशासक <a href="${SAMANVAY_ORIGIN}/admin.html" target="_blank" style="color: #1e3a8a; font-weight: 700;">/admin.html</a> मध्ये तपासणीखाली आहे. मंजुरीनंतरच 'समन्वयकडे परत जा' बटण उघडेल.
+      </div>
+    </div>
+  `;
+}
+
+function renderElecApprovedDetails(app, container) {
+  if (!container) return;
+  const refNo = app.ref_no || app.refNumber || 'REF-ELE-001';
+  const name = app.citizen_name || app.citizenName || 'Applicant Enterprise';
+  const pan = app.citizen_pan || app.citizenPan || 'PAN0000000';
+  const dist = app.district || 'Pune';
+  const remarks = app.admin_remarks || '✓ वीज जोडणी मंजूर करण्यात आली आहे.';
+
+  lastApplicationRef = refNo;
+
+  container.innerHTML = `
+    <div style="background: #ffffff; border: 2px solid #166534; border-radius: 12px; padding: 22px; margin-top: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); font-family: system-ui, -apple-system, sans-serif;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
+            <span>⚡</span> <span>वीज वितरण विभाग (Electricity Distribution Department)</span>
+          </div>
+          <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">नवीन जोडणी अर्ज — अधिकृत मंजुरी पत्र</div>
+        </div>
+        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 800; font-size: 0.85rem; padding: 6px 14px; border-radius: 9999px;">
+          ✓ ACCEPTED & APPROVED
+        </span>
+      </div>
+
+      <div style="font-size: 0.88rem; margin-bottom: 12px; color: #1e293b; font-weight: 700;">अर्जाचे तपशील (Application Details):</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 18px;">
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">अर्ज संदर्भ क्र. (Ref No)</div>
+          <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; font-family: monospace;">${refNo}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">अर्जदाराचे नाव (Applicant)</div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${name}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">पॅन क्रमांक (PAN)</div>
+          <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a; font-family: monospace;">${pan}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">जिल्हा (District)</div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">${dist}</div>
+        </div>
+        <div>
+          <div style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">प्रशासकीय निर्णय (Decision)</div>
+          <div style="font-weight: 800; font-size: 0.9rem; color: #166534;">APPROVED</div>
+        </div>
+      </div>
+
+      <div style="background: #f0fdf4; border-left: 4px solid #166534; padding: 12px 16px; margin-bottom: 20px; border-radius: 0 6px 6px 0; font-size: 0.88rem; color: #166534;">
+        💬 <strong>प्रशासकीय टीप (Admin Remark):</strong> ${remarks}
+      </div>
+
+      <div style="text-align: center; margin-top: 10px;">
+        <button type="button" class="mb-btn mb-btn-primary" onclick="returnToSamanvay()" style="background: #166534; color: #ffffff; font-size: 1.05rem; font-weight: 800; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 6px 20px rgba(22,101,52,0.3); display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+          ↩ <span>समन्वय कडे परत जा व पुढे चला (Return to Samanvay and continue ➔)</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  const back = $('returnToSamanvay');
+  if (back) back.hidden = false;
+}
+
+async function pollElecAdminStatus(pan, refNo, container) {
+  if (!pan || !refNo) return;
+  const portalOrigin = SAMANVAY_ORIGIN;
+  try {
+    const res = await fetch(`${portalOrigin}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (!data.success || !data.applications) return;
+
+    const app = data.applications.find(a => a.ref_no === refNo || a.department === 'ELECTRICITY');
+    if (!app) return;
+
+    if (app.status === 'APPROVED') {
+      if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+      renderElecApprovedDetails(app, container);
+    } else if (app.status === 'REJECTED') {
+      if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+      if (container) {
+        container.innerHTML = `
+          <div style="background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 16px; border-radius: 8px; margin-top: 14px;">
+            <div style="font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+              <span>❌</span> <span>अर्जाची स्थिती: अयशस्वी / नामंजूर (Status: FAILED / REJECTED)</span>
+            </div>
+            <div style="font-size: 0.88rem; margin-top: 6px;">कारण: <strong>${app.admin_remarks || 'अटींची पूर्तता न झाल्यामुळे नामंजूर.'}</strong></div>
+            <div style="margin-top: 14px;">
+              <button type="button" class="mb-btn" style="background: #dc3545; color: white; font-weight: 700; font-size: 0.88rem; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;" onclick="reapplyElec()">
+                🔄 माहिती दुरुस्त करून पुन्हा अर्ज करा (Failed - Reapply Application)
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      const back = $('returnToSamanvay');
+      if (back) back.hidden = true;
+    }
+  } catch (e) {}
+}
+
+function reapplyElec() {
+  if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+  const msg = $('applyMsg');
+  if (msg) msg.innerHTML = '';
+  $('applyName').focus();
 }
 
 // ── Samanvay hand-off ───────────────────────────────────────────────────────────
@@ -363,37 +574,70 @@ function startSamanvayHandoff() {
   if (handoff.load && parseFloat(handoff.load) > 0) $('applyLoad').value = parseFloat(handoff.load);
   showApplyCategory();
   $('samanvayHandoff').hidden = false;
-  if (handoff.pan) fillProfileFromSamanvay(handoff.pan);
+  if (handoff.pan) {
+    fillProfileFromSamanvay(handoff.pan);
+    checkExistingElecAdminStatus(handoff.pan);
+  }
+}
+
+async function checkExistingElecAdminStatus(pan) {
+  const msg = $('applyMsg');
+  try {
+    const res = await fetch(`${SAMANVAY_ORIGIN}/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+    const data = await res.json();
+    if (data.success && data.applications) {
+      const app = data.applications.find(a => a.department === 'ELECTRICITY');
+      if (app) {
+        if (app.status === 'APPROVED') {
+          renderElecApprovedDetails(app, msg);
+        } else if (app.status === 'PENDING') {
+          renderElecStatusPending(msg, app.ref_no);
+          if (elecAdminPollTimer) clearInterval(elecAdminPollTimer);
+          elecAdminPollTimer = setInterval(() => pollElecAdminStatus(pan, app.ref_no, msg), 3000);
+        }
+      }
+    }
+  } catch (e) {}
 }
 
 async function fillProfileFromSamanvay(pan) {
   const msg = $('samanvayProfileMsg');
-  msg.textContent = '🔄 समन्वय मधून प्रोफाइल आणत आहे… (Fetching your profile from Samanvay…)';
+  if (msg) msg.textContent = '🔄 समन्वय मधून प्रोफाइल आणत आहे… (Fetching your profile from Samanvay…)';
   try {
     const data = await getJSON(`${SAMANVAY_PORTAL_API}/user-profile?pan=${encodeURIComponent(pan)}`);
     if (data.success && data.found && data.profile) {
       const p = data.profile;
-      $('applyName').value = p.organization_name || p.full_name || $('applyName').value;
-      if (p.pan) $('applyPan').value = p.pan;
-      msg.textContent = `✅ प्रोफाइल भरले: ${p.organization_name || p.full_name} (Profile filled — you can edit any field)`;
-    } else {
+      if ($('applyName')) $('applyName').value = p.organization_name || p.full_name || $('applyName').value;
+      if (p.pan && $('applyPan')) $('applyPan').value = p.pan;
+      if (p.district && $('applyDistrict')) $('applyDistrict').value = p.district;
+      if (p.taluka && $('applyTaluka')) $('applyTaluka').value = p.taluka;
+      if (p.village && $('applyVillage')) $('applyVillage').value = p.village;
+      if ($('applyAddress') && !$('applyAddress').value) $('applyAddress').value = `Plot B-12, MIDC ${p.village || p.taluka || 'Chakan'}, ${p.district || 'Pune'}`;
+      if (msg) msg.textContent = `✅ माहिती आपोआप भरली: ${p.organization_name || p.full_name} (Profile auto-filled — ready to submit)`;
+    } else if (msg) {
       msg.textContent = '⚠️ या पॅनसाठी प्रोफाइल सापडले नाही — कृपया माहिती स्वतः भरा. (No profile found for this PAN — please fill in manually.)';
     }
   } catch (err) {
-    msg.textContent = '⚠️ समन्वयशी जोडणी झाली नाही — कृपया माहिती स्वतः भरा. (Could not reach Samanvay — please fill in manually.)';
+    if (msg) msg.textContent = '⚠️ समन्वयशी जोडणी झाली नाही — कृपया माहिती स्वतः भरा. (Could not reach Samanvay — please fill in manually.)';
   }
 }
 
 function returnToSamanvay() {
   const ref = lastApplicationRef || ('ELEC-' + Date.now().toString().slice(-6));
-  if (!handoff.callback) { window.location.href = 'http://localhost:5000/dashboard.html?tab=flowchart'; return; }
-  // Same contract as before: Samanvay's callback already carries land_status; we add ours.
-  const sep = handoff.callback.includes('?') ? '&' : '?';
-  const url = `${handoff.callback}${sep}electricity_status=COMPLETED&electricity_ref=${encodeURIComponent(ref)}`;
-  if (window.opener && !window.opener.closed) {
-    window.opener.location.href = url;
-    window.close();
+  let url;
+  if (handoff.callback) {
+    const sep = handoff.callback.includes('?') ? '&' : '?';
+    url = `${handoff.callback}${sep}tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&electricity_ref=${encodeURIComponent(ref)}`;
   } else {
-    window.location.href = url;
+    url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&electricity_ref=${encodeURIComponent(ref)}`;
   }
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.location.href = url;
+      window.close();
+      setTimeout(() => { window.location.href = url; }, 300);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = url;
 }

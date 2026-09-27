@@ -435,6 +435,7 @@
           style="font-size: 0.8rem; padding: 7px 10px;" data-i18n="dash.nav.resilience">Outage testing</button>
         <button type="button" class="sidebar-item" id="menu-audit" onclick="switchSection('audit')"
           style="font-size: 0.8rem; padding: 7px 10px;" data-i18n="dash.nav.audit">Privacy audit log</button>
+        <a href="/admin.html" target="_blank" class="sidebar-item" style="font-size: 0.8rem; padding: 7px 10px; color: #b45309; font-weight: 700; display: block;">⚙️ Department Admin Panel ↗</a>
       </div>
 
       <div class="sidebar-divider"></div>
@@ -1042,9 +1043,22 @@
       <div id="section-flowchart" class="content-section" style="display: none;">
         <div class="dash-title-section">
           <h2 data-i18n="dash.fc.title">Department checks</h2>
-          <p data-i18n="dash.fc.intro">See what each department found. Land and Electricity are checked at the same time
-            (Stage 1). The Pollution Control Board check starts only after both Land and Electricity are approved (Stage
-            2).</p>
+          <p data-i18n="dash.fc.intro">See what each department found. Land (Wave 1) must be approved first before Electricity (Wave 2) and Pollution (Wave 3) can be processed.</p>
+        </div>
+
+        <!-- Video Recording & Live Demo Control Banner -->
+        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 100%); color: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 15px rgba(30,58,138,0.2);">
+          <div>
+            <div style="font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+              <span>🎬 Presentation &amp; Video Demo Mode</span>
+              <span style="background: #f59e0b; color: #1c1917; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px;">WAVE DEPENDENCY ACTIVE</span>
+            </div>
+            <p style="font-size: 0.78rem; opacity: 0.9; margin-top: 3px;">Watch live status update as Admins review in <code style="background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;">/admin.html</code> or click Auto-Simulate for video recording.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/admin.html" target="_blank" class="btn" style="background: white; color: #1e3a8a; font-weight: 700; font-size: 0.8rem; padding: 7px 14px; text-decoration: none; border-radius: 6px;">⚙️ Admin Control Center ↗</a>
+            <button type="button" class="btn" style="background: #10b981; color: white; font-weight: 700; font-size: 0.8rem; padding: 7px 14px; border: none; border-radius: 6px; cursor: pointer;" onclick="runVideoDemoSimulation()">⚡ Auto-Simulate Wave Approvals (Video Demo)</button>
+          </div>
         </div>
 
         <!-- Interactive Visual Flowchart Card -->
@@ -2071,9 +2085,30 @@
       }
     }
 
+    function isAllDeptsApproved() {
+      const pan = citizen?.pan || document.getElementById('refOrgPan')?.value || '';
+      if (!pan) return false;
+      const deptKeys = Object.keys(adminSubmissions);
+      if (deptKeys.length < 3) return false;
+      return flowchartState.land === 'APPROVED' && flowchartState.elec === 'APPROVED' && flowchartState.poll === 'APPROVED';
+    }
+
     function switchSection(secName) {
       const sections = ['dashboard', 'process', 'flowchart', 'portal', 'status', 'schema', 'resilience', 'audit', 'query', 'grievance', 'feedback'];
       const advancedTools = ['schema', 'resilience', 'audit'];
+
+      // STRICT STEPPING GUARD FOR DEMO / VIDEO RECORDING:
+      // Access to 'portal' (Department Websites) is STRICTLY LOCKED until all 3 department approvals are granted!
+      if (secName === 'portal') {
+        const landApproved = flowchartState.land === 'APPROVED';
+        const elecApproved = flowchartState.elec === 'APPROVED';
+        const pollApproved = flowchartState.poll === 'APPROVED';
+
+        if (!landApproved || !elecApproved || !pollApproved) {
+          alert('🔒 ACCESS LOCKED: You cannot proceed to Department Websites until all 3 Department Admins (Land, Electricity, Pollution) approve your project in the Admin Panel.\n\nCurrent Status:\n• Land: ' + (flowchartState.land || 'PENDING') + '\n• Electricity: ' + (flowchartState.elec || 'BLOCKED') + '\n• Pollution: ' + (flowchartState.poll || 'BLOCKED') + '\n\nPlease open /admin.html (Password: admin@sih2026) to approve your application.');
+          secName = 'flowchart'; // Force user back to flowchart step
+        }
+      }
 
       // If user navigates to an advanced tool, auto-expand the collapsible subgroup
       if (advancedTools.includes(secName)) {
@@ -2348,11 +2383,164 @@
       });
     }
 
-    // Triggered from the checklist panel's "Confirm & Submit for Verification"
-    // button. This is the single real submission path: it calls the real
-    // POST /api/projects/verify-plant on interop_backend (with a real
-    // interop_backend JWT) and renders the actual response into the
-    // dependency-wave flowchart on the "2. Multi-Department Flow" tab.
+    // ══════════════════════════════════════════════════════════════════
+    // ADMIN APPROVAL WORKFLOW
+    // ══════════════════════════════════════════════════════════════════
+
+    // Stores submitted refNos per department for polling
+    let adminSubmissions = {}; // { LAND: refNo, ELECTRICITY: refNo, POLLUTION: refNo }
+    let adminPollInterval = null;
+
+    // Submit a single department application to the admin queue
+    async function submitToAdminQueue(department, refNumber) {
+      const citizenName = citizen?.organizationName || citizen?.fullName || 'Applicant';
+      const citizenPan  = citizen?.pan || document.getElementById('refOrgPan')?.value || 'ABCDE1234F';
+      const projectName = document.getElementById('refProjectName')?.value || 'Industrial Unit';
+      const projectType = permFormAnswers.project_type || 'MANUFACTURING';
+      const district    = permFormAnswers.location_district || 'Pune';
+
+      const res = await fetch('/api/admin/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department, citizenName, citizenPan, projectName, projectType, district, refNumber })
+      });
+      return res.json();
+    }
+
+    // Set a department flowchart node to PENDING_ADMIN status
+    function setDeptAdminPending(dept) {
+      const map = {
+        LAND:        { nodeId: 'fcNodeLand', badgeId: 'fcLandStatusBadge', wave: 'wave-1', summaryBadgeId: 'fcSummaryLandBadge', summaryDescId: 'fcSummaryLandDesc' },
+        ELECTRICITY: { nodeId: 'fcNodeElec', badgeId: 'fcElecStatusBadge', wave: 'wave-2', summaryBadgeId: 'fcSummaryElecBadge', summaryDescId: 'fcSummaryElecDesc' },
+        POLLUTION:   { nodeId: 'fcNodePoll', badgeId: 'fcPollStatusBadge', wave: 'wave-2', summaryBadgeId: 'fcSummaryPollBadge', summaryDescId: 'fcSummaryPollDesc' }
+      };
+      const o = map[dept]; if (!o) return;
+      document.getElementById(o.nodeId).className = `fc-node ${o.wave} active-stage`;
+      const badge = document.getElementById(o.badgeId);
+      badge.className = 'status-tag status-waiting';
+      badge.innerText = '⏳ Pending Admin Approval';
+      document.getElementById(o.summaryBadgeId).className = 'status-tag status-waiting';
+      document.getElementById(o.summaryBadgeId).innerText = '⏳ Pending';
+      document.getElementById(o.summaryDescId).innerText = 'Submitted — awaiting department admin review.';
+    }
+
+    // Update a node when admin has approved or rejected
+    function setDeptAdminStatus(dept, status, remarks) {
+      const map = {
+        LAND:        { nodeId: 'fcNodeLand', badgeId: 'fcLandStatusBadge', wave: 'wave-1', summaryBadgeId: 'fcSummaryLandBadge', summaryDescId: 'fcSummaryLandDesc' },
+        ELECTRICITY: { nodeId: 'fcNodeElec', badgeId: 'fcElecStatusBadge', wave: 'wave-2', summaryBadgeId: 'fcSummaryElecBadge', summaryDescId: 'fcSummaryElecDesc' },
+        POLLUTION:   { nodeId: 'fcNodePoll', badgeId: 'fcPollStatusBadge', wave: 'wave-2', summaryBadgeId: 'fcSummaryPollBadge', summaryDescId: 'fcSummaryPollDesc' }
+      };
+      const o = map[dept]; if (!o) return;
+      const isApproved = status === 'APPROVED';
+      const isRejected = status === 'REJECTED';
+      document.getElementById(o.nodeId).className = `fc-node ${o.wave} ${isApproved ? 'approved-stage' : 'active-stage'}`;
+      const badge = document.getElementById(o.badgeId);
+      badge.className = `status-tag ${isApproved ? 'status-approved' : 'status-pending'}`;
+      badge.innerText = isApproved ? '✓ Approved' : (isRejected ? '✗ Rejected' : '⏳ Pending');
+      document.getElementById(o.summaryBadgeId).className = `status-tag ${isApproved ? 'status-approved' : 'status-pending'}`;
+      document.getElementById(o.summaryBadgeId).innerText = isApproved ? '✓ Approved' : (isRejected ? '✗ Rejected' : '⏳ Pending');
+      document.getElementById(o.summaryDescId).innerText = remarks
+        ? `Admin note: ${remarks}`
+        : (isApproved ? 'Department admin has approved this application.' : 'Department admin has reviewed this application.');
+    }
+
+    // Poll the admin API every 6 seconds for status updates
+    async function pollAdminStatus() {
+      const pan = citizen?.pan || document.getElementById('refOrgPan')?.value || '';
+      if (!pan) return;
+
+      const deptKeys = Object.keys(adminSubmissions);
+      if (deptKeys.length === 0) {
+        // No active submissions submitted yet — DO NOT run verification!
+        return;
+      }
+
+      try {
+        const r = await fetch(`/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+        const data = await r.json();
+        if (!data.success) return;
+
+        const apps = data.applications || [];
+        let approvedCount = 0;
+        let anyRejected = false;
+
+        for (const dept of deptKeys) {
+          const refNo = adminSubmissions[dept];
+          const app = apps.find(a => a.ref_no === refNo);
+          if (!app) continue;
+          setDeptAdminStatus(dept, app.status, app.admin_remarks);
+          if (app.status === 'APPROVED') approvedCount++;
+          if (app.status === 'REJECTED') anyRejected = true;
+        }
+
+        const certBadge = document.getElementById('fcCertStatusBadge');
+        const summaryBadge = document.getElementById('fcSummaryHeaderBadge');
+
+        if (anyRejected) {
+          if (adminPollInterval) { clearInterval(adminPollInterval); adminPollInterval = null; }
+          renderAdminRejectedBanner();
+        } else if (approvedCount === 3 && deptKeys.length === 3) {
+          if (adminPollInterval) { clearInterval(adminPollInterval); adminPollInterval = null; }
+          renderAdminAllApprovedBanner();
+        } else {
+          // Still waiting for department admin approvals!
+          certBadge.className = 'status-tag status-waiting';
+          certBadge.innerText = `⏳ PENDING ADMIN APPROVAL (${approvedCount}/3 Approved)`;
+          summaryBadge.className = 'status-tag status-waiting';
+          summaryBadge.innerText = `⏳ Awaiting Admin Review (${approvedCount}/3 Approved)`;
+          document.getElementById('fcCertDesc').innerHTML =
+            `<div style="font-weight:700;color:#b45309;">⏳ Application pending admin review (${approvedCount}/3 departments approved).</div>
+             <div style="font-size:0.82rem;color:#64748b;margin-top:6px;">Please log into the <a href="/admin.html" target="_blank" style="color:#1e3a8a;font-weight:700;">Department Admin Panel</a> (Password: <code>admin@sih2026</code>) to review and approve Land, Electricity &amp; Pollution applications.</div>
+             <div style="margin-top:8px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+               <div style="width:${(approvedCount/3)*100}%;height:100%;background:#f59e0b;transition:width 0.4s;"></div>
+             </div>`;
+        }
+      } catch (e) {
+        console.warn('Admin poll error:', e.message);
+      }
+    }
+
+    function renderAdminAllApprovedBanner() {
+      const certBadge = document.getElementById('fcCertStatusBadge');
+      certBadge.className = 'status-tag status-approved';
+      certBadge.innerText = '✓ ALL 3 DEPTS APPROVED';
+      document.getElementById('fcSummaryHeaderBadge').className = 'status-tag status-approved';
+      document.getElementById('fcSummaryHeaderBadge').innerText = '✓ All 3 Approved — Clearance Verified';
+      document.getElementById('fcCertDesc').innerHTML =
+        `<div style="color:#166534;font-weight:700;font-size:1rem;">✓ All three departments (Land, Electricity, Pollution) ACCEPTED by Admin Panel!</div>
+         <div style="font-size:0.85rem;color:#64748b;margin-top:4px;">Single-Window Interoperability Clearance has been granted.</div>
+         <div style="margin-top:12px;">
+           <button type="button" class="btn" style="background:#166534;color:white;font-weight:700;font-size:0.88rem;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;" onclick="executeInteropVerification();">⬅️ Return to Samanvay Portal (View Unified Clearance) ➔</button>
+         </div>`;
+    }
+
+    function renderAdminRejectedBanner() {
+      const certBadge = document.getElementById('fcCertStatusBadge');
+      certBadge.className = 'status-tag status-pending';
+      certBadge.innerText = '✗ FAILED / REJECTED';
+      document.getElementById('fcSummaryHeaderBadge').className = 'status-tag status-pending';
+      document.getElementById('fcSummaryHeaderBadge').innerText = '✗ Application Rejected by Admin';
+      document.getElementById('fcCertDesc').innerHTML =
+        `<div style="color:#991b1b;font-weight:700;font-size:1rem;">❌ Application Failed: One or more departments rejected your application in Admin Panel review.</div>
+         <div style="font-size:0.85rem;color:#64748b;margin-top:4px;">Review the admin rejection notes in <a href="/admin.html" target="_blank" style="color:#1e3a8a;font-weight:700;">Admin Panel (/admin.html)</a> or click below to reapply.</div>
+         <div style="margin-top:14px;display:flex;gap:10px;align-items:center;">
+           <button type="button" class="btn" style="background:#dc3545;color:white;font-weight:700;font-size:0.88rem;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;" onclick="reapplyDepartmentApplication()">🔄 Failed — Reapply Application</button>
+           <a href="/admin.html" target="_blank" class="btn btn-outline" style="font-size:0.82rem;padding:8px 14px;text-decoration:none;">⚙️ Open Admin Control Center ↗</a>
+         </div>`;
+    }
+
+    function reapplyDepartmentApplication() {
+      if (adminPollInterval) clearInterval(adminPollInterval);
+      adminPollInterval = null;
+      adminSubmissions = {};
+      sessionStorage.removeItem('adminSubmissions');
+      alert('Application reset. You can now adjust details and re-submit your application.');
+      switchSection('process');
+      document.querySelectorAll('.top-tab')[1].click();
+    }
+
+    // ── MAIN SUBMIT (admin-gated) ──────────────────────────────────────────
     async function confirmChecklistAndSubmit() {
       confirmedServices = new Set(
         Array.from(document.querySelectorAll('.quick-decision-service:checked')).map(cb => cb.dataset.service)
@@ -2362,11 +2550,18 @@
         return;
       }
 
-      const pType = permFormAnswers.project_type || 'MANUFACTURING';
+      const submitBtn = document.getElementById('btnStartMultiWorkflow');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = '⏳ Submitting to departments…'; }
+
+      const pType  = permFormAnswers.project_type || 'MANUFACTURING';
       const indType = permFormAnswers.industry_type || 'Chemical';
-      const dist = permFormAnswers.location_district || 'Pune';
+      const dist   = permFormAnswers.location_district || 'Pune';
       const loadKw = permFormAnswers.electricity_load || 300;
-      const isHt = parseFloat(loadKw) >= 100;
+      const isHt   = parseFloat(loadKw) >= 100;
+
+      const surveyNo  = (document.getElementById('refLandSurvey')?.value || '101').trim();
+      const elecAppNo = (document.getElementById('refElecAppNo')?.value || 'ELEC-2026-00101').trim();
+      const pollAppNo = (document.getElementById('refPollAppNo')?.value || 'MPCB-8821').trim();
 
       document.getElementById('fcProfileProject').innerText = `${indType} ${pType.toLowerCase()}`;
       document.getElementById('fcProfileLoc').innerText = dist;
@@ -2377,28 +2572,115 @@
       document.querySelectorAll('.top-tab')[2].click();
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      await submitUnifiedVerification();
+      // Show pending header
+      document.getElementById('fcSummaryHeaderBadge').className = 'status-tag status-waiting';
+      document.getElementById('fcSummaryHeaderBadge').innerText = '⏳ Awaiting admin review (0/3 Approved)';
+      document.getElementById('fcCertStatusBadge').className = 'status-tag status-waiting';
+      document.getElementById('fcCertStatusBadge').innerText = '⏳ Pending Admin Approval';
+
+      // Submit each department
+      adminSubmissions = {};
+      const depts = ['LAND', 'ELECTRICITY', 'POLLUTION'];
+      const refs  = { LAND: surveyNo, ELECTRICITY: elecAppNo, POLLUTION: pollAppNo };
+
+      for (const dept of depts) {
+        setDeptAdminPending(dept);
+        try {
+          const res = await submitToAdminQueue(dept, refs[dept]);
+          if (res.success) {
+            adminSubmissions[dept] = res.refNo;
+          }
+        } catch (e) {
+          console.warn(`Error submitting ${dept}:`, e.message);
+        }
+      }
+
+      // Save submissions to sessionStorage
+      sessionStorage.setItem('adminSubmissions', JSON.stringify(adminSubmissions));
+
+      // Start polling every 6 seconds
+      if (adminPollInterval) clearInterval(adminPollInterval);
+      adminPollInterval = setInterval(pollAdminStatus, 6000);
+      await pollAdminStatus();
     }
 
-    // Reflects real backend state from one department_checks[] entry onto its
-    // flowchart node + the coordination-summary card (replaces the old
-    // hardcoded "AUTO-VERIFIED" placeholder copy).
-    function applyDeptStatus(check, opts) {
-      const node = document.getElementById(opts.nodeId);
-      const badge = document.getElementById(opts.badgeId);
-      const summaryBadge = document.getElementById(opts.summaryBadgeId);
-      const summaryDesc = document.getElementById(opts.summaryDescId);
-      const isOk = !!check && check.status === 'SUCCESS';
+    // Direct invocation wrapper (gated by admin approval)
+    async function submitUnifiedVerification() {
+      const pan = citizen?.pan || document.getElementById('refOrgPan')?.value || '';
+      if (pan) {
+        try {
+          const r = await fetch(`/api/admin/my-applications?pan=${encodeURIComponent(pan)}`);
+          const data = await r.json();
+          if (data.success && data.applications) {
+            const approved = data.applications.filter(a => a.status === 'APPROVED');
+            if (approved.length < 3) {
+              alert('⚠️ Admin Approval Pending! All 3 departments (Land, Electricity, Pollution) must be approved in /admin.html before you can proceed.');
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+      await executeInteropVerification();
+    }
 
-      node.className = `fc-node ${opts.wave} ${isOk ? 'approved-stage' : 'active-stage'}`;
-      badge.className = `status-tag ${isOk ? 'status-approved' : 'status-pending'}`;
-      badge.innerText = isOk ? `${opts.verifiedLabel} ✓` : (check ? check.status : 'UNAVAILABLE');
+    // ── VIDEO DEMO PRESENTATION SIMULATOR ─────────────────────────────────────
+    async function runVideoDemoSimulation() {
+      if (!adminSubmissions.LAND) {
+        await confirmChecklistAndSubmit();
+      }
 
-      summaryBadge.className = `status-tag ${isOk ? 'status-approved' : 'status-pending'}`;
-      summaryBadge.innerText = isOk ? 'Verified ✓' : (check ? check.status : 'UNAVAILABLE');
-      summaryDesc.innerText = (check && (check.summary || check.error)) || 'No response from department.';
+      const landRef = adminSubmissions.LAND;
+      const elecRef = adminSubmissions.ELECTRICITY;
+      const pollRef = adminSubmissions.POLLUTION;
 
-      return isOk;
+      showToastDemo("🎬 Step 1: Approving Wave 1 — Land Revenue (7/12)...");
+
+      // Approve Land (Wave 1)
+      await fetch('/api/admin/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': 'admin@sih2026' },
+        body: JSON.stringify({ refNo: landRef, action: 'APPROVED', remarks: '✓ Land 7/12 title extract verified.' })
+      });
+      await pollAdminStatus();
+
+      // Pause 2.5s for presentation explanation
+      await new Promise(r => setTimeout(r, 2500));
+      showToastDemo("🎬 Step 2: Approving Wave 2 — Electricity (MSEDCL 300 kW)...");
+
+      // Approve Electricity (Wave 2)
+      await fetch('/api/admin/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': 'admin@sih2026' },
+        body: JSON.stringify({ refNo: elecRef, action: 'APPROVED', remarks: '✓ HT 11kV Feeder connection sanctioned.' })
+      });
+      await pollAdminStatus();
+
+      // Pause 2.5s for presentation explanation
+      await new Promise(r => setTimeout(r, 2500));
+      showToastDemo("🎬 Step 3: Approving Wave 3 — Pollution Control Board (MPCB)...");
+
+      // Approve Pollution (Wave 3)
+      await fetch('/api/admin/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': 'admin@sih2026' },
+        body: JSON.stringify({ refNo: pollRef, action: 'APPROVED', remarks: '✓ Consent to Establish (CTE) granted.' })
+      });
+      await pollAdminStatus();
+
+      showToastDemo("🎉 All 3 Waves Approved! Live Interoperability Clearance Granted!");
+    }
+
+    function showToastDemo(msg) {
+      let t = document.getElementById('demoToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'demoToast';
+        t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:white;padding:14px 28px;border-radius:12px;font-size:0.95rem;font-weight:700;z-index:999;box-shadow:0 10px 30px rgba(0,0,0,0.3);border:2px solid #60a5fa;';
+        document.body.appendChild(t);
+      }
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { if (t) t.style.display = 'none'; }, 4000);
     }
 
     function renderCertificateFromOverallStatus(data) {
@@ -2561,7 +2843,7 @@
       const kPollRef = urlParams.get('pollution_ref');
 
       if (kLandStatus === 'COMPLETED') {
-        document.querySelectorAll('.top-tab')[2].click();
+        switchSection('flowchart');
         const externalPortalLandCard = document.getElementById('externalPortalLandCard');
         if (externalPortalLandCard) externalPortalLandCard.style.borderLeft = '4px solid #10b981';
         const kBadge = document.getElementById('externalPortalLandBadge');
@@ -2585,7 +2867,10 @@
           kBtn.disabled = true;
         }
         const kElecCard = document.getElementById('externalPortalElectricityCard');
-        if (kElecCard) kElecCard.style.opacity = '1';
+        if (kElecCard) {
+          kElecCard.style.opacity = '1';
+          kElecCard.style.border = '2px solid #0284c7';
+        }
         const kElecBtn = document.getElementById('externalPortalElectricityBtn');
         if (kElecBtn) {
           kElecBtn.className = 'btn btn-primary';
@@ -2593,10 +2878,13 @@
           kElecBtn.disabled = false;
           kElecBtn.onclick = openExternalPortalElectricityService;
         }
+        setTimeout(() => {
+          kElecCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
       }
 
       if (kElecStatus === 'COMPLETED') {
-        document.querySelectorAll('.top-tab')[2].click();
+        switchSection('flowchart');
         const kElecCard = document.getElementById('externalPortalElectricityCard');
         if (kElecCard) {
           kElecCard.style.borderLeft = '4px solid #10b981';
@@ -2624,7 +2912,10 @@
         }
 
         const kPollCard = document.getElementById('externalPortalPollutionCard');
-        if (kPollCard) kPollCard.style.opacity = '1';
+        if (kPollCard) {
+          kPollCard.style.opacity = '1';
+          kPollCard.style.border = '2px solid #d97706';
+        }
         const kPollBtn = document.getElementById('externalPortalPollutionBtn');
         if (kPollBtn) {
           kPollBtn.className = 'btn btn-primary';
@@ -2632,10 +2923,13 @@
           kPollBtn.disabled = false;
           kPollBtn.onclick = openExternalPortalPollutionService;
         }
+        setTimeout(() => {
+          kPollCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
       }
 
       if (kPollStatus === 'COMPLETED') {
-        document.querySelectorAll('.top-tab')[2].click();
+        switchSection('flowchart');
         const kPollCard = document.getElementById('externalPortalPollutionCard');
         if (kPollCard) kPollCard.style.borderLeft = '4px solid #10b981';
         const kPBadge = document.getElementById('externalPortalPollutionBadge');
@@ -2658,6 +2952,9 @@
           kPBtn.textContent = 'CTE Consent Issued ✓';
           kPBtn.disabled = true;
         }
+        setTimeout(() => {
+          kPollCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 400);
       }
     }
 
@@ -2897,6 +3194,31 @@
 
     // Initialize 10-question wizard on startup
     initQuiz();
+
+    // ── RESTORE ADMIN POLLING SESSION (if user refreshed the page) ──────────
+    (function restoreAdminSession() {
+      const saved = sessionStorage.getItem('adminSubmissions');
+      if (!saved) return;
+      try {
+        const subs = JSON.parse(saved);
+        if (!subs || !Object.keys(subs).length) return;
+        adminSubmissions = subs;
+        // Restore PENDING badges immediately, then start polling
+        for (const dept of Object.keys(adminSubmissions)) {
+          setDeptAdminPending(dept);
+        }
+        document.getElementById('fcCertStatusBadge').className = 'status-tag status-waiting';
+        document.getElementById('fcCertStatusBadge').innerText = '⏳ Pending Admin Approval';
+        document.getElementById('fcSummaryHeaderBadge').className = 'status-tag status-waiting';
+        document.getElementById('fcSummaryHeaderBadge').innerText = '⏳ Awaiting admin review';
+        document.getElementById('fcCertDesc').innerHTML =
+          `<div style="font-weight:700;color:#b45309;">⏳ Application submitted — awaiting admin review.</div>
+           <div style="font-size:0.82rem;color:#64748b;margin-top:6px;">This page will auto-update every 8 seconds. Open <a href="/admin.html" target="_blank" style="color:#1e3a8a;font-weight:700;">Admin Panel</a> to approve.</div>`;
+        if (adminPollInterval) clearInterval(adminPollInterval);
+        adminPollInterval = setInterval(pollAdminStatus, 8000);
+        pollAdminStatus();
+      } catch (e) {}
+    })();
   </script>
   <script data-ui-added>
     /* Overview: first visit shows the full "How your application works" explainer;

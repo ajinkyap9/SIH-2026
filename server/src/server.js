@@ -1,3 +1,5 @@
+import http from 'http';
+import { Server } from 'socket.io';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -8,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import landRoutes from './routes/landRoutes.js';
 import interopRoutes from './routes/interopRoutes.js';
 import portalRoutes from './routes/portalRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +21,22 @@ const HOST = PORTS.host;
 const PORT = PORTS.services.portal.port;
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  console.log(`🔌 Socket.io client connected: ${socket.id}`);
+  socket.on('disconnect', () => {
+    console.log(`❌ Socket.io client disconnected: ${socket.id}`);
+  });
+});
 
 app.use(cors());
 app.use(express.json());
@@ -44,6 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/land', landRoutes);
 app.use('/api/interop', interopRoutes);
 app.use('/api/portal', portalRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -57,10 +77,11 @@ app.get('/api/health', (req, res) => {
 
 // Initialize database and start listening
 initDatabase().then(() => {
-  const server = app.listen(PORT, HOST, () => {
+  server.listen(PORT, HOST, () => {
     console.log(`=======================================================`);
     console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
     console.log(`📡 URL: http://${HOST}:${PORT}  (from ports.json)`);
+    console.log(`⚡ Real-time Socket.io server active.`);
     console.log(`💾 SQLite Database initialized and ready.`);
     console.log(`=======================================================`);
   });

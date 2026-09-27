@@ -43,13 +43,18 @@ export async function initDatabase() {
       last_name TEXT NOT NULL,
       mobile TEXT NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
-      aadhaar TEXT NOT NULL UNIQUE,
+      aadhaar TEXT UNIQUE,
       pan TEXT NOT NULL UNIQUE,
+      password TEXT DEFAULT 'pass123',
+      account_type TEXT DEFAULT 'INDIVIDUAL',
       aadhaar_verified INTEGER DEFAULT 1,
       pan_verified INTEGER DEFAULT 1,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  try { sqliteDb.run(`ALTER TABLE citizens ADD COLUMN password TEXT DEFAULT 'pass123'`); } catch(e) {}
+  try { sqliteDb.run(`ALTER TABLE citizens ADD COLUMN account_type TEXT DEFAULT 'INDIVIDUAL'`); } catch(e) {}
 
   sqliteDb.run(`
     CREATE TABLE IF NOT EXISTS applications (
@@ -78,6 +83,25 @@ export async function initDatabase() {
     );
   `);
 
+  sqliteDb.run(`
+    CREATE TABLE IF NOT EXISTS dept_applications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ref_no TEXT NOT NULL UNIQUE,
+      department TEXT NOT NULL,
+      citizen_name TEXT NOT NULL,
+      citizen_pan TEXT NOT NULL,
+      project_name TEXT NOT NULL,
+      project_type TEXT NOT NULL,
+      district TEXT,
+      ref_number TEXT,
+      status TEXT DEFAULT 'PENDING',
+      admin_remarks TEXT,
+      submitted_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      reviewed_at TEXT,
+      reviewed_by TEXT
+    );
+  `);
+
   // 2. Initialize PostgreSQL tables & connect
   try {
     const client = await poolInterop.connect();
@@ -91,8 +115,10 @@ export async function initDatabase() {
         last_name VARCHAR(100) NOT NULL,
         mobile VARCHAR(20) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
-        aadhaar VARCHAR(20) UNIQUE NOT NULL,
+        aadhaar VARCHAR(50) UNIQUE,
         pan VARCHAR(20) UNIQUE NOT NULL,
+        password VARCHAR(100) DEFAULT 'pass123',
+        account_type VARCHAR(20) DEFAULT 'INDIVIDUAL',
         aadhaar_verified BOOLEAN DEFAULT TRUE,
         pan_verified BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -101,17 +127,17 @@ export async function initDatabase() {
 
     // Seed default enterprise and citizen records into PostgreSQL
     const defaultCitizens = [
-      ['ABC', 'Industries', '9876543210', 'applicant@abcindustries.com', '998877665544', 'ABCDE1234F'],
-      ['XYZ', 'Manufacturing', '9812345678', 'applicant@xyzmfg.com', '887766554433', 'FGHIJ5678K'],
-      ['Ramesh', 'Patil', '9900112233', 'ramesh.patil@gmail.com', '123456789012', 'RMPTL1234F'],
-      ['Sunita', 'Deshmukh', '9765432109', 'sunita.deshmukh@yahoo.in', '556677889900', 'SNDSH5678K'],
-      ['Priya', 'Sharma', '9654321098', 'priya.sharma@gmail.com', '443322110099', 'PRSHM9012L']
+      ['ABC Industries', 'Pvt Ltd', '9876543210', 'applicant@abcindustries.com', '998877665544', 'ABCDE1234F', 'pass123', 'COMPANY'],
+      ['XYZ Manufacturing', 'Ltd', '9812345678', 'applicant@xyzmfg.com', '887766554433', 'FGHIJ5678K', 'pass123', 'COMPANY'],
+      ['Ramesh', 'Patil', '9900112233', 'ramesh.patil@gmail.com', '123456789012', 'RMPTL1234F', 'pass123', 'INDIVIDUAL'],
+      ['Sunita', 'Deshmukh', '9765432109', 'sunita.deshmukh@yahoo.in', '556677889900', 'SNDSH5678K', 'pass123', 'INDIVIDUAL'],
+      ['Priya', 'Sharma', '9654321098', 'priya.sharma@gmail.com', '443322110099', 'PRSHM9012L', 'pass123', 'INDIVIDUAL']
     ];
 
     for (const c of defaultCitizens) {
       await client.query(`
-        INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan, password, account_type)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (pan) DO NOTHING;
       `, c);
     }
@@ -128,14 +154,14 @@ export async function initDatabase() {
   const count = res.length > 0 && res[0].values.length > 0 ? res[0].values[0][0] : 0;
   if (count === 0) {
     const seedCitizens = [
-      ['ABC', 'Industries', '9876543210', 'applicant@abcindustries.com', '998877665544', 'ABCDE1234F'],
-      ['XYZ', 'Manufacturing', '9812345678', 'applicant@xyzmfg.com', '887766554433', 'FGHIJ5678K'],
-      ['Ramesh', 'Patil', '9900112233', 'ramesh.patil@gmail.com', '123456789012', 'RMPTL1234F'],
-      ['Sunita', 'Deshmukh', '9765432109', 'sunita.deshmukh@yahoo.in', '556677889900', 'SNDSH5678K'],
-      ['Priya', 'Sharma', '9654321098', 'priya.sharma@gmail.com', '443322110099', 'PRSHM9012L']
+      ['ABC Industries', 'Pvt Ltd', '9876543210', 'applicant@abcindustries.com', '998877665544', 'ABCDE1234F', 'pass123', 'COMPANY'],
+      ['XYZ Manufacturing', 'Ltd', '9812345678', 'applicant@xyzmfg.com', '887766554433', 'FGHIJ5678K', 'pass123', 'COMPANY'],
+      ['Ramesh', 'Patil', '9900112233', 'ramesh.patil@gmail.com', '123456789012', 'RMPTL1234F', 'pass123', 'INDIVIDUAL'],
+      ['Sunita', 'Deshmukh', '9765432109', 'sunita.deshmukh@yahoo.in', '556677889900', 'SNDSH5678K', 'pass123', 'INDIVIDUAL'],
+      ['Priya', 'Sharma', '9654321098', 'priya.sharma@gmail.com', '443322110099', 'PRSHM9012L', 'pass123', 'INDIVIDUAL']
     ];
     for (const c of seedCitizens) {
-      sqliteDb.run(`INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan) VALUES (?, ?, ?, ?, ?, ?)`, c);
+      sqliteDb.run(`INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan, password, account_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, c);
     }
     saveDb();
   }
@@ -290,29 +316,32 @@ export async function getCitizenByEmail(email) {
 }
 
 export async function createCitizen(citizenData) {
-  const { firstName, lastName, mobile, email, aadhaar, pan } = citizenData;
+  const { firstName, lastName, mobile, email, aadhaar, pan, password, accountType } = citizenData;
+  const pass = password || 'pass123';
+  const type = (accountType || 'INDIVIDUAL').toUpperCase();
+  const fName = firstName || (type === 'COMPANY' ? lastName : 'Individual');
+  const lName = lastName || '';
+  const aadh = aadhaar || (type === 'COMPANY' ? `COMP-${Date.now().toString().slice(-8)}` : '');
 
   // Save to PostgreSQL
   if (isPgConnected) {
     try {
       const res = await poolInterop.query(`
-        INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan, password, account_type)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
-      `, [firstName, lastName, mobile, email, aadhaar, pan]);
+      `, [fName, lName, mobile, email, aadh, pan, pass, type]);
 
-      // Also ensure users table has matching entry
       await poolInterop.query(`
         INSERT INTO users (email, hashed_password, organization_name, organization_pan, role)
         VALUES ($1, $2, $3, $4, 'APPLICANT')
         ON CONFLICT (email) DO NOTHING;
-      `, [email, 'demo_hashed_pass', `${firstName} ${lastName}`, pan]).catch(() => null);
+      `, [email, pass, `${fName} ${lName}`.trim(), pan]).catch(() => null);
 
       if (res.rows.length > 0) {
-        // Also save to SQLite
         try {
-          sqliteDb.run(`INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan) VALUES (?, ?, ?, ?, ?, ?)`,
-            [firstName, lastName, mobile, email, aadhaar, pan]);
+          sqliteDb.run(`INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan, password, account_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [fName, lName, mobile, email, aadh, pan, pass, type]);
           saveDb();
         } catch (_) {}
         return res.rows[0];
@@ -324,8 +353,8 @@ export async function createCitizen(citizenData) {
 
   // SQLite fallback
   sqliteDb.run(
-    `INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan) VALUES (?, ?, ?, ?, ?, ?)`,
-    [firstName, lastName, mobile, email, aadhaar, pan]
+    `INSERT INTO citizens (first_name, last_name, mobile, email, aadhaar, pan, password, account_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [fName, lName, mobile, email, aadh, pan, pass, type]
   );
   saveDb();
   return getCitizenByPan(pan);
@@ -527,3 +556,91 @@ export function createFeedback(fb) {
   );
   saveDb();
 }
+
+// ============================================================================
+// DEPARTMENT APPLICATION ADMIN WORKFLOW
+// ============================================================================
+
+export function submitDeptApplication(data) {
+  const { department, citizenName, citizenPan, projectName, projectType, district, refNumber } = data;
+  const deptUpper = department.toUpperCase();
+  const refNo = `REF-${deptUpper.slice(0, 3)}-${Date.now()}`;
+  const panUpper = citizenPan.toUpperCase();
+
+  const initialStatus = 'PENDING';
+  const initialRemarks = 'Application submitted — awaiting admin review.';
+
+  sqliteDb.run(
+    `INSERT INTO dept_applications (ref_no, department, citizen_name, citizen_pan, project_name, project_type, district, ref_number, status, admin_remarks)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [refNo, deptUpper, citizenName, panUpper, projectName, projectType, district || '', refNumber || '', initialStatus, initialRemarks]
+  );
+  saveDb();
+  return { refNo, status: initialStatus };
+}
+
+function getDeptApp(panUpper, deptUpper) {
+  const stmt = sqliteDb.prepare(`SELECT * FROM dept_applications WHERE UPPER(citizen_pan) = ? AND UPPER(department) = ? ORDER BY id DESC LIMIT 1`);
+  stmt.bind([panUpper, deptUpper]);
+  let app = null;
+  if (stmt.step()) app = stmt.getAsObject();
+  stmt.free();
+  return app;
+}
+
+export function getDeptApplicationsByPan(pan) {
+  const stmt = sqliteDb.prepare(
+    `SELECT * FROM dept_applications WHERE UPPER(citizen_pan) = UPPER(?) ORDER BY submitted_at DESC`
+  );
+  stmt.bind([pan]);
+  const results = [];
+  while (stmt.step()) results.push(stmt.getAsObject());
+  stmt.free();
+  return results;
+}
+
+export function getAllDeptApplications(department) {
+  let sql = `SELECT * FROM dept_applications`;
+  const binds = [];
+  if (department) {
+    sql += ` WHERE UPPER(department) = UPPER(?)`;
+    binds.push(department);
+  }
+  sql += ` ORDER BY submitted_at DESC`;
+  const stmt = sqliteDb.prepare(sql);
+  if (binds.length) stmt.bind(binds);
+  const results = [];
+  while (stmt.step()) results.push(stmt.getAsObject());
+  stmt.free();
+  return results;
+}
+
+export function updateDeptApplicationStatus(refNo, status, adminRemarks, reviewedBy) {
+  // Fetch target application first
+  const stmtTarget = sqliteDb.prepare(`SELECT * FROM dept_applications WHERE ref_no = ?`);
+  stmtTarget.bind([refNo]);
+  if (!stmtTarget.step()) {
+    stmtTarget.free();
+    return { error: `No application found with ref_no: ${refNo}` };
+  }
+  const app = stmtTarget.getAsObject();
+  stmtTarget.free();
+
+  const newStatus = status.toUpperCase();
+
+  // Update target application
+  sqliteDb.run(
+    `UPDATE dept_applications SET status = ?, admin_remarks = ?, reviewed_at = CURRENT_TIMESTAMP, reviewed_by = ? WHERE ref_no = ?`,
+    [newStatus, adminRemarks || '', reviewedBy || 'Admin', refNo]
+  );
+
+  saveDb();
+
+  const stmtResult = sqliteDb.prepare(`SELECT * FROM dept_applications WHERE ref_no = ?`);
+  stmtResult.bind([refNo]);
+  let updatedRow = null;
+  if (stmtResult.step()) updatedRow = stmtResult.getAsObject();
+  stmtResult.free();
+  return updatedRow;
+}
+
