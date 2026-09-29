@@ -65,7 +65,8 @@ async function fetchPollProfile() {
       if (msg) msg.textContent = `⚠️ ${data.message || 'No profile found. Fill manually.'}`;
     }
   } catch (err) {
-    if (msg) msg.textContent = '❌ Could not connect to database. Fill manually.';
+    // Silently hide the bar if form already has data from URL params
+    if (bar) bar.style.display = 'none';
   }
 }
 
@@ -330,21 +331,7 @@ function renderPollApprovedDetails(app, banner) {
 
 function returnToSamanvay() {
   const ref = lastApplicationRef || ('MPCB-' + Date.now().toString().slice(-6));
-  let url;
-  if (handoff.callback) {
-    const sep = handoff.callback.includes('?') ? '&' : '?';
-    url = `${handoff.callback}${sep}tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&pollution_status=COMPLETED&pollution_ref=${encodeURIComponent(ref)}`;
-  } else {
-    url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&pollution_status=COMPLETED&pollution_ref=${encodeURIComponent(ref)}`;
-  }
-  try {
-    if (window.opener && !window.opener.closed) {
-      window.opener.location.href = url;
-      window.close();
-      setTimeout(() => { window.location.href = url; }, 300);
-      return;
-    }
-  } catch (e) {}
+  const url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&electricity_status=COMPLETED&pollution_status=COMPLETED&pollution_ref=${encodeURIComponent(ref)}`;
   window.location.href = url;
 }
 
@@ -408,7 +395,7 @@ async function checkExistingPollAdminStatus(pan) {
         if (app.status === 'APPROVED') {
           renderPollApprovedDetails(app, banner);
         } else if (app.status === 'PENDING') {
-          renderPollStatusPending(banner, app.ref_no);
+          // Don't show pending banner — keep polling silently in background
           if (pollAdminPollTimer) clearInterval(pollAdminPollTimer);
           pollAdminPollTimer = setInterval(() => pollPollAdminStatus(pan, app.ref_no), 3000);
         }

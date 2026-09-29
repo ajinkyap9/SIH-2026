@@ -158,21 +158,7 @@ async function fillProfileFromSamanvay(pan) {
 
 function returnToSamanvay() {
   const ref = lastApplicationRef || ('LND-' + Date.now().toString().slice(-8));
-  let url;
-  if (handoff.callback) {
-    const sep = handoff.callback.includes('?') ? '&' : '?';
-    url = `${handoff.callback}${sep}tab=flowchart&app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
-  } else {
-    url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
-  }
-  try {
-    if (window.opener && !window.opener.closed) {
-      window.opener.location.href = url;
-      window.close();
-      setTimeout(() => { window.location.href = url; }, 300);
-      return;
-    }
-  } catch (e) {}
+  const url = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart&app_id=${encodeURIComponent(handoff.appId || '')}&land_status=COMPLETED&land_ref=${encodeURIComponent(ref)}`;
   window.location.href = url;
 }
 
