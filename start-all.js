@@ -200,12 +200,16 @@ function tail(file, n = 12) { try { return fs.readFileSync(file, 'utf8').trim().
   if (has('--check')) return;
 
   // 2) Start each service; its own code reads its port from ports.json.
+  //    PORT/HOST are cloud-only overrides (each service would listen on PORT and
+  //    0.0.0.0), so a stray PORT/HOST in this shell must not reach the children.
   fs.mkdirSync(LOG_DIR, { recursive: true });
+  const childEnv = { ...process.env, PYTHONUNBUFFERED: '1' };
+  delete childEnv.PORT; delete childEnv.HOST;
   for (const name of selected) {
     const { cmd, argv, dir } = commandFor(name);
     const logFile = path.join(LOG_DIR, `${name}.log`);
     const out = fs.openSync(logFile, 'w');
-    const child = spawn(cmd, argv, { cwd: dir, stdio: ['ignore', out, out], windowsHide: true, env: { ...process.env, PYTHONUNBUFFERED: '1' } });
+    const child = spawn(cmd, argv, { cwd: dir, stdio: ['ignore', out, out], windowsHide: true, env: childEnv });
     child.serviceName = name; child.logFile = logFile;
     child.on('exit', (code) => { child.exited = code; });
     children.push(child);

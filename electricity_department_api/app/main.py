@@ -1,7 +1,8 @@
+import json
 import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles  # pyrefly: ignore[missing-import]
 from pathlib import Path
@@ -63,10 +64,10 @@ This service exposes department-native schemas and operates independently of ext
     ]
 )
 
-# Enable CORS for frontend demo integrations
+# Enable CORS for frontend demo integrations (CORS_ALLOWED_ORIGINS; default *)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -117,6 +118,19 @@ app.include_router(status_router)
 app.include_router(admin_router)
 app.include_router(audit_router)
 app.include_router(portal_router)  # public website views (read-only)
+
+
+# Where Samanvay's portal runs, for the website's links back to Samanvay
+# (index.html loads this): PORTAL_URL in the cloud; locally the page's own
+# hostname + the portal port. Registered before the static mount below.
+@app.get("/samanvay-config.js", include_in_schema=False)
+async def samanvay_config():
+    body = (
+        f"window.SAMANVAY_PORTAL_PORT = {int(settings.PORTAL_PORT)};\n"
+        f"window.SAMANVAY_PORTAL_URL = {json.dumps(settings.PORTAL_URL.rstrip('/') if settings.PORTAL_URL else None)};\n"
+    )
+    return Response(content=body, media_type="application/javascript", headers={"Cache-Control": "no-store"})
+
 
 # Mount the static public directory for the Electricity UI Demo
 _THIS_DIR = Path(__file__).resolve().parent          # …/electricity_department_api/app

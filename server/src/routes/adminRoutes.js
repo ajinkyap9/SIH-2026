@@ -24,21 +24,21 @@ function isAdmin(req) {
 // PUBLIC: Citizen submits an application to a department
 // POST /api/admin/submit
 // ─────────────────────────────────────────────────────────────
-router.post('/submit', (req, res) => {
+router.post('/submit', async (req, res) => {
   const { department, citizenName, citizenPan, projectName, projectType, district, refNumber } = req.body;
 
   if (!department || !citizenName || !citizenPan || !projectName || !projectType) {
     return res.status(400).json({ success: false, message: 'department, citizenName, citizenPan, projectName and projectType are required.' });
   }
 
-  const registeredDepts = getAllDepartments().map(d => d.dept_code.toUpperCase());
-  const validDepts = Array.from(new Set(['LAND', 'ELECTRICITY', 'POLLUTION', ...registeredDepts]));
-  if (!validDepts.includes(department.toUpperCase())) {
-    return res.status(400).json({ success: false, message: `Invalid department. Registered options: ${validDepts.join(', ')}` });
-  }
-
   try {
-    const result = submitDeptApplication({
+    const registeredDepts = (await getAllDepartments()).map(d => d.dept_code.toUpperCase());
+    const validDepts = Array.from(new Set(['LAND', 'ELECTRICITY', 'POLLUTION', ...registeredDepts]));
+    if (!validDepts.includes(department.toUpperCase())) {
+      return res.status(400).json({ success: false, message: `Invalid department. Registered options: ${validDepts.join(', ')}` });
+    }
+
+    const result = await submitDeptApplication({
       department: department.toUpperCase(),
       citizenName,
       citizenPan: citizenPan.toUpperCase(),
@@ -74,12 +74,12 @@ router.post('/submit', (req, res) => {
 // PUBLIC: Citizen checks their application status by PAN
 // GET /api/admin/my-applications?pan=ABCDE1234F
 // ─────────────────────────────────────────────────────────────
-router.get('/my-applications', (req, res) => {
+router.get('/my-applications', async (req, res) => {
   const { pan } = req.query;
   if (!pan) return res.status(400).json({ success: false, message: 'pan query parameter is required.' });
 
   try {
-    const apps = getDeptApplicationsByPan(pan.trim().toUpperCase());
+    const apps = await getDeptApplicationsByPan(pan.trim().toUpperCase());
     return res.json({ success: true, applications: apps });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error fetching applications.' });
@@ -90,14 +90,14 @@ router.get('/my-applications', (req, res) => {
 // ADMIN: List all applications (optionally filter by department)
 // GET /api/admin/applications?department=LAND   (needs x-admin-token header)
 // ─────────────────────────────────────────────────────────────
-router.get('/applications', (req, res) => {
+router.get('/applications', async (req, res) => {
   if (!isAdmin(req)) {
     return res.status(401).json({ success: false, message: 'Unauthorized. Provide x-admin-token header.' });
   }
 
   const { department } = req.query;
   try {
-    const apps = getAllDeptApplications(department ? department.toUpperCase() : null);
+    const apps = await getAllDeptApplications(department ? department.toUpperCase() : null);
     return res.json({ success: true, applications: apps, total: apps.length });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error fetching applications.' });
@@ -109,7 +109,7 @@ router.get('/applications', (req, res) => {
 // POST /api/admin/review   (needs x-admin-token header)
 // Body: { refNo, action: "APPROVED"|"REJECTED", remarks, reviewedBy }
 // ─────────────────────────────────────────────────────────────
-router.post('/review', (req, res) => {
+router.post('/review', async (req, res) => {
   if (!isAdmin(req)) {
     return res.status(401).json({ success: false, message: 'Unauthorized. Provide x-admin-token header.' });
   }
@@ -125,7 +125,7 @@ router.post('/review', (req, res) => {
   }
 
   try {
-    const updated = updateDeptApplicationStatus(refNo, action.toUpperCase(), remarks, reviewedBy || 'Dept Admin');
+    const updated = await updateDeptApplicationStatus(refNo, action.toUpperCase(), remarks, reviewedBy || 'Dept Admin');
     if (!updated || updated.error) {
       return res.status(400).json({ success: false, message: updated?.error || `No application found with ref_no: ${refNo}` });
     }
@@ -158,7 +158,7 @@ router.post('/review', (req, res) => {
 // POST /api/admin/bulk-review
 // Body: { refNos: [...], action: "APPROVED"|"REJECTED", remarks }
 // ─────────────────────────────────────────────────────────────
-router.post('/bulk-review', (req, res) => {
+router.post('/bulk-review', async (req, res) => {
   if (!isAdmin(req)) {
     return res.status(401).json({ success: false, message: 'Unauthorized. Provide x-admin-token header.' });
   }
@@ -170,8 +170,9 @@ router.post('/bulk-review', (req, res) => {
 
   const updatedList = [];
   const io = req.app.get('io');
+  try {
   for (const refNo of refNos) {
-    const updated = updateDeptApplicationStatus(refNo, action.toUpperCase(), remarks, 'Dept Admin');
+    const updated = await updateDeptApplicationStatus(refNo, action.toUpperCase(), remarks, 'Dept Admin');
     if (updated && !updated.error) {
       updatedList.push(updated);
       if (io) {
@@ -185,6 +186,10 @@ router.post('/bulk-review', (req, res) => {
         });
       }
     }
+  }
+  } catch (err) {
+    console.error('[admin/bulk-review] error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to update application status.' });
   }
 
   return res.json({
@@ -212,10 +217,10 @@ router.post('/login', (req, res) => {
 // ─────────────────────────────────────────────────────────────
 
 // GET /api/admin/departments (Public / Admin department list & schema mappings)
-router.get('/departments', (req, res) => {
+router.get('/departments', async (req, res) => {
   try {
-    const depts = getAllDepartments();
-    const mappings = getAllSchemaMappings();
+    const depts = await getAllDepartments();
+    const mappings = await getAllSchemaMappings();
     return res.json({ success: true, departments: depts, mappings: mappings });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to fetch departments.' });
@@ -238,7 +243,7 @@ router.post('/departments/auto-map-schema', (req, res) => {
 });
 
 // POST /api/admin/departments/register
-router.post('/departments/register', (req, res) => {
+router.post('/departments/register', async (req, res) => {
   const { deptCode, deptName, category, endpointUrl, apiPort, serviceName, description, mappings } = req.body;
 
   if (!deptCode || !deptName || !endpointUrl) {
@@ -246,7 +251,7 @@ router.post('/departments/register', (req, res) => {
   }
 
   try {
-    const result = registerNewDepartment({
+    const result = await registerNewDepartment({
       deptCode,
       deptName,
       category,

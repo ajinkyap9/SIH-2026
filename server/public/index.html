@@ -1630,9 +1630,9 @@
       <nav class="footer-col" aria-label="Department websites" data-i18n-aria-label="footer.depts">
         <h2 data-i18n="footer.depts">Department websites</h2>
         <ul class="footer-links-list">
-          <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
-          <li><a href="http://localhost:8001/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
-          <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
+          <li><a href="http://localhost:4000/" data-dept-link="land" data-i18n="index.badgeLand">Land records (7/12)</a></li>
+          <li><a href="http://localhost:8001/" data-dept-link="electricity" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
+          <li><a href="http://localhost:4002/" data-dept-link="pollution" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
         </ul>
       </nav>
       <div class="footer-col">
@@ -1751,6 +1751,17 @@
         });
       });
       select(0, false);
+    })();
+  </script>
+  <script data-ui-added>
+    /* Footer department links: use the deployed URLs from /config.js when set. */
+    (function () {
+      var cfg = window.SAMANVAY_CONFIG || {};
+      var map = { land: cfg.landUrl, electricity: cfg.electricityUrl, pollution: cfg.pollutionUrl };
+      document.querySelectorAll('a[data-dept-link]').forEach(function (a) {
+        var url = map[a.getAttribute('data-dept-link')];
+        if (url) a.href = url + '/';
+      });
     })();
   </script>
 </body>

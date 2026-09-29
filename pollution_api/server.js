@@ -4,17 +4,15 @@ const morgan = require('morgan');
 const pollutionRoutes = require('./routes/pollution');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
+const { PORTS, HOST, PORT, PORTAL_URL, allowOrigin } = require('./utils/serviceConfig');
+
 const app = express();
-// Port and bind address come from the repo-root ports.json (single source of truth).
-const PORTS = require('../ports.json');
-const HOST = PORTS.host;
-const PORT = PORTS.services.pollution.port;
 
 const path = require('path');
 
-// CORS middleware
+// CORS middleware (CORS_ALLOWED_ORIGINS; default *)
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  allowOrigin(req, res);
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-API-Key, X-Correlation-ID');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
@@ -23,6 +21,16 @@ app.use((req, res, next) => {
 
 app.use(morgan('dev'));
 app.use(express.json());
+
+// Where Samanvay's portal runs, for the page's links back to Samanvay
+// (index.html loads this): PORTAL_URL in the cloud; locally the page's own
+// hostname + the portal port from ports.json.
+app.get('/samanvay-config.js', (req, res) => {
+  res.type('application/javascript').set('Cache-Control', 'no-store');
+  res.send(`window.SAMANVAY_PORTAL_PORT = ${Number(PORTS.services.portal.port)};
+window.SAMANVAY_PORTAL_URL = ${JSON.stringify(PORTAL_URL)};
+`);
+});
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -53,10 +61,10 @@ const server = app.listen(PORT, HOST, () => {
   console.log('See README.md for demo API keys and example requests.');
 });
 
-// Fail loudly if the port from ports.json is taken (never drift to another port).
+// Fail loudly if the port is taken (never drift to another port).
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Pollution Department API must run on the port in ports.json — stop the other process and try again.`);
+    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Pollution Department API must run on this port (ports.json, or PORT) — stop the other process and try again.`);
   } else {
     console.error('Server error:', err);
   }

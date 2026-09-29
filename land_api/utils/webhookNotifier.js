@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 
 // Must match WEBHOOK_SECRET in interop_backend/app/routers/webhooks.py
-// Portal address from the repo-root ports.json (single source of truth).
-const PORTS = require('../../ports.json');
-const GATEWAY_WEBHOOK_URL = `http://${PORTS.host}:${PORTS.services.portal.port}/api/webhooks/land-status-changed`;
+// Portal address: PORTAL_URL in the cloud, else ports.json (see serviceConfig.js).
+const { PORTAL_URL_FOR_SERVER } = require('./serviceConfig');
+const GATEWAY_WEBHOOK_URL = `${PORTAL_URL_FOR_SERVER}/api/webhooks/land-status-changed`;
 const WEBHOOK_SECRET = process.env.GATEWAY_WEBHOOK_SECRET || 'GOV-INTEROP-SECRET-KEY';
 
 function signPayload(payloadString) {

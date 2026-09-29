@@ -1,16 +1,12 @@
 import express from 'express';
-import fs from 'fs';
 import { db } from '../db/seedData.js';
+import { LAND_API_URL, ELECTRICITY_API_URL as ELEC_API_URL, POLLUTION_API_URL } from '../serviceUrls.js';
 
 const router = express.Router();
 
 // ─── API Configuration ────────────────────────────────────────────────────────
-// Department addresses come from the repo-root ports.json (single source of truth).
-const PORTS = JSON.parse(fs.readFileSync(new URL('../../../ports.json', import.meta.url), 'utf8'));
-const deptUrl = (name) => `http://${PORTS.host}:${PORTS.services[name].port}`;
-const LAND_API_URL      = deptUrl('land');
-const ELEC_API_URL      = deptUrl('electricity');
-const POLLUTION_API_URL = deptUrl('pollution');
+// Department addresses: LAND_API_URL / ELECTRICITY_API_URL / POLLUTION_API_URL
+// environment variables, else ports.json (local development). See serviceUrls.js.
 const INTEROP_API_KEY  = 'interop-demo-key-001';
 const ELEC_API_KEY     = 'elec_live_interop_key_991';
 

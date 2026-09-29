@@ -3,9 +3,9 @@ import { Server } from 'socket.io';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { initDatabase } from './db/database.js';
+import { HOST, PORT, INTEROP_BACKEND_URL, PUBLIC_DEPARTMENT_URLS, CORS_ORIGIN } from './serviceUrls.js';
 import authRoutes from './routes/authRoutes.js';
 import landRoutes from './routes/landRoutes.js';
 import interopRoutes from './routes/interopRoutes.js';
@@ -15,16 +15,14 @@ import adminRoutes from './routes/adminRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ports and addresses come from the repo-root ports.json (single source of truth).
-const PORTS = JSON.parse(fs.readFileSync(path.join(__dirname, '../../ports.json'), 'utf8'));
-const HOST = PORTS.host;
-const PORT = PORTS.services.portal.port;
+// Listen address and other services' URLs: environment variables first, else
+// the repo-root ports.json (local development). See serviceUrls.js.
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: CORS_ORIGIN,
     methods: ['GET', 'POST']
   }
 });
@@ -38,13 +36,14 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use(cors());
+app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 
-// Runtime config for the browser, generated from ports.json so the dashboard
-// never hard-codes a backend address (it loads this before its own script).
+// Runtime config for the browser (loaded before the pages' own scripts), so no
+// page hard-codes another service's address. Department URLs are null locally,
+// where the pages keep their built-in addresses.
 app.get('/config.js', (req, res) => {
-  const config = { interopBackendUrl: `http://${HOST}:${PORTS.services.interop.port}` };
+  const config = { interopBackendUrl: INTEROP_BACKEND_URL, ...PUBLIC_DEPARTMENT_URLS };
   res.type('application/javascript').set('Cache-Control', 'no-store');
   res.send(`window.SAMANVAY_CONFIG = ${JSON.stringify(config)};\n`);
 });
@@ -80,16 +79,16 @@ initDatabase().then(() => {
   server.listen(PORT, HOST, () => {
     console.log(`=======================================================`);
     console.log(`🏛️  MAITRI Government Interoperability Platform Running!`);
-    console.log(`📡 URL: http://${HOST}:${PORT}  (from ports.json)`);
+    console.log(`📡 URL: http://${HOST}:${PORT}`);
     console.log(`⚡ Real-time Socket.io server active.`);
     console.log(`💾 SQLite Database initialized and ready.`);
     console.log(`=======================================================`);
   });
 
-  // Fail loudly instead of drifting to another port: the port is fixed in ports.json.
+  // Fail loudly instead of drifting to another port.
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} on ${HOST} is already in use. The portal must run on the port in ports.json — stop the other process and try again.`);
+      console.error(`❌ Port ${PORT} on ${HOST} is already in use. The portal must run on this port (ports.json, or PORT) — stop the other process and try again.`);
     } else {
       console.error('Server error:', err);
     }
@@ -97,4 +96,5 @@ initDatabase().then(() => {
   });
 }).catch(err => {
   console.error('Failed to initialize database:', err);
+  process.exit(1);
 });

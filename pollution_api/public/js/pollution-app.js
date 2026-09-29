@@ -9,8 +9,12 @@ const handoff = (() => {
 })();
 
 const SAMANVAY_PORTAL_PORT = window.SAMANVAY_PORTAL_PORT || 5001;
+// Where Samanvay is: the address that opened us (callback); else the deployed
+// portal URL (PORTAL_URL, via /samanvay-config.js); locally, this page's own
+// hostname + the portal port from ports.json.
 const SAMANVAY_ORIGIN = (() => {
   try { if (handoff.callback) return new URL(handoff.callback).origin; } catch (e) { /* bad callback */ }
+  if (window.SAMANVAY_PORTAL_URL) return window.SAMANVAY_PORTAL_URL;
   return `${window.location.protocol}//${window.location.hostname}:${SAMANVAY_PORTAL_PORT}`;
 })();
 const SAMANVAY_API = `${SAMANVAY_ORIGIN}/api/portal`;
@@ -513,6 +517,7 @@ window.addEventListener('DOMContentLoaded', () => {
   ['topSamanvayBtn', 'navSamanvayBtn', 'footerSamanvayBtn'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
+      el.href = `${SAMANVAY_ORIGIN}/dashboard.html?tab=flowchart`;   // for open-in-new-tab
       el.onclick = (e) => {
         e.preventDefault();
         returnToSamanvay();

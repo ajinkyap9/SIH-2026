@@ -173,7 +173,7 @@ Central interoperability engine connecting heterogeneous departmental systems:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,   # CORS_ALLOWED_ORIGINS; default *
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

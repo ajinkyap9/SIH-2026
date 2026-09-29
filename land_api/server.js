@@ -5,29 +5,29 @@ const path = require('path');
 const landRoutes = require('./routes/land');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
+const { PORTS, HOST, PORT, PORTAL_URL, allowOrigin } = require('./utils/serviceConfig');
+
 const app = express();
-// Port and bind address come from the repo-root ports.json (single source of truth).
-const PORTS = require('../ports.json');
-const HOST = PORTS.host;
-const PORT = PORTS.services.land.port;
 
 app.use(morgan('dev'));
 app.use(express.json());
 
 // Serve the independent Land Department website
-// Where Samanvay's portal runs (port from ports.json), for the Land website's
-// "Return to Samanvay" button when the page was not opened from Samanvay.
+// Where Samanvay's portal runs, for the Land website's "Return to Samanvay"
+// button when the page was not opened from Samanvay: PORTAL_URL in the cloud;
+// locally the page's own hostname + the portal port from ports.json.
 app.get('/samanvay-config.js', (req, res) => {
   res.type('application/javascript').set('Cache-Control', 'no-store');
   res.send(`window.SAMANVAY_PORTAL_PORT = ${Number(PORTS.services.portal.port)};
+window.SAMANVAY_PORTAL_URL = ${JSON.stringify(PORTAL_URL)};
 `);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CORS for frontend
+// CORS for frontend (CORS_ALLOWED_ORIGINS; default *)
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  allowOrigin(req, res);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
@@ -62,10 +62,10 @@ const server = app.listen(PORT, HOST, () => {
   console.log('See README.md for demo API keys and example requests.');
 });
 
-// Fail loudly if the port from ports.json is taken (never drift to another port).
+// Fail loudly if the port is taken (never drift to another port).
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Land Department API must run on the port in ports.json — stop the other process and try again.`);
+    console.error(`❌ Port ${PORT} on ${HOST} is already in use. Land Department API must run on this port (ports.json, or PORT) — stop the other process and try again.`);
   } else {
     console.error('Server error:', err);
   }

@@ -24,10 +24,11 @@ const handoff = (() => {
   };
 })();
 // Where Samanvay is: the exact address that opened us (callback) if there is one;
-// otherwise this page's own hostname + the portal port published from ports.json.
-// Never a hard-coded port.
+// else the deployed portal URL (PORTAL_URL, via /samanvay-config.js); locally,
+// this page's own hostname + the portal port published from ports.json.
 const SAMANVAY_ORIGIN = (() => {
   try { if (handoff.callback) return new URL(handoff.callback).origin; } catch (e) { /* bad callback */ }
+  if (window.SAMANVAY_PORTAL_URL) return window.SAMANVAY_PORTAL_URL;
   const port = window.SAMANVAY_PORTAL_PORT || 5001;
   return `${window.location.protocol}//${window.location.hostname}:${port}`;
 })();
@@ -815,7 +816,7 @@ function renderLandStatusPending(container, refNo, surveyNumber) {
       </div>
       <div style="font-size: 0.88rem; margin-top: 6px;">अर्ज संदर्भ क्रमांक (Ref): <strong>${refNo}</strong> (गट क्र. ${surveyNumber})</div>
       <div style="font-size: 0.84rem; color: #92400e; margin-top: 6px;">
-        तुमचा अर्ज विभाग प्रशासक <a href="http://127.0.0.1:5001/admin.html" target="_blank" style="color: #1e3a8a; font-weight: 700;">/admin.html</a> मध्ये छाननीखाली आहे. प्रशासकाकडून मंजुरी मिळाल्यावरच 'समन्वय पोर्टलवर परत जा' बटण उघडेल.
+        तुमचा अर्ज विभाग प्रशासक <a href="${SAMANVAY_ORIGIN}/admin.html" target="_blank" style="color: #1e3a8a; font-weight: 700;">/admin.html</a> मध्ये छाननीखाली आहे. प्रशासकाकडून मंजुरी मिळाल्यावरच 'समन्वय पोर्टलवर परत जा' बटण उघडेल.
       </div>
     </div>
   `;

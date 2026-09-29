@@ -10,7 +10,10 @@
 
 const API = '/api/electricity';
 const SAMANVAY_PORTAL_PORT = window.SAMANVAY_PORTAL_PORT || 5001;
-const SAMANVAY_ORIGIN = `${window.location.protocol}//${window.location.hostname}:${SAMANVAY_PORTAL_PORT}`;
+// Deployed portal URL (PORTAL_URL, via /samanvay-config.js); locally this page's
+// own hostname + the portal port from ports.json.
+const SAMANVAY_ORIGIN = window.SAMANVAY_PORTAL_URL
+  || `${window.location.protocol}//${window.location.hostname}:${SAMANVAY_PORTAL_PORT}`;
 const SAMANVAY_PORTAL_API = `${SAMANVAY_ORIGIN}/api/portal`;
 
 let zones = [];

@@ -1937,9 +1937,9 @@
       <nav class="footer-col" aria-label="Department websites" data-i18n-aria-label="footer.depts">
         <h2 data-i18n="footer.depts">Department websites</h2>
         <ul class="footer-links-list">
-          <li><a href="http://localhost:4000/" data-i18n="index.badgeLand">Land records (7/12)</a></li>
-          <li><a href="http://localhost:8001/" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
-          <li><a href="http://localhost:4002/" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
+          <li><a href="http://localhost:4000/" data-dept-link="land" data-i18n="index.badgeLand">Land records (7/12)</a></li>
+          <li><a href="http://localhost:8001/" data-dept-link="electricity" data-i18n="index.badgeElec">Electricity connection (MSEDCL)</a></li>
+          <li><a href="http://localhost:4002/" data-dept-link="pollution" data-i18n="index.badgePoll">Pollution permission (MPCB)</a></li>
         </ul>
       </nav>
       <div class="footer-col">
@@ -2780,6 +2780,14 @@
     // ==========================================
     const EXTERNAL_PORTAL_APP_ID = 'SAMANVAY-' + Date.now().toString().slice(-6);
 
+    // Department websites: from /config.js in the cloud (LAND_API_URL etc. on the
+    // portal); unset locally, where the built-in local addresses are used.
+    const DEPT_WEBSITE = {
+      land: (window.SAMANVAY_CONFIG || {}).landUrl || 'http://localhost:4000',
+      electricity: (window.SAMANVAY_CONFIG || {}).electricityUrl || 'http://localhost:8001',
+      pollution: (window.SAMANVAY_CONFIG || {}).pollutionUrl || 'http://localhost:4002',
+    };
+
     function openExternalPortalLandService() {
       const currentUrl = window.location.origin + window.location.pathname;
       const surveyVal = document.getElementById('appLandSurvey')?.value || '';
@@ -2788,7 +2796,7 @@
       const applicantName = citizen?.organizationName || citizen?.fullName || '';
       const applicantEmail = citizen?.email || '';
       const applicantMobile = citizen?.mobile || '';
-      const landPortalUrl = `http://localhost:4000/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(currentUrl)}&survey=${encodeURIComponent(surveyVal)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}`;
+      const landPortalUrl = `${DEPT_WEBSITE.land}/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(currentUrl)}&survey=${encodeURIComponent(surveyVal)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}`;
       window.open(landPortalUrl, '_blank');
     }
 
@@ -2802,7 +2810,7 @@
       const applicantName = citizen?.organizationName || citizen?.fullName || '';
       const applicantEmail = citizen?.email || '';
       const applicantMobile = citizen?.mobile || '';
-      const electricityPortalUrl = `http://localhost:8001/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&req_load=300`;
+      const electricityPortalUrl = `${DEPT_WEBSITE.electricity}/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&req_load=300`;
       window.open(electricityPortalUrl, '_blank');
     }
 
@@ -2817,7 +2825,7 @@
       const applicantName = citizen?.organizationName || citizen?.fullName || '';
       const applicantEmail = citizen?.email || '';
       const applicantMobile = citizen?.mobile || '';
-      const pollutionPortalUrl = `http://localhost:4002/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&industry=Manufacturing`;
+      const pollutionPortalUrl = `${DEPT_WEBSITE.pollution}/?app_id=${EXTERNAL_PORTAL_APP_ID}&callback=${encodeURIComponent(callbackUrl)}&pan=${encodeURIComponent(panVal)}&applicant=${encodeURIComponent(applicantName)}&email=${encodeURIComponent(applicantEmail)}&mobile=${encodeURIComponent(applicantMobile)}&project=Industrial%20Unit&industry=Manufacturing`;
       window.open(pollutionPortalUrl, '_blank');
     }
 
@@ -3320,6 +3328,17 @@
           card.hidden = false;
         } catch (e) { /* leave the card hidden */ }
       }
+    })();
+  </script>
+  <script data-ui-added>
+    /* Footer department links: use the deployed URLs from /config.js when set. */
+    (function () {
+      var cfg = window.SAMANVAY_CONFIG || {};
+      var map = { land: cfg.landUrl, electricity: cfg.electricityUrl, pollution: cfg.pollutionUrl };
+      document.querySelectorAll('a[data-dept-link]').forEach(function (a) {
+        var url = map[a.getAttribute('data-dept-link')];
+        if (url) a.href = url + '/';
+      });
     })();
   </script>
 </body>

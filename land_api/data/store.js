@@ -12,7 +12,17 @@ const ferfarRecords = new Map(ferfarData.map((f) => [String(f.ferfar_no), { ...f
 
 const VALID_MUTATION_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'UNDER_OBJECTION'];
 
+// DATABASE_URL in the cloud; the local default otherwise.
 const pgConnectionString = process.env.DATABASE_URL || 'postgresql://postgres:Ajinkya%401115@localhost:5432/land_department';
+// REQUIRE_POSTGRES=true (set in production): exit instead of falling back to the JSON records.
+const REQUIRE_POSTGRES = /^(1|true|yes)$/i.test(process.env.REQUIRE_POSTGRES || '');
+function postgresUnavailable(message) {
+  if (REQUIRE_POSTGRES) {
+    console.error(`[Land API] REQUIRE_POSTGRES is set but PostgreSQL (DATABASE_URL) is unavailable: ${message}`);
+    process.exit(1);
+  }
+  console.warn('[Land API] PostgreSQL unavailable, using local fallback:', message);
+}
 let pool = null;
 
 try {
@@ -41,11 +51,11 @@ try {
       });
       console.log(`[Land API] Connected to PostgreSQL (land_department) — ${res.rows.length} records loaded.`);
     } else if (err) {
-      console.warn('[Land API] PostgreSQL query error, using local fallback:', err.message);
+      postgresUnavailable(err.message || err.code || String(err));
     }
   });
 } catch (e) {
-  console.warn('[Land API] PostgreSQL connection error, using local fallback:', e.message);
+  postgresUnavailable(e.message || e.code || String(e));
 }
 
 function getDivisionsData() {

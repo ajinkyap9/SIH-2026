@@ -91,7 +91,7 @@ router.post('/status-check', async (req, res) => {
 });
 
 // POST /api/portal/feedback - Submit feedback or grievance
-router.post('/feedback', (req, res) => {
+router.post('/feedback', async (req, res) => {
   const { name, email, category, rating, message } = req.body;
 
   if (!name || !email || !message) {
@@ -99,7 +99,7 @@ router.post('/feedback', (req, res) => {
   }
 
   try {
-    createFeedback({
+    await createFeedback({
       name: name.trim(),
       email: email.trim(),
       category: category || 'GENERAL',
